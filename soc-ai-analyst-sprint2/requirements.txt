@@ -1,0 +1,7 @@
+fastapi==0.142.1
+pydantic==2.13.5
+uvicorn==0.54.0
+rfc3339-validator==0.1.4
+
+mcp==1.30.0
+langgraph==1.2.14

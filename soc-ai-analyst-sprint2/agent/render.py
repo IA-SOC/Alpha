@@ -1,0 +1,93 @@
+"""Reporte legible según skills/soc-case-investigator/templates/reporte.md."""
+from typing import Any, Dict, List
+
+
+def _ids(ids: List[str]) -> str:
+    return ", ".join(ids) if ids else "—"
+
+
+def render_markdown(report: Dict[str, Any]) -> str:
+    inp = report["input"]
+    window = inp.get("time_window_utc") or {}
+    blast = report["blast_radius"]
+    lines = [
+        "# Reporte de investigación SOC — borrador",
+        "",
+        "## Caso y alcance",
+        f"- ID del caso: {report['case_id']}",
+        f"- Fuente/esquema y versión: {inp['source_format']} / {inp.get('schema_version') or 'no declarada'}",
+        f"- Alertas recibidas / procesadas: {inp['alert_count']} / {inp['processed_alert_count']}",
+        f"- Ventana temporal: {window.get('start', '?')} → {window.get('end', '?')}",
+        f"- Limitaciones de entrada: {'; '.join(inp.get('missing_fields') or []) or 'ninguna detectada'}",
+        "",
+        "## Resumen",
+        report["executive_summary"],
+        "",
+        "## Hipótesis ordenadas",
+    ]
+    if not report["hypotheses"]:
+        lines.append("_Sin hipótesis sostenidas por los datos._")
+    for h in report["hypotheses"]:
+        lines += [
+            f"### {h['rank']}. {h['statement']} — confianza: {h['confidence']}",
+            f"- Base de confianza: {h['confidence_basis']}",
+            f"- Evidencia a favor: {_ids([e['alert_id'] for e in h['evidence_for']])}",
+            f"- Evidencia en contra: {_ids([e['alert_id'] for e in h['evidence_against']])}",
+            f"- Alternativas plausibles: {'; '.join(h.get('alternatives') or []) or '—'}",
+            f"- Información que falta: {'; '.join(h['unknowns']) or '—'}",
+            "",
+        ]
+        for evidence in h.get("ioc_evidence", []):
+            lines.append(f"- IoC: {evidence['evidence_id']} ({evidence['provider']}), "
+                         f"alerta {evidence['alert_id']}, origen {evidence['source_path']}.")
+    if report.get("correlation"):
+        lines += ["", "## Correlación de alertas"]
+        for rel in report["correlation"]["relationships"]:
+            lines.append(f"- {rel['relationship_id']}: {_ids(rel['alert_ids'])} — "
+                         f"{rel['classification']} ({rel['rule']}). {rel['explanation']}.")
+    lines += ["## Mapeo MITRE ATT&CK", "| Táctica | Técnica (ID y nombre) | Estado | Evidencia referenciada |", "|---|---|---|---|"]
+    for m in report["attack_mapping"]:
+        lines.append(f"| {m['tactic']} | {m['technique_id']} {m['technique_name']} | {m['status']} | "
+                     f"{_ids([e['alert_id'] for e in m['evidence']])} |")
+    lines += ["", "## Línea de tiempo", "| Hora original | Hora UTC / estado de zona | Evento observado o inferido | Alertas fuente |", "|---|---|---|---|"]
+    for t in report["timeline"]:
+        utc = t["timestamp_utc"] or ("zona desconocida" if t["timezone_unknown"] else "sin timestamp")
+        lines.append(f"| {t['timestamp_original'] or '—'} | {utc} | {t['description']} ({t['certainty']}) | {_ids(t['alert_ids'])} |")
+    lines += [
+        "",
+        "## Blast radius",
+        "- Activos observados (no equivale a compromiso): "
+        + ("; ".join(f"{a['asset']} [{_ids(a['basis_alert_ids'])}]" for a in blast["observed_assets"]) or "—"),
+        "- Activos con impacto confirmado: "
+        + ("; ".join(a["asset"] for a in blast["confirmed_assets"]) or "ninguno"),
+        "- Sospechosos: " + ("; ".join(f"{a['asset']} [{_ids(a['basis_alert_ids'])}]" for a in blast["suspected_assets"]) or "—"),
+        "- Identidades afectadas (sospechosas): "
+        + ("; ".join(f"{i['identity']} [{_ids(i['basis_alert_ids'])}]" for i in blast.get("suspected_identities", [])) or "—"),
+        "- Desconocidos / brechas de telemetría: " + "; ".join(blast["unknowns"]),
+        "",
+        "## IoC enriquecidos provistos",
+        f"Estado: {report['enrichment']['status']}. {report['enrichment'].get('note') or ''}",
+    ]
+    for item in report["enrichment"]["items"]:
+        lines.append(f"- {item.get('indicator') or item.get('value')} ({item.get('type')}, "
+                     f"veredicto {item.get('verdict', 'no interpretado')}, fuente {item.get('source')}) "
+                     f"→ alertas: {_ids(item['matched_alert_ids'])}")
+        if item.get("associations"):
+            lines.append("  Asociaciones: " + "; ".join(
+                f"{a['alert_id']} ({', '.join(a['methods'])})" for a in item["associations"]))
+    lines += ["", "## Acciones recomendadas"]
+    for i, a in enumerate(report["recommended_actions"], start=1):
+        lines.append(f"{i}. [{a['priority']}] {a['action']} — {a['rationale']} Evidencia: {_ids(a['evidence_ids'])}. "
+                     "Requiere aprobación humana.")
+    if not report["recommended_actions"]:
+        lines.append("_Sin acciones propuestas._")
+    lines += ["", "## Limitaciones"] + [f"- {l}" for l in report["limitations"]]
+    review = report["review"]
+    lines += [
+        "",
+        "## Revisión humana",
+        f"- Estado: {review['status']}",
+        f"- Analista: {review.get('analyst') or '—'}",
+        f"- Correcciones/notas: {review.get('notes') or '—'}",
+    ]
+    return "\n".join(lines) + "\n"

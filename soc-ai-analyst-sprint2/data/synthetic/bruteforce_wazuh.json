@@ -1,0 +1,18 @@
+{
+  "case_id": "SYN-BF-WAZUH-002",
+  "synthetic": true,
+  "description": "Fuerza bruta SSH con login exitoso y sudo en web-01; SSH interno a db-02 que coincide con un job de respaldo legítimo.",
+  "alerts": [
+    {"id": "1726387331.1001", "timestamp": "2026-09-15T03:02:11.000-0500", "rule": {"id": "5710", "level": 5, "description": "sshd: attempt to login using a non-existent user", "groups": ["syslog", "sshd", "invalid_login", "brute_force"]}, "agent": {"id": "003", "name": "web-01"}, "data": {"srcip": "203.0.113.88", "dstuser": "deploy"}},
+    {"id": "1726387335.1002", "timestamp": "2026-09-15T03:02:15.000-0500", "rule": {"id": "5716", "level": 5, "description": "sshd: authentication failed", "groups": ["syslog", "sshd", "authentication_failed"]}, "agent": {"id": "003", "name": "web-01"}, "data": {"srcip": "203.0.113.88", "dstuser": "deploy"}},
+    {"id": "1726387340.1003", "timestamp": "2026-09-15T03:02:20.000-0500", "rule": {"id": "5763", "level": 10, "description": "sshd: brute force trying to get access to the system", "groups": ["syslog", "sshd", "authentication_failures"]}, "agent": {"id": "003", "name": "web-01"}, "data": {"srcip": "203.0.113.88", "dstuser": "deploy"}},
+    {"id": "1726387402.1004", "timestamp": "2026-09-15T03:03:22.000-0500", "rule": {"id": "5715", "level": 3, "description": "sshd: authentication success", "groups": ["syslog", "sshd", "authentication_success"]}, "agent": {"id": "003", "name": "web-01"}, "data": {"srcip": "203.0.113.88", "dstuser": "deploy"}},
+    {"id": "1726387500.1005", "timestamp": "2026-09-15T03:05:00.000-0500", "rule": {"id": "5402", "level": 3, "description": "Successful sudo to ROOT executed", "groups": ["syslog", "sudo"]}, "agent": {"id": "003", "name": "web-01"}, "data": {"srcuser": "deploy", "dstuser": "root", "command": "/bin/bash"}},
+    {"id": "1726388100.1006", "timestamp": "2026-09-15T03:15:00.000-0500", "rule": {"id": "100210", "level": 8, "description": "Internal SSH login from web tier to database tier", "groups": ["sshd", "lateral_movement"]}, "agent": {"id": "007", "name": "db-02"}, "data": {"srcip": "10.0.1.10", "dstuser": "svc_backup"}},
+    {"id": "1726388101.1007", "timestamp": "2026-09-15T03:15:01.000-0500", "rule": {"id": "100300", "level": 3, "description": "Scheduled backup timer started (backup-nightly.timer)", "groups": ["systemd", "backup", "scheduled_task"]}, "agent": {"id": "007", "name": "db-02"}, "data": {"dstuser": "svc_backup"}},
+    {"id": "1726388160.1008", "timestamp": "2026-09-15T03:16:00.000-0500", "rule": {"id": "100301", "level": 4, "description": "tar archive created under /var/backups", "groups": ["audit", "backup"]}, "agent": {"id": "007", "name": "db-02"}, "data": {"dstuser": "svc_backup", "command": "tar czf /var/backups/db-20260915.tgz /var/lib/postgresql"}}
+  ],
+  "enrichment": [
+    {"indicator": "203.0.113.88", "type": "ip", "verdict": "malicious", "source": "feed-simulado-n8n", "retrieved_at": "2026-09-15T08:20:00Z", "note": "IP de TEST-NET-3 (documentación); reputación ficticia"}
+  ]
+}

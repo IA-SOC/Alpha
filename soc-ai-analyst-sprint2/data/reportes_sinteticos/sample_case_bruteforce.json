@@ -1,0 +1,330 @@
+{
+  "case_id": "CASE-0001",
+  "generated_at": "2026-09-30T03:08:36.729136Z",
+  "methodology": {
+    "skill": "soc-case-investigator",
+    "report_schema": "urn:soc-investigation-report:schema:1.1",
+    "engine": "LangGraph + MCP servers (reglas deterministas)",
+    "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+  },
+  "input": {
+    "source_format": "unknown",
+    "schema_version": null,
+    "alert_count": 4,
+    "processed_alert_count": 4,
+    "time_window_utc": {
+      "start": "2026-09-10T02:14:00Z",
+      "end": "2026-09-10T03:10:00Z"
+    },
+    "missing_fields": [],
+    "warnings": [
+      "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    ]
+  },
+  "executive_summary": "Caso CASE-0001: 4 alertas procesadas. Secuencia de ataque sugerida: Brute Force (T1110, táctica: Credential Access) → Remote Services (T1021, táctica: Lateral Movement). Hipótesis principal: Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-DB-01, WKS-15. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "attack_mapping": [
+    {
+      "tactic": "Lateral Movement",
+      "technique_id": "T1021",
+      "technique_name": "Remote Services",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "a3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "smb_admin_share_access en WKS-15 (usuario jgomez)",
+          "relevance": "Señal que coincide con el patrón de Remote Services."
+        },
+        {
+          "alert_id": "a4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "remote_exec_detected en SRV-DB-01 (usuario jgomez)",
+          "relevance": "Señal que coincide con el patrón de Remote Services."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    },
+    {
+      "tactic": "Credential Access",
+      "technique_id": "T1110",
+      "technique_name": "Brute Force",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "a1",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "multiple_auth_failures en WKS-15 (usuario jgomez)",
+          "relevance": "Señal que coincide con el patrón de Brute Force."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    }
+  ],
+  "hypotheses": [
+    {
+      "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-DB-01, WKS-15.",
+      "confidence": "media",
+      "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
+      "evidence_for": [
+        {
+          "alert_id": "a3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "smb_admin_share_access en WKS-15 (usuario jgomez)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "a4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "remote_exec_detected en SRV-DB-01 (usuario jgomez)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Tarea administrativa o de respaldo legítima entre servidores."
+      ],
+      "unknowns": [
+        "Falta confirmar si la sesión remota tenía un cambio aprobado."
+      ],
+      "rank": 1
+    },
+    {
+      "statement": "Actividad compatible con Brute Force (T1110, táctica Credential Access) en WKS-15.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
+        {
+          "alert_id": "a1",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "multiple_auth_failures en WKS-15 (usuario jgomez)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Usuario legítimo que olvidó su contraseña o script con credenciales vencidas."
+      ],
+      "unknowns": [
+        "No hay telemetría de EDR que confirme ejecución posterior al acceso."
+      ],
+      "rank": 2
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp_original": "2026-09-10T02:14:00Z",
+      "timestamp_utc": "2026-09-10T02:14:00Z",
+      "timezone_unknown": false,
+      "description": "multiple_auth_failures en host WKS-15 (usuario: jgomez)",
+      "stage": "initial_access",
+      "alert_ids": [
+        "a1"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-10T02:20:00Z",
+      "timestamp_utc": "2026-09-10T02:20:00Z",
+      "timezone_unknown": false,
+      "description": "successful_login_after_failures en host WKS-15 (usuario: jgomez)",
+      "stage": "progression",
+      "alert_ids": [
+        "a2"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-10T02:45:00Z",
+      "timestamp_utc": "2026-09-10T02:45:00Z",
+      "timezone_unknown": false,
+      "description": "smb_admin_share_access en host WKS-15 (usuario: jgomez)",
+      "stage": "progression",
+      "alert_ids": [
+        "a3"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-10T03:10:00Z",
+      "timestamp_utc": "2026-09-10T03:10:00Z",
+      "timezone_unknown": false,
+      "description": "remote_exec_detected en host SRV-DB-01 (usuario: jgomez)",
+      "stage": "progression",
+      "alert_ids": [
+        "a4"
+      ],
+      "certainty": "observed"
+    }
+  ],
+  "blast_radius": {
+    "observed_assets": [
+      {
+        "asset": "WKS-15",
+        "basis_alert_ids": [
+          "a1",
+          "a2",
+          "a3"
+        ],
+        "observed_activity": "multiple_auth_failures; successful_login_after_failures; smb_admin_share_access"
+      },
+      {
+        "asset": "SRV-DB-01",
+        "basis_alert_ids": [
+          "a4"
+        ],
+        "observed_activity": "remote_exec_detected"
+      }
+    ],
+    "confirmed_assets": [],
+    "suspected_assets": [
+      {
+        "asset": "WKS-15",
+        "basis_alert_ids": [
+          "a3"
+        ]
+      },
+      {
+        "asset": "SRV-DB-01",
+        "basis_alert_ids": [
+          "a4"
+        ]
+      }
+    ],
+    "confirmed_identities": [],
+    "suspected_identities": [
+      {
+        "identity": "jgomez",
+        "basis_alert_ids": [
+          "a3",
+          "a4"
+        ]
+      }
+    ],
+    "unknowns": [
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+    ]
+  },
+  "enrichment": {
+    "status": "no_disponible",
+    "items": [],
+    "note": "El caso no trae enriquecimiento de IoC; no se hicieron consultas externas."
+  },
+  "recommended_actions": [
+    {
+      "priority": "high",
+      "action": "Aislar los hosts involucrados de la red",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "a3",
+        "a4"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "high",
+      "action": "Revisar reglas de segmentación entre los hosts afectados",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "a3",
+        "a4"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "medium",
+      "action": "Forzar rotación de credenciales de las cuentas involucradas",
+      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "evidence_ids": [
+        "a1"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "medium",
+      "action": "Habilitar/reforzar MFA en los hosts afectados",
+      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "evidence_ids": [
+        "a1"
+      ],
+      "requires_human_approval": true
+    }
+  ],
+  "limitations": [
+    "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+    "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+    "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+  ],
+  "audit_trail": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-09-30T03:08:29.869473Z",
+      "duration_ms": 0,
+      "detail": "4 alertas, formato unknown"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-09-30T03:08:34.638810Z",
+      "duration_ms": 4768,
+      "detail": "2 técnicas candidatas, 2 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-09-30T03:08:36.727655Z",
+      "duration_ms": 2088,
+      "detail": "4 eventos, 2 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-09-30T03:08:36.728452Z",
+      "duration_ms": 0,
+      "detail": "estado no_disponible, 0 IoC"
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "analyst": null,
+    "notes": null,
+    "reviewed_at": null
+  }
+}

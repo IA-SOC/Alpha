@@ -1,0 +1,141 @@
+{
+  "case_id": "SYN-BENIGN-005",
+  "generated_at": "2026-09-30T03:08:44.261626Z",
+  "methodology": {
+    "skill": "soc-case-investigator",
+    "report_schema": "urn:soc-investigation-report:schema:1.1",
+    "engine": "LangGraph + MCP servers (reglas deterministas)",
+    "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+  },
+  "input": {
+    "source_format": "unknown",
+    "schema_version": null,
+    "alert_count": 3,
+    "processed_alert_count": 3,
+    "time_window_utc": {
+      "start": "2026-09-18T09:00:00Z",
+      "end": "2026-09-18T09:00:00Z"
+    },
+    "missing_fields": [
+      "bn-3: timestamp"
+    ],
+    "warnings": [
+      "bn-2: timestamp sin zona horaria (2026-09-18 09:30:00); no se asume UTC.",
+      "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    ]
+  },
+  "executive_summary": "Caso SYN-BENIGN-005: 3 alertas procesadas. Ninguna coincide con el catálogo de técnicas; no se sostiene una hipótesis de ataque con estos datos.",
+  "attack_mapping": [],
+  "hypotheses": [],
+  "timeline": [
+    {
+      "timestamp_original": null,
+      "timestamp_utc": null,
+      "timezone_unknown": false,
+      "description": "service_restarted en host WKS-40",
+      "stage": "progression",
+      "alert_ids": [
+        "bn-3"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-18 09:30:00",
+      "timestamp_utc": null,
+      "timezone_unknown": true,
+      "description": "authorized_vulnerability_scan en host SCANNER-01",
+      "stage": "progression",
+      "alert_ids": [
+        "bn-2"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-18T09:00:00Z",
+      "timestamp_utc": "2026-09-18T09:00:00Z",
+      "timezone_unknown": false,
+      "description": "software_update_installed en host WKS-40 (usuario: sccm_svc)",
+      "stage": "progression",
+      "alert_ids": [
+        "bn-1"
+      ],
+      "certainty": "observed"
+    }
+  ],
+  "blast_radius": {
+    "observed_assets": [
+      {
+        "asset": "WKS-40",
+        "basis_alert_ids": [
+          "bn-1",
+          "bn-3"
+        ],
+        "observed_activity": "software_update_installed; service_restarted"
+      },
+      {
+        "asset": "SCANNER-01",
+        "basis_alert_ids": [
+          "bn-2"
+        ],
+        "observed_activity": "authorized_vulnerability_scan"
+      }
+    ],
+    "confirmed_assets": [],
+    "suspected_assets": [],
+    "confirmed_identities": [],
+    "suspected_identities": [],
+    "unknowns": [
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+    ]
+  },
+  "enrichment": {
+    "status": "no_disponible",
+    "items": [],
+    "note": "El caso no trae enriquecimiento de IoC; no se hicieron consultas externas."
+  },
+  "recommended_actions": [],
+  "limitations": [
+    "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+    "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+    "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+    "Caso sintético: la confianza se limita a 'media' como máximo.",
+    "bn-2: timestamp sin zona horaria (2026-09-18 09:30:00); no se asume UTC.",
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+  ],
+  "audit_trail": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-09-30T03:08:38.017055Z",
+      "duration_ms": 0,
+      "detail": "3 alertas, formato unknown"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-09-30T03:08:42.128695Z",
+      "duration_ms": 4111,
+      "detail": "0 técnicas candidatas, 0 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-09-30T03:08:44.260135Z",
+      "duration_ms": 2130,
+      "detail": "3 eventos, 2 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-09-30T03:08:44.260925Z",
+      "duration_ms": 0,
+      "detail": "estado no_disponible, 0 IoC"
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "analyst": null,
+    "notes": null,
+    "reviewed_at": null
+  }
+}

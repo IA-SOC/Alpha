@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "case_id": "INC-SPRINT2-NO-ENRICHMENT-001",
+  "submitted_at": "2026-10-02T20:15:00-05:00",
+  "alerts": [
+    {
+      "alert_id": "wazuh-auth-001",
+      "source_system": "wazuh",
+      "raw_alert": {"id": "wazuh-auth-001", "agent": {"name": "endpoint-01"}}
+    }
+  ]
+}

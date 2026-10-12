@@ -1,0 +1,401 @@
+{
+  "case_id": "SYN-RANSOM-004",
+  "generated_at": "2026-09-30T03:09:14.065925Z",
+  "methodology": {
+    "skill": "soc-case-investigator",
+    "report_schema": "urn:soc-investigation-report:schema:1.1",
+    "engine": "LangGraph + MCP servers (reglas deterministas)",
+    "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+  },
+  "input": {
+    "source_format": "unknown",
+    "schema_version": null,
+    "alert_count": 5,
+    "processed_alert_count": 5,
+    "time_window_utc": {
+      "start": "2026-09-17T01:00:00Z",
+      "end": "2026-09-17T01:13:00Z"
+    },
+    "missing_fields": [],
+    "warnings": [
+      "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    ]
+  },
+  "executive_summary": "Caso SYN-RANSOM-004: 5 alertas procesadas. Secuencia de ataque sugerida: Remote Services (T1021, táctica: Lateral Movement) → Data Encrypted for Impact (T1486, táctica: Impact). Hipótesis principal: Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-APP-02, SRV-FILE-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "attack_mapping": [
+    {
+      "tactic": "Impact",
+      "technique_id": "T1486",
+      "technique_name": "Data Encrypted for Impact",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "rw-3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "shadow_copy_deleted en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact."
+        },
+        {
+          "alert_id": "rw-4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "mass_file_encryption en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact."
+        },
+        {
+          "alert_id": "rw-5",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "ransom_note_created en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    },
+    {
+      "tactic": "Lateral Movement",
+      "technique_id": "T1021",
+      "technique_name": "Remote Services",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "rw-1",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "smb_admin_share_access en SRV-APP-02 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Remote Services."
+        },
+        {
+          "alert_id": "rw-2",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "remote_exec_psexec_service en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Remote Services."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    }
+  ],
+  "hypotheses": [
+    {
+      "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-APP-02, SRV-FILE-01.",
+      "confidence": "media",
+      "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
+      "evidence_for": [
+        {
+          "alert_id": "rw-1",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "smb_admin_share_access en SRV-APP-02 (usuario adm_it)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "rw-2",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "remote_exec_psexec_service en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Tarea administrativa o de respaldo legítima entre servidores."
+      ],
+      "unknowns": [
+        "Falta confirmar si la sesión remota tenía un cambio aprobado."
+      ],
+      "rank": 1
+    },
+    {
+      "statement": "Actividad compatible con Data Encrypted for Impact (T1486, táctica Impact) en SRV-FILE-01.",
+      "confidence": "media",
+      "confidence_basis": "3 alertas con 3 reglas distintas coinciden. Se ajusta a la baja: el caso es sintético.",
+      "evidence_for": [
+        {
+          "alert_id": "rw-3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "shadow_copy_deleted en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "rw-4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "mass_file_encryption en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "rw-5",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "ransom_note_created en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Cifrado o limpieza legítima por software de respaldo/DLP."
+      ],
+      "unknowns": [
+        "Se desconoce el alcance total de archivos afectados y el estado de backups."
+      ],
+      "rank": 2
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp_original": "2026-09-17T01:00:00Z",
+      "timestamp_utc": "2026-09-17T01:00:00Z",
+      "timezone_unknown": false,
+      "description": "smb_admin_share_access en host SRV-APP-02 (usuario: adm_it)",
+      "stage": "progression",
+      "alert_ids": [
+        "rw-1"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-17T01:04:00Z",
+      "timestamp_utc": "2026-09-17T01:04:00Z",
+      "timezone_unknown": false,
+      "description": "remote_exec_psexec_service en host SRV-FILE-01 (usuario: adm_it)",
+      "stage": "progression",
+      "alert_ids": [
+        "rw-2"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-17T01:09:00Z",
+      "timestamp_utc": "2026-09-17T01:09:00Z",
+      "timezone_unknown": false,
+      "description": "shadow_copy_deleted en host SRV-FILE-01 (usuario: adm_it)",
+      "stage": "impact",
+      "alert_ids": [
+        "rw-3"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-17T01:12:00Z",
+      "timestamp_utc": "2026-09-17T01:12:00Z",
+      "timezone_unknown": false,
+      "description": "mass_file_encryption en host SRV-FILE-01 (usuario: adm_it)",
+      "stage": "impact",
+      "alert_ids": [
+        "rw-4"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-17T01:13:00Z",
+      "timestamp_utc": "2026-09-17T01:13:00Z",
+      "timezone_unknown": false,
+      "description": "ransom_note_created en host SRV-FILE-01 (usuario: adm_it)",
+      "stage": "impact",
+      "alert_ids": [
+        "rw-5"
+      ],
+      "certainty": "observed"
+    }
+  ],
+  "blast_radius": {
+    "observed_assets": [
+      {
+        "asset": "SRV-APP-02",
+        "basis_alert_ids": [
+          "rw-1"
+        ],
+        "observed_activity": "smb_admin_share_access"
+      },
+      {
+        "asset": "SRV-FILE-01",
+        "basis_alert_ids": [
+          "rw-2",
+          "rw-3",
+          "rw-4",
+          "rw-5"
+        ],
+        "observed_activity": "remote_exec_psexec_service; shadow_copy_deleted; mass_file_encryption; ransom_note_created"
+      }
+    ],
+    "confirmed_assets": [],
+    "suspected_assets": [
+      {
+        "asset": "SRV-APP-02",
+        "basis_alert_ids": [
+          "rw-1"
+        ]
+      },
+      {
+        "asset": "SRV-FILE-01",
+        "basis_alert_ids": [
+          "rw-2",
+          "rw-3",
+          "rw-4",
+          "rw-5"
+        ]
+      }
+    ],
+    "confirmed_identities": [],
+    "suspected_identities": [
+      {
+        "identity": "adm_it",
+        "basis_alert_ids": [
+          "rw-1",
+          "rw-2",
+          "rw-3",
+          "rw-4",
+          "rw-5"
+        ]
+      }
+    ],
+    "unknowns": [
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+    ]
+  },
+  "enrichment": {
+    "status": "no_disponible",
+    "items": [],
+    "note": "El caso no trae enriquecimiento de IoC; no se hicieron consultas externas."
+  },
+  "recommended_actions": [
+    {
+      "priority": "urgent",
+      "action": "Aislar inmediatamente los hosts afectados",
+      "rationale": "Derivada de la hipótesis 2 (confianza media).",
+      "evidence_ids": [
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "urgent",
+      "action": "Verificar integridad de backups antes de cualquier restauración",
+      "rationale": "Derivada de la hipótesis 2 (confianza media).",
+      "evidence_ids": [
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "high",
+      "action": "Aislar los hosts involucrados de la red",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "rw-1",
+        "rw-2"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "high",
+      "action": "Revisar reglas de segmentación entre los hosts afectados",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "rw-1",
+        "rw-2"
+      ],
+      "requires_human_approval": true
+    }
+  ],
+  "limitations": [
+    "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+    "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+    "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+    "Caso sintético: la confianza se limita a 'media' como máximo.",
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+  ],
+  "audit_trail": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-09-30T03:09:07.909218Z",
+      "duration_ms": 0,
+      "detail": "5 alertas, formato unknown"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-09-30T03:09:12.034066Z",
+      "duration_ms": 4124,
+      "detail": "2 técnicas candidatas, 2 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-09-30T03:09:14.064334Z",
+      "duration_ms": 2030,
+      "detail": "5 eventos, 2 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-09-30T03:09:14.065116Z",
+      "duration_ms": 0,
+      "detail": "estado no_disponible, 0 IoC"
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "analyst": null,
+    "notes": null,
+    "reviewed_at": null
+  }
+}

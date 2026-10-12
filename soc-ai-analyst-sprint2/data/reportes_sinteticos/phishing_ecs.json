@@ -1,0 +1,306 @@
+{
+  "case_id": "SYN-PHISH-001",
+  "generated_at": "2026-09-30T03:09:06.632247Z",
+  "methodology": {
+    "skill": "soc-case-investigator",
+    "report_schema": "urn:soc-investigation-report:schema:1.1",
+    "engine": "LangGraph + MCP servers (reglas deterministas)",
+    "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+  },
+  "input": {
+    "source_format": "elastic_ecs",
+    "schema_version": null,
+    "alert_count": 4,
+    "processed_alert_count": 4,
+    "time_window_utc": {
+      "start": "2026-09-14T13:02:10Z",
+      "end": "2026-09-14T13:44:30Z"
+    },
+    "missing_fields": [],
+    "warnings": []
+  },
+  "executive_summary": "Caso SYN-PHISH-001: 4 alertas procesadas. Secuencia de ataque sugerida: Phishing (T1566, táctica: Initial Access). Hipótesis principal: Actividad compatible con Phishing (T1566, táctica Initial Access) en MAIL-GW-01, WKS-22. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "attack_mapping": [
+    {
+      "tactic": "Initial Access",
+      "technique_id": "T1566",
+      "technique_name": "Phishing",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "ecs-ph-001",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "suspicious_attachment_or_link_in_email en MAIL-GW-01 (usuario mlopez)",
+          "relevance": "Señal que coincide con el patrón de Phishing."
+        },
+        {
+          "alert_id": "ecs-ph-002",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "credential_harvest_page_visited en WKS-22 (usuario mlopez)",
+          "relevance": "Señal que coincide con el patrón de Phishing."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    }
+  ],
+  "hypotheses": [
+    {
+      "statement": "Actividad compatible con Phishing (T1566, táctica Initial Access) en MAIL-GW-01, WKS-22.",
+      "confidence": "media",
+      "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
+      "evidence_for": [
+        {
+          "alert_id": "ecs-ph-001",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "suspicious_attachment_or_link_in_email en MAIL-GW-01 (usuario mlopez)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "ecs-ph-002",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "credential_harvest_page_visited en WKS-22 (usuario mlopez)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Correo legítimo de proveedor clasificado como sospechoso por la regla."
+      ],
+      "unknowns": [
+        "No se sabe si el usuario introdujo credenciales en el sitio."
+      ],
+      "rank": 1
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp_original": "2026-09-14T13:02:10Z",
+      "timestamp_utc": "2026-09-14T13:02:10Z",
+      "timezone_unknown": false,
+      "description": "suspicious_attachment_or_link_in_email en host MAIL-GW-01 (usuario: mlopez)",
+      "stage": "initial_access",
+      "alert_ids": [
+        "ecs-ph-001"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-14T13:05:44Z",
+      "timestamp_utc": "2026-09-14T13:05:44Z",
+      "timezone_unknown": false,
+      "description": "credential_harvest_page_visited en host WKS-22 (usuario: mlopez)",
+      "stage": "initial_access",
+      "alert_ids": [
+        "ecs-ph-002"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-14T13:41:02Z",
+      "timestamp_utc": "2026-09-14T13:41:02Z",
+      "timezone_unknown": false,
+      "description": "login_from_new_country en host AAD-TENANT (usuario: mlopez)",
+      "stage": "progression",
+      "alert_ids": [
+        "ecs-ph-003"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-14T13:44:30Z",
+      "timestamp_utc": "2026-09-14T13:44:30Z",
+      "timezone_unknown": false,
+      "description": "new_inbox_forwarding_rule en host AAD-TENANT (usuario: mlopez)",
+      "stage": "progression",
+      "alert_ids": [
+        "ecs-ph-004"
+      ],
+      "certainty": "observed"
+    }
+  ],
+  "blast_radius": {
+    "observed_assets": [
+      {
+        "asset": "MAIL-GW-01",
+        "basis_alert_ids": [
+          "ecs-ph-001"
+        ],
+        "observed_activity": "suspicious_attachment_or_link_in_email"
+      },
+      {
+        "asset": "WKS-22",
+        "basis_alert_ids": [
+          "ecs-ph-002"
+        ],
+        "observed_activity": "credential_harvest_page_visited"
+      },
+      {
+        "asset": "AAD-TENANT",
+        "basis_alert_ids": [
+          "ecs-ph-003",
+          "ecs-ph-004"
+        ],
+        "observed_activity": "login_from_new_country; new_inbox_forwarding_rule"
+      }
+    ],
+    "confirmed_assets": [],
+    "suspected_assets": [
+      {
+        "asset": "MAIL-GW-01",
+        "basis_alert_ids": [
+          "ecs-ph-001"
+        ]
+      },
+      {
+        "asset": "WKS-22",
+        "basis_alert_ids": [
+          "ecs-ph-002"
+        ]
+      }
+    ],
+    "confirmed_identities": [],
+    "suspected_identities": [
+      {
+        "identity": "mlopez",
+        "basis_alert_ids": [
+          "ecs-ph-001",
+          "ecs-ph-002"
+        ]
+      }
+    ],
+    "unknowns": [
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+    ]
+  },
+  "enrichment": {
+    "status": "provided",
+    "items": [
+      {
+        "indicator": "198.51.100.23",
+        "type": "ip",
+        "verdict": "malicious",
+        "source": "feed-simulado-n8n",
+        "retrieved_at": "2026-09-14T13:10:00Z",
+        "matched_alert_ids": [
+          "ecs-ph-002"
+        ],
+        "matched_fields": [
+          {
+            "alert_id": "ecs-ph-002",
+            "field": "destination.ip"
+          }
+        ]
+      },
+      {
+        "indicator": "https://login-proveedor-pagos.example/o365",
+        "type": "url",
+        "verdict": "phishing",
+        "source": "feed-simulado-n8n",
+        "retrieved_at": "2026-09-14T13:10:00Z",
+        "matched_alert_ids": [
+          "ecs-ph-001",
+          "ecs-ph-002"
+        ],
+        "matched_fields": [
+          {
+            "alert_id": "ecs-ph-001",
+            "field": "url.full"
+          },
+          {
+            "alert_id": "ecs-ph-002",
+            "field": "url.full"
+          }
+        ]
+      },
+      {
+        "indicator": "203.0.113.200",
+        "type": "ip",
+        "verdict": "suspicious",
+        "source": "feed-simulado-n8n",
+        "retrieved_at": "2026-09-14T13:10:00Z",
+        "matched_alert_ids": [],
+        "matched_fields": []
+      }
+    ],
+    "note": "Enriquecimiento tomado del caso tal como vino; no se hicieron consultas externas. Sin coincidencia exacta en alertas: 203.0.113.200."
+  },
+  "recommended_actions": [
+    {
+      "priority": "medium",
+      "action": "Bloquear el vector de entrada identificado (IP, dominio o archivo)",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "ecs-ph-001",
+        "ecs-ph-002"
+      ],
+      "requires_human_approval": true
+    }
+  ],
+  "limitations": [
+    "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+    "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+    "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+    "Caso sintético: la confianza se limita a 'media' como máximo.",
+    "Se detectó texto con forma de instrucción en ecs-ph-001.email.subject; se trató como dato no confiable y no se siguió."
+  ],
+  "audit_trail": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-09-30T03:09:00.475625Z",
+      "duration_ms": 0,
+      "detail": "4 alertas, formato elastic_ecs"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-09-30T03:09:04.594221Z",
+      "duration_ms": 4118,
+      "detail": "1 técnicas candidatas, 1 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-09-30T03:09:06.630596Z",
+      "duration_ms": 2036,
+      "detail": "4 eventos, 3 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-09-30T03:09:06.631424Z",
+      "duration_ms": 0,
+      "detail": "estado provided, 3 IoC"
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "analyst": null,
+    "notes": null,
+    "reviewed_at": null
+  }
+}

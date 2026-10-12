@@ -1,0 +1,440 @@
+{
+  "case_id": "SYN-BF-WAZUH-002",
+  "generated_at": "2026-09-30T03:08:51.768179Z",
+  "methodology": {
+    "skill": "soc-case-investigator",
+    "report_schema": "urn:soc-investigation-report:schema:1.1",
+    "engine": "LangGraph + MCP servers (reglas deterministas)",
+    "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+  },
+  "input": {
+    "source_format": "wazuh",
+    "schema_version": null,
+    "alert_count": 8,
+    "processed_alert_count": 8,
+    "time_window_utc": {
+      "start": "2026-09-15T08:02:11Z",
+      "end": "2026-09-15T08:16:00Z"
+    },
+    "missing_fields": [],
+    "warnings": []
+  },
+  "executive_summary": "Caso SYN-BF-WAZUH-002: 8 alertas procesadas. Secuencia de ataque sugerida: Brute Force (T1110, táctica: Credential Access) → Remote Services (T1021, táctica: Lateral Movement). Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "attack_mapping": [
+    {
+      "tactic": "Credential Access",
+      "technique_id": "T1110",
+      "technique_name": "Brute Force",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "1726387331.1001",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "sshd: attempt to login using a non-existent user en web-01 (usuario deploy)",
+          "relevance": "Señal que coincide con el patrón de Brute Force."
+        },
+        {
+          "alert_id": "1726387335.1002",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "sshd: authentication failed en web-01 (usuario deploy)",
+          "relevance": "Señal que coincide con el patrón de Brute Force."
+        },
+        {
+          "alert_id": "1726387340.1003",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "sshd: brute force trying to get access to the system en web-01 (usuario deploy)",
+          "relevance": "Señal que coincide con el patrón de Brute Force."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    },
+    {
+      "tactic": "Lateral Movement",
+      "technique_id": "T1021",
+      "technique_name": "Remote Services",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "1726388100.1006",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "Internal SSH login from web tier to database tier en db-02 (usuario svc_backup)",
+          "relevance": "Señal que coincide con el patrón de Remote Services."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    }
+  ],
+  "hypotheses": [
+    {
+      "statement": "Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01.",
+      "confidence": "media",
+      "confidence_basis": "3 alertas con 3 reglas distintas coinciden. Se ajusta a la baja: el caso es sintético.",
+      "evidence_for": [
+        {
+          "alert_id": "1726387331.1001",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "sshd: attempt to login using a non-existent user en web-01 (usuario deploy)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "1726387335.1002",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "sshd: authentication failed en web-01 (usuario deploy)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "1726387340.1003",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "sshd: brute force trying to get access to the system en web-01 (usuario deploy)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Usuario legítimo que olvidó su contraseña o script con credenciales vencidas."
+      ],
+      "unknowns": [
+        "No hay telemetría de EDR que confirme ejecución posterior al acceso."
+      ],
+      "rank": 1
+    },
+    {
+      "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en db-02.",
+      "confidence": "insuficiente",
+      "confidence_basis": "Una única alerta sostiene la hipótesis. Se ajusta a la baja: 2 alerta(s) sugieren actividad legítima.",
+      "evidence_for": [
+        {
+          "alert_id": "1726388100.1006",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "Internal SSH login from web tier to database tier en db-02 (usuario svc_backup)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [
+        {
+          "alert_id": "1726388101.1007",
+          "role": "contradicting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "Scheduled backup timer started (backup-nightly.timer) en db-02 (usuario svc_backup)",
+          "relevance": "Actividad legítima conocida en el mismo host y ventana."
+        },
+        {
+          "alert_id": "1726388160.1008",
+          "role": "contradicting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "tar archive created under /var/backups en db-02 (usuario svc_backup)",
+          "relevance": "Actividad legítima conocida en el mismo host y ventana."
+        }
+      ],
+      "alternatives": [
+        "Tarea administrativa o de respaldo legítima entre servidores."
+      ],
+      "unknowns": [
+        "Falta confirmar si la sesión remota tenía un cambio aprobado."
+      ],
+      "rank": 2
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp_original": "2026-09-15T03:02:11.000-0500",
+      "timestamp_utc": "2026-09-15T08:02:11Z",
+      "timezone_unknown": false,
+      "description": "sshd: attempt to login using a non-existent user en host web-01 (usuario: deploy)",
+      "stage": "initial_access",
+      "alert_ids": [
+        "1726387331.1001"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-15T03:02:15.000-0500",
+      "timestamp_utc": "2026-09-15T08:02:15Z",
+      "timezone_unknown": false,
+      "description": "sshd: authentication failed en host web-01 (usuario: deploy)",
+      "stage": "initial_access",
+      "alert_ids": [
+        "1726387335.1002"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-15T03:02:20.000-0500",
+      "timestamp_utc": "2026-09-15T08:02:20Z",
+      "timezone_unknown": false,
+      "description": "sshd: brute force trying to get access to the system en host web-01 (usuario: deploy)",
+      "stage": "initial_access",
+      "alert_ids": [
+        "1726387340.1003"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-15T03:03:22.000-0500",
+      "timestamp_utc": "2026-09-15T08:03:22Z",
+      "timezone_unknown": false,
+      "description": "sshd: authentication success en host web-01 (usuario: deploy)",
+      "stage": "progression",
+      "alert_ids": [
+        "1726387402.1004"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-15T03:05:00.000-0500",
+      "timestamp_utc": "2026-09-15T08:05:00Z",
+      "timezone_unknown": false,
+      "description": "Successful sudo to ROOT executed en host web-01 (usuario: deploy)",
+      "stage": "progression",
+      "alert_ids": [
+        "1726387500.1005"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-15T03:15:00.000-0500",
+      "timestamp_utc": "2026-09-15T08:15:00Z",
+      "timezone_unknown": false,
+      "description": "Internal SSH login from web tier to database tier en host db-02 (usuario: svc_backup)",
+      "stage": "progression",
+      "alert_ids": [
+        "1726388100.1006"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-15T03:15:01.000-0500",
+      "timestamp_utc": "2026-09-15T08:15:01Z",
+      "timezone_unknown": false,
+      "description": "Scheduled backup timer started (backup-nightly.timer) en host db-02 (usuario: svc_backup)",
+      "stage": "progression",
+      "alert_ids": [
+        "1726388101.1007"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-15T03:16:00.000-0500",
+      "timestamp_utc": "2026-09-15T08:16:00Z",
+      "timezone_unknown": false,
+      "description": "tar archive created under /var/backups en host db-02 (usuario: svc_backup)",
+      "stage": "progression",
+      "alert_ids": [
+        "1726388160.1008"
+      ],
+      "certainty": "observed"
+    }
+  ],
+  "blast_radius": {
+    "observed_assets": [
+      {
+        "asset": "web-01",
+        "basis_alert_ids": [
+          "1726387331.1001",
+          "1726387335.1002",
+          "1726387340.1003",
+          "1726387402.1004",
+          "1726387500.1005"
+        ],
+        "observed_activity": "sshd: attempt to login using a non-existent user; sshd: authentication failed; sshd: brute force trying to get access to the system; sshd: authentication success; Successful sudo to ROOT executed"
+      },
+      {
+        "asset": "db-02",
+        "basis_alert_ids": [
+          "1726388100.1006",
+          "1726388101.1007",
+          "1726388160.1008"
+        ],
+        "observed_activity": "Internal SSH login from web tier to database tier; Scheduled backup timer started (backup-nightly.timer); tar archive created under /var/backups"
+      }
+    ],
+    "confirmed_assets": [],
+    "suspected_assets": [
+      {
+        "asset": "web-01",
+        "basis_alert_ids": [
+          "1726387331.1001",
+          "1726387335.1002",
+          "1726387340.1003"
+        ]
+      }
+    ],
+    "confirmed_identities": [],
+    "suspected_identities": [
+      {
+        "identity": "deploy",
+        "basis_alert_ids": [
+          "1726387331.1001",
+          "1726387335.1002",
+          "1726387340.1003"
+        ]
+      }
+    ],
+    "unknowns": [
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR).",
+      "Actividad ambigua en db-02 (alertas 1726388100.1006): hipótesis de confianza baja o insuficiente."
+    ]
+  },
+  "enrichment": {
+    "status": "provided",
+    "items": [
+      {
+        "indicator": "203.0.113.88",
+        "type": "ip",
+        "verdict": "malicious",
+        "source": "feed-simulado-n8n",
+        "retrieved_at": "2026-09-15T08:20:00Z",
+        "note": "IP de TEST-NET-3 (documentación); reputación ficticia",
+        "matched_alert_ids": [
+          "1726387331.1001",
+          "1726387335.1002",
+          "1726387340.1003",
+          "1726387402.1004"
+        ],
+        "matched_fields": [
+          {
+            "alert_id": "1726387331.1001",
+            "field": "data.srcip"
+          },
+          {
+            "alert_id": "1726387335.1002",
+            "field": "data.srcip"
+          },
+          {
+            "alert_id": "1726387340.1003",
+            "field": "data.srcip"
+          },
+          {
+            "alert_id": "1726387402.1004",
+            "field": "data.srcip"
+          }
+        ]
+      }
+    ],
+    "note": "Enriquecimiento tomado del caso tal como vino; no se hicieron consultas externas."
+  },
+  "recommended_actions": [
+    {
+      "priority": "high",
+      "action": "Forzar rotación de credenciales de las cuentas involucradas",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "1726387331.1001",
+        "1726387335.1002",
+        "1726387340.1003"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "high",
+      "action": "Habilitar/reforzar MFA en los hosts afectados",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "1726387331.1001",
+        "1726387335.1002",
+        "1726387340.1003"
+      ],
+      "requires_human_approval": true
+    }
+  ],
+  "limitations": [
+    "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+    "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+    "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+    "Caso sintético: la confianza se limita a 'media' como máximo."
+  ],
+  "audit_trail": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-09-30T03:08:45.577630Z",
+      "duration_ms": 0,
+      "detail": "8 alertas, formato wazuh"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-09-30T03:08:49.733040Z",
+      "duration_ms": 4155,
+      "detail": "2 técnicas candidatas, 2 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-09-30T03:08:51.766596Z",
+      "duration_ms": 2033,
+      "detail": "8 eventos, 2 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-09-30T03:08:51.767561Z",
+      "duration_ms": 0,
+      "detail": "estado provided, 1 IoC"
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "analyst": null,
+    "notes": null,
+    "reviewed_at": null
+  }
+}

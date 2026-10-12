@@ -1,0 +1,45 @@
+{
+  "case_id": "CASE-0001",
+  "alerts": [
+    {
+      "id": "a1",
+      "timestamp": "2026-09-10T02:14:00Z",
+      "rule_name": "multiple_auth_failures",
+      "source_ip": "203.0.113.10",
+      "dest_ip": "10.0.0.15",
+      "user": "jgomez",
+      "host": "WKS-15",
+      "tags": ["authentication", "brute_force"]
+    },
+    {
+      "id": "a2",
+      "timestamp": "2026-09-10T02:20:00Z",
+      "rule_name": "successful_login_after_failures",
+      "source_ip": "203.0.113.10",
+      "dest_ip": "10.0.0.15",
+      "user": "jgomez",
+      "host": "WKS-15",
+      "tags": ["authentication"]
+    },
+    {
+      "id": "a3",
+      "timestamp": "2026-09-10T02:45:00Z",
+      "rule_name": "smb_admin_share_access",
+      "source_ip": "10.0.0.15",
+      "dest_ip": "10.0.0.22",
+      "user": "jgomez",
+      "host": "WKS-15",
+      "tags": ["lateral_movement"]
+    },
+    {
+      "id": "a4",
+      "timestamp": "2026-09-10T03:10:00Z",
+      "rule_name": "remote_exec_detected",
+      "source_ip": "10.0.0.15",
+      "dest_ip": "10.0.0.22",
+      "user": "jgomez",
+      "host": "SRV-DB-01",
+      "tags": ["lateral_movement", "remote_exec"]
+    }
+  ]
+}

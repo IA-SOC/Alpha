@@ -1,0 +1,10 @@
+{
+  "case_id": "SYN-BENIGN-005",
+  "synthetic": true,
+  "description": "Ruido benigno: actualización de software y escaneo de vulnerabilidades autorizado. Una alerta sin zona horaria y otra sin timestamp.",
+  "alerts": [
+    {"id": "bn-1", "timestamp": "2026-09-18T09:00:00Z", "rule_name": "software_update_installed", "user": "sccm_svc", "host": "WKS-40", "tags": ["maintenance"]},
+    {"id": "bn-2", "timestamp": "2026-09-18 09:30:00", "rule_name": "authorized_vulnerability_scan", "host": "SCANNER-01", "source_ip": "10.0.9.9", "tags": ["scan", "change_approved"]},
+    {"id": "bn-3", "rule_name": "service_restarted", "host": "WKS-40", "tags": ["maintenance"]}
+  ]
+}

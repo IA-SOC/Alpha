@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:soc-investigation-report:schema:1.1",
+  "title": "SOC Investigation Report",
+  "type": "object",
+  "required": [
+    "case_id",
+    "input",
+    "executive_summary",
+    "attack_mapping",
+    "hypotheses",
+    "timeline",
+    "blast_radius",
+    "enrichment",
+    "recommended_actions",
+    "limitations",
+    "review"
+  ],
+  "properties": {
+    "case_id": {"type": "string", "minLength": 1},
+    "generated_at": {"type": ["string", "null"], "format": "date-time"},
+    "input": {
+      "type": "object",
+      "required": ["source_format", "alert_count", "processed_alert_count"],
+      "properties": {
+        "source_format": {"enum": ["elastic_ecs", "elastic_security", "wazuh", "mixed", "unknown"]},
+        "schema_version": {"type": ["string", "null"]},
+        "alert_count": {"type": "integer", "minimum": 0},
+        "processed_alert_count": {"type": "integer", "minimum": 0},
+        "time_window_utc": {"type": ["object", "null"]},
+        "missing_fields": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "executive_summary": {"type": "string"},
+    "attack_mapping": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["technique_name", "status", "evidence"],
+        "properties": {
+          "tactic": {"type": ["string", "null"]},
+          "technique_id": {"type": ["string", "null"], "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"},
+          "technique_name": {"type": "string"},
+          "status": {"enum": ["candidate", "supported", "not_supported", "unknown"]},
+          "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+          "source_version": {"type": ["string", "null"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rank", "statement", "confidence", "confidence_basis", "evidence_for", "evidence_against", "unknowns"],
+        "properties": {
+          "rank": {"type": "integer", "minimum": 1},
+          "statement": {"type": "string"},
+          "confidence": {"enum": ["alta", "media", "baja", "insuficiente"]},
+          "confidence_basis": {"type": "string"},
+          "evidence_for": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+          "evidence_against": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+          "alternatives": {"type": "array", "items": {"type": "string"}},
+          "unknowns": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp_original", "description", "alert_ids", "certainty"],
+        "properties": {
+          "timestamp_original": {"type": ["string", "null"]},
+          "timestamp_utc": {"type": ["string", "null"]},
+          "timezone_unknown": {"type": "boolean"},
+          "description": {"type": "string"},
+          "alert_ids": {"type": "array", "items": {"type": "string"}},
+          "certainty": {"enum": ["observed", "inferred", "unknown"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "blast_radius": {
+      "type": "object",
+      "required": ["observed_assets", "confirmed_assets", "suspected_assets", "unknowns"],
+      "properties": {
+        "observed_assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["asset", "basis_alert_ids", "observed_activity"],
+            "properties": {
+              "asset": {"type": "string", "minLength": 1},
+              "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+              "observed_activity": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": true
+          }
+        },
+        "confirmed_assets": {
+          "type": "array",
+          "items": {"type": "object", "required": ["asset", "basis_alert_ids"], "properties": {"asset": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+        },
+        "suspected_assets": {
+          "type": "array",
+          "items": {"type": "object", "required": ["asset", "basis_alert_ids"], "properties": {"asset": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+        },
+        "confirmed_identities": {
+          "type": "array",
+          "items": {"type": "object", "required": ["identity", "basis_alert_ids"], "properties": {"identity": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+        },
+        "suspected_identities": {
+          "type": "array",
+          "items": {"type": "object", "required": ["identity", "basis_alert_ids"], "properties": {"identity": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+        },
+        "unknowns": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "enrichment": {
+      "type": "object",
+      "required": ["status", "items"],
+      "properties": {
+        "status": {"enum": ["provided", "partial", "no_disponible"]},
+        "items": {"type": "array", "items": {"type": "object"}},
+        "note": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "recommended_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["priority", "action", "rationale", "evidence_ids", "requires_human_approval"],
+        "properties": {
+          "priority": {"enum": ["urgent", "high", "medium", "low"]},
+          "action": {"type": "string"},
+          "rationale": {"type": "string"},
+          "evidence_ids": {"type": "array", "items": {"type": "string"}},
+          "requires_human_approval": {"type": "boolean"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "review": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["pending", "validated", "corrected", "rejected"]},
+        "analyst": {"type": ["string", "null"]},
+        "notes": {"type": ["string", "null"]},
+        "reviewed_at": {"type": ["string", "null"], "format": "date-time"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "required": ["alert_id", "role", "observation", "relevance"],
+      "properties": {
+        "alert_id": {"type": "string"},
+        "role": {"enum": ["supporting", "contradicting", "context"]},
+        "fields": {"type": "array", "items": {"type": "string"}},
+        "observation": {"type": "string"},
+        "relevance": {"type": "string"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

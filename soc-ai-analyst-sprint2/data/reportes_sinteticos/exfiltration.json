@@ -1,0 +1,282 @@
+{
+  "case_id": "SYN-EXFIL-003",
+  "generated_at": "2026-09-30T03:08:59.195706Z",
+  "methodology": {
+    "skill": "soc-case-investigator",
+    "report_schema": "urn:soc-investigation-report:schema:1.1",
+    "engine": "LangGraph + MCP servers (reglas deterministas)",
+    "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+  },
+  "input": {
+    "source_format": "unknown",
+    "schema_version": null,
+    "alert_count": 4,
+    "processed_alert_count": 4,
+    "time_window_utc": {
+      "start": "2026-09-16T22:10:00Z",
+      "end": "2026-09-16T22:50:00Z"
+    },
+    "missing_fields": [],
+    "warnings": [
+      "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    ]
+  },
+  "executive_summary": "Caso SYN-EXFIL-003: 4 alertas procesadas. Secuencia de ataque sugerida: Exfiltration Over C2 Channel (T1041, táctica: Exfiltration). Hipótesis principal: Actividad compatible con Exfiltration Over C2 Channel (T1041, táctica Exfiltration) en FS-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "attack_mapping": [
+    {
+      "tactic": "Exfiltration",
+      "technique_id": "T1041",
+      "technique_name": "Exfiltration Over C2 Channel",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "ex-2",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
+          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel."
+        },
+        {
+          "alert_id": "ex-3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "dns_tunneling_suspected en FS-01 (usuario backup_ops)",
+          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel."
+        },
+        {
+          "alert_id": "ex-4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
+          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel."
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    }
+  ],
+  "hypotheses": [
+    {
+      "statement": "Actividad compatible con Exfiltration Over C2 Channel (T1041, táctica Exfiltration) en FS-01.",
+      "confidence": "media",
+      "confidence_basis": "3 alertas con 2 reglas distintas coinciden. Se ajusta a la baja: el caso es sintético.",
+      "evidence_for": [
+        {
+          "alert_id": "ex-2",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "ex-3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "dns_tunneling_suspected en FS-01 (usuario backup_ops)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        },
+        {
+          "alert_id": "ex-4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
+          "relevance": "Alerta que coincide con el patrón de la técnica."
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Replicación o respaldo externo autorizado."
+      ],
+      "unknowns": [
+        "Se desconoce el contenido y el volumen exacto transferido."
+      ],
+      "rank": 1
+    }
+  ],
+  "timeline": [
+    {
+      "timestamp_original": "2026-09-16T22:10:00Z",
+      "timestamp_utc": "2026-09-16T22:10:00Z",
+      "timezone_unknown": false,
+      "description": "archive_of_sensitive_share en host FS-01 (usuario: backup_ops)",
+      "stage": "progression",
+      "alert_ids": [
+        "ex-1"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-16T22:31:00Z",
+      "timestamp_utc": "2026-09-16T22:31:00Z",
+      "timezone_unknown": false,
+      "description": "large_outbound_transfer en host FS-01 (usuario: backup_ops)",
+      "stage": "impact",
+      "alert_ids": [
+        "ex-2"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-16T22:33:00Z",
+      "timestamp_utc": "2026-09-16T22:33:00Z",
+      "timezone_unknown": false,
+      "description": "dns_tunneling_suspected en host FS-01 (usuario: backup_ops)",
+      "stage": "impact",
+      "alert_ids": [
+        "ex-3"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-16T22:50:00Z",
+      "timestamp_utc": "2026-09-16T22:50:00Z",
+      "timezone_unknown": false,
+      "description": "large_outbound_transfer en host FS-01 (usuario: backup_ops)",
+      "stage": "impact",
+      "alert_ids": [
+        "ex-4"
+      ],
+      "certainty": "observed"
+    }
+  ],
+  "blast_radius": {
+    "observed_assets": [
+      {
+        "asset": "FS-01",
+        "basis_alert_ids": [
+          "ex-1",
+          "ex-2",
+          "ex-3",
+          "ex-4"
+        ],
+        "observed_activity": "archive_of_sensitive_share; large_outbound_transfer; dns_tunneling_suspected"
+      }
+    ],
+    "confirmed_assets": [],
+    "suspected_assets": [
+      {
+        "asset": "FS-01",
+        "basis_alert_ids": [
+          "ex-2",
+          "ex-3",
+          "ex-4"
+        ]
+      }
+    ],
+    "confirmed_identities": [],
+    "suspected_identities": [
+      {
+        "identity": "backup_ops",
+        "basis_alert_ids": [
+          "ex-2",
+          "ex-3",
+          "ex-4"
+        ]
+      }
+    ],
+    "unknowns": [
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+    ]
+  },
+  "enrichment": {
+    "status": "no_disponible",
+    "items": [],
+    "note": "El caso no trae enriquecimiento de IoC; no se hicieron consultas externas."
+  },
+  "recommended_actions": [
+    {
+      "priority": "urgent",
+      "action": "Bloquear las conexiones salientes hacia los destinos identificados",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "ex-2",
+        "ex-3",
+        "ex-4"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "urgent",
+      "action": "Notificar al equipo de respuesta a incidentes de exfiltración",
+      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "evidence_ids": [
+        "ex-2",
+        "ex-3",
+        "ex-4"
+      ],
+      "requires_human_approval": true
+    }
+  ],
+  "limitations": [
+    "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+    "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+    "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+    "Caso sintético: la confianza se limita a 'media' como máximo.",
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+  ],
+  "audit_trail": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-09-30T03:08:53.055557Z",
+      "duration_ms": 0,
+      "detail": "4 alertas, formato unknown"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-09-30T03:08:57.182719Z",
+      "duration_ms": 4126,
+      "detail": "1 técnicas candidatas, 1 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-09-30T03:08:59.194290Z",
+      "duration_ms": 2011,
+      "detail": "4 eventos, 1 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-09-30T03:08:59.195106Z",
+      "duration_ms": 0,
+      "detail": "estado no_disponible, 0 IoC"
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "analyst": null,
+    "notes": null,
+    "reviewed_at": null
+  }
+}

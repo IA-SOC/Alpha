@@ -1,0 +1,508 @@
+<title>Investigador SOC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: consola de caso — lista de casos a la izquierda, expediente del caso a la derecha; secciones de contexto arriba y abajo. */
+:root {
+  --bg: #F2F4F1;
+  --surface: #FFFFFF;
+  --sunken: #E8ECE8;
+  --ink: #182024;
+  --muted: #56636A;
+  --line: #D5DBD6;
+  --accent: #0D6A66;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #D8ECE9;
+  --crit: #B02A21;
+  --crit-soft: #F8E1DE;
+  --ok: #2D7236;
+  --ok-soft: #DDEFDD;
+  --warn: #8C5A00;
+  --warn-soft: #F6EAD2;
+  --focus: #1F6FD1;
+  --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101517; --surface: #172024; --sunken: #0C1113; --ink: #E4EAE9; --muted: #95A3A7; --line: #2A363A;
+    --accent: #52B7AE; --accent-ink: #0B1A19; --accent-soft: #15302E; --crit: #F08B81; --crit-soft: #3A1D1A;
+    --ok: #82C788; --ok-soft: #173220; --warn: #E3AE4E; --warn-soft: #33270F; --focus: #7FB2F0; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101517; --surface: #172024; --sunken: #0C1113; --ink: #E4EAE9; --muted: #95A3A7; --line: #2A363A;
+  --accent: #52B7AE; --accent-ink: #0B1A19; --accent-soft: #15302E; --crit: #F08B81; --crit-soft: #3A1D1A;
+  --ok: #82C788; --ok-soft: #173220; --warn: #E3AE4E; --warn-soft: #33270F; --focus: #7FB2F0; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 64px; display: grid; gap: 48px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2rem, 4vw, 2.75rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.1rem; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lead { max-width: 68ch; color: var(--muted); font-size: 1.08rem; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Cabecera */
+header { display: grid; gap: 14px; }
+.notice { display: grid; gap: 6px; max-width: 78ch; border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; }
+.notice strong { color: var(--warn); }
+
+/* Fases */
+.phases { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.phase { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; min-width: 0; transition: background .25s, border-color .25s; }
+.phase .num { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
+.phase .name { font-weight: 600; font-size: 0.95rem; line-height: 1.25; }
+.phase .detail { font-size: 0.82rem; color: var(--muted); overflow-wrap: anywhere; }
+.phase[data-state="done"] { border-color: var(--accent); }
+.phase[data-state="done"] .num span:last-child { color: var(--accent); }
+.phase[data-state="active"] { background: var(--accent-soft); border-color: var(--accent); }
+.phase[data-state="waiting"] { border-style: dashed; border-color: var(--warn); }
+.phase[data-state="waiting"] .num span:last-child { color: var(--warn); }
+.phase[data-state="stopped"] { opacity: .55; }
+@media (max-width: 900px) { .phases { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .phases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Consola */
+.console { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 880px) { .console { grid-template-columns: minmax(0, 1fr); } }
+.cases { display: grid; gap: 8px; }
+.case-btn { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; }
+.case-btn:hover { border-color: var(--muted); }
+.case-btn[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.case-btn .t { font-weight: 600; line-height: 1.25; }
+.case-btn .meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.8rem; color: var(--muted); }
+.file { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; display: grid; }
+.file-head { padding: 18px 20px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.file-head .row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.88rem; color: var(--muted); }
+.facts b { color: var(--ink); font-weight: 600; }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 7px 14px; font-weight: 600; }
+.btn:hover { filter: brightness(1.08); }
+.btn[disabled] { opacity: .6; cursor: progress; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.tabs { display: flex; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { border: 0; background: none; padding: 10px 10px; font-size: 0.92rem; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.panel { padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.summary { font-size: 1.02rem; max-width: 75ch; }
+
+/* Chips */
+.chip { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.74rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.conf-alta { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.conf-media { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.conf-baja { border: 1px dashed var(--accent); color: var(--accent); }
+.conf-insuficiente { border: 1px dashed var(--muted); color: var(--muted); }
+.st-pending { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.st-validated { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.st-corrected { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.st-rejected { background: var(--crit-soft); border-color: var(--crit); color: var(--crit); }
+.hit { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.miss { background: var(--crit-soft); border-color: var(--crit); color: var(--crit); }
+.pri-urgent { background: var(--crit-soft); border-color: var(--crit); color: var(--crit); }
+.pri-high { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+
+/* Hipótesis */
+.hyp { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+.hyp-top { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+.hyp-top h3 { font-size: 1rem; flex: 1 1 320px; }
+.basis { color: var(--muted); font-size: 0.92rem; }
+.ev { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.ev > div { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.ev .lbl { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.ev ul { margin: 0; padding-left: 18px; font-size: 0.9rem; }
+.ev li { overflow-wrap: anywhere; }
+.empty { border: 1px dashed var(--line); border-radius: 8px; padding: 18px; color: var(--muted); display: grid; gap: 6px; }
+.empty strong { color: var(--ink); }
+
+/* Tablas */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.76rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--sunken); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.stage { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+
+/* Alcance */
+.scope { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.scope > section { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; align-content: start; }
+.scope ul { margin: 0; padding-left: 18px; font-size: 0.9rem; }
+.scope .none { color: var(--muted); font-size: 0.9rem; }
+.bullets { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 0.92rem; }
+
+/* Revisión */
+.review { border-top: 1px solid var(--line); padding: 18px 20px; display: grid; gap: 12px; background: var(--sunken); border-radius: 0 0 10px 10px; }
+.review-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.field { display: grid; gap: 4px; font-size: 0.85rem; color: var(--muted); flex: 1 1 180px; }
+.field input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; }
+.decisions { display: flex; flex-wrap: wrap; gap: 8px; }
+.decisions button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 7px 12px; font-weight: 600; }
+.decisions button[data-d="validated"]:hover { border-color: var(--ok); color: var(--ok); }
+.decisions button[data-d="corrected"]:hover { border-color: var(--accent); color: var(--accent); }
+.decisions button[data-d="rejected"]:hover { border-color: var(--crit); color: var(--crit); }
+.small { font-size: 0.84rem; color: var(--muted); }
+
+pre.json { margin: 0; padding: 14px; background: var(--sunken); border-radius: 8px; overflow: auto; max-height: 460px; font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.45; }
+
+/* Cobertura */
+.coverage { display: grid; gap: 14px; }
+.tally { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; }
+.tally .big { font-family: var(--font-display); font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bar { height: 10px; border-radius: 999px; background: var(--crit-soft); overflow: hidden; max-width: 420px; }
+.bar > span { display: block; height: 100%; background: var(--ok); }
+tr.holdout td { background: var(--crit-soft); }
+
+/* Correr en vivo */
+.run { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.cmd { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px 14px; display: grid; gap: 8px; min-width: 0; }
+.cmd pre { margin: 0; font-family: var(--font-mono); font-size: 0.8rem; background: var(--sunken); padding: 10px; border-radius: 6px; overflow-x: auto; }
+.cmd .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.copy { border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 3px 10px; font-size: 0.8rem; }
+ol.script { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 80ch; }
+footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 16px; }
+@media (prefers-reduced-motion: reduce) { .phase { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Demo interna · soc-agent-mcp · skill soc-case-investigator V3</span>
+    <h1>Investigador SOC</h1>
+    <p class="lead">Un agente en LangGraph que investiga un caso de alertas en seis fases fijas, propone hipótesis MITRE ATT&amp;CK con evidencia citada y deja la decisión a un analista. Todo lo que ves abajo es la salida real del agente sobre casos simulados.</p>
+    <div class="notice" role="note">
+      <p><strong>Por qué los resultados se repiten.</strong> El análisis es por reglas deterministas: el mismo caso produce siempre el mismo reporte. Eso da reproducibilidad, pero también significa que el agente solo reconoce lo que su catálogo de reglas nombra.</p>
+      <p>Los casos sintéticos se diseñaron junto con esas reglas. El último caso de la lista no se usó para ajustar nada, y ahí el agente no detecta ninguna técnica.</p>
+    </div>
+  </header>
+
+  <section aria-labelledby="flow-h" style="display:grid;gap:14px">
+    <div style="display:grid;gap:6px">
+      <span class="eyebrow">Cómo trabaja</span>
+      <h2 id="flow-h">Seis fases, en este orden, en cada caso</h2>
+      <p class="lead">La skill fija el orden y lo que cada fase puede afirmar. Si el reporte no pasa el validador de la skill en la fase 5, el caso termina ahí y no llega al analista.</p>
+    </div>
+    <ol class="phases" id="phases"></ol>
+  </section>
+
+  <section aria-labelledby="console-h" style="display:grid;gap:14px">
+    <div style="display:grid;gap:6px">
+      <span class="eyebrow">Probar</span>
+      <h2 id="console-h">Elige un caso y revisa lo que entregó el agente</h2>
+    </div>
+    <div class="console">
+      <nav class="cases" id="cases" aria-label="Casos"></nav>
+      <article class="file" id="file" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <section class="coverage" aria-labelledby="cov-h">
+    <div style="display:grid;gap:6px">
+      <span class="eyebrow">Qué detecta y qué no</span>
+      <h2 id="cov-h">Técnicas esperadas frente a técnicas detectadas</h2>
+      <p class="lead">La referencia de cada caso la escribimos al diseñarlo; no la validó ningún analista. Este recuento sirve para ver dónde falla el catálogo, no como medida de precisión.</p>
+    </div>
+    <div class="tally" id="tally"></div>
+    <div class="tbl-wrap"><table id="cov-table"></table></div>
+  </section>
+
+  <section aria-labelledby="run-h" style="display:grid;gap:14px">
+    <div style="display:grid;gap:6px">
+      <span class="eyebrow">En vivo</span>
+      <h2 id="run-h">Correrlo en tu máquina</h2>
+      <p class="lead">Desde la carpeta <code>soc-agent-mcp</code> interna, con el venv activado. Cada caso tarda unos 7 segundos, casi todo en arrancar los MCP servers.</p>
+    </div>
+    <div class="run" id="run"></div>
+  </section>
+
+  <section aria-labelledby="script-h" style="display:grid;gap:14px">
+    <div style="display:grid;gap:6px">
+      <span class="eyebrow">Para quien presenta</span>
+      <h2 id="script-h">Recorrido sugerido, unos 10 minutos</h2>
+    </div>
+    <ol class="script">
+      <li><b>Phishing (ECS).</b> Mostrar la hipótesis con confianza media y abrir <em>Acciones y límites</em>: el texto que intenta cerrar el caso quedó registrado como dato no confiable.</li>
+      <li><b>Fuerza bruta (Wazuh).</b> En <em>Hipótesis</em>, ver que el respaldo legítimo cuenta como evidencia en contra. En <em>Alcance</em>, db-02 queda observado, no sospechoso.</li>
+      <li><b>Pre-ransomware.</b> Pulsar <em>Repetir investigación</em> para ver las fases, y luego las acciones urgentes que requieren aprobación.</li>
+      <li><b>Ruido benigno.</b> Sin hipótesis ni acciones; las alertas con timestamps defectuosos aparecen como limitaciones.</li>
+      <li><b>Caso nuevo.</b> Cerrar aquí: un ataque real con otros nombres de regla pasa sin ninguna hipótesis. Abrir la tabla de cobertura y discutir el siguiente paso.</li>
+    </ol>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/[];
+const PHASES = [
+  { node: "recibir_validar", name: "Recibir y validar" },
+  { node: "investigar_hipotesis", name: "Investigar hipótesis" },
+  { node: "cronologia_alcance", name: "Cronología y alcance" },
+  { node: "consumir_ioc", name: "Consumir IoC" },
+  { node: "generar_validar_reporte", name: "Generar y validar reporte" },
+  { node: "revision_humana", name: "Revisión humana" },
+];
+const STATUS_LABEL = { pending: "pendiente", validated: "validado", corrected: "corregido", rejected: "rechazado" };
+const PRIORITY_LABEL = { urgent: "urgente", high: "alta", medium: "media", low: "baja" };
+const TABS = [
+  ["hyp", "Hipótesis"], ["timeline", "Línea de tiempo"], ["scope", "Alcance"],
+  ["ioc", "IoC"], ["actions", "Acciones y límites"], ["input", "Entrada"], ["json", "JSON del reporte"],
+];
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ids = list => (list && list.length ? list.map(i => `<code>${esc(i)}</code>`).join(", ") : "—");
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+const state = {
+  key: store.get("soc-demo-case", null) || (DATA[0] && DATA[0].key),
+  tab: "hyp",
+  reviews: store.get("soc-demo-reviews", {}),
+  replaying: false,
+};
+if (!DATA.some(c => c.key === state.key) && DATA[0]) state.key = DATA[0].key;
+const current = () => DATA.find(c => c.key === state.key);
+const reviewOf = c => state.reviews[c.key] || c.report.review;
+
+function renderPhases(activeIndex = null) {
+  const c = current();
+  const log = c ? c.report.audit_trail || [] : [];
+  const review = c ? reviewOf(c) : null;
+  document.getElementById("phases").innerHTML = PHASES.map((p, i) => {
+    const entry = log.find(e => e.node === p.node);
+    let st = "done", right = "hecho", detail = entry ? entry.detail : "";
+    if (i === 4) { detail = "Validador de la skill: OK"; }
+    if (i === 5) {
+      if (review && review.status !== "pending") { st = "done"; right = STATUS_LABEL[review.status]; detail = `Decisión de ${review.analyst || "analista"}`; }
+      else { st = "waiting"; right = "en pausa"; detail = "Esperando al analista"; }
+    }
+    if (activeIndex !== null) {
+      if (i < activeIndex) st = "done";
+      else if (i === activeIndex) { st = "active"; right = "…"; }
+      else { st = "stopped"; right = ""; }
+    }
+    const ms = entry && i < 5 ? `${entry.duration_ms} ms` : "";
+    return `<li class="phase" data-state="${st}"><span class="num"><span>${i + 1}${ms ? " · " + ms : ""}</span><span>${esc(right)}</span></span><span class="name">${esc(p.name)}</span><span class="detail">${esc(detail)}</span></li>`;
+  }).join("");
+}
+
+function caseResult(c) {
+  const h = c.report.hypotheses;
+  if (!h.length) return `<span class="chip ${c.expected.length ? "miss" : "hit"}">sin hipótesis</span>`;
+  return `<span class="chip conf-${h[0].confidence}">${h.length} hipótesis · ${h[0].confidence}</span>`;
+}
+
+function renderCases() {
+  document.getElementById("cases").innerHTML = DATA.map(c => {
+    const r = reviewOf(c);
+    return `<button class="case-btn" type="button" data-key="${esc(c.key)}" aria-pressed="${c.key === state.key}">
+      <span class="eyebrow">${esc(c.family)}</span>
+      <span class="t">${esc(c.title)}</span>
+      <span class="meta"><span class="chip">${esc(c.report.input.source_format)}</span><span class="chip">${c.report.input.alert_count} alertas</span>${caseResult(c)}<span class="chip st-${r.status}">${STATUS_LABEL[r.status]}</span></span>
+    </button>`;
+  }).join("");
+}
+
+function evList(list) {
+  if (!list.length) return `<p class="small">Ninguna</p>`;
+  return `<ul>${list.map(e => `<li><code>${esc(e.alert_id)}</code> ${esc(e.observation)}</li>`).join("")}</ul>`;
+}
+
+function panelHyp(c) {
+  const r = c.report;
+  let out = `<p class="summary">${esc(r.executive_summary)}</p>`;
+  if (!r.hypotheses.length) {
+    const missed = c.expected.length;
+    out += `<div class="empty"><strong>El agente no propone hipótesis para este caso.</strong><span>${missed
+      ? `La referencia del caso espera ${missed} técnicas. Ninguna regla del catálogo nombra estas señales, así que el reporte sale limpio aunque el caso no lo esté.`
+      : "Es el resultado esperado: el caso es ruido benigno."}</span></div>`;
+    return out;
+  }
+  out += r.hypotheses.map(h => `<div class="hyp">
+    <div class="hyp-top"><h3>${h.rank}. ${esc(h.statement)}</h3><span class="chip conf-${h.confidence}">confianza ${esc(h.confidence)}</span></div>
+    <p class="basis">${esc(h.confidence_basis)}</p>
+    <div class="ev">
+      <div><span class="lbl">Evidencia a favor</span>${evList(h.evidence_for)}</div>
+      <div><span class="lbl">Evidencia en contra</span>${evList(h.evidence_against)}</div>
+      <div><span class="lbl">Alternativas</span><ul>${(h.alternatives || []).map(a => `<li>${esc(a)}</li>`).join("") || "<li>—</li>"}</ul></div>
+      <div><span class="lbl">Falta saber</span><ul>${h.unknowns.map(a => `<li>${esc(a)}</li>`).join("") || "<li>—</li>"}</ul></div>
+    </div>
+  </div>`).join("");
+  return out;
+}
+
+function panelTimeline(c) {
+  const rows = c.report.timeline.map(t => `<tr>
+    <td class="mono">${esc(t.timestamp_utc || (t.timezone_unknown ? "zona desconocida" : "sin timestamp"))}</td>
+    <td class="mono">${esc(t.timestamp_original || "—")}</td>
+    <td>${esc(t.description)}</td>
+    <td><span class="stage">${esc(t.stage || "")}</span></td>
+    <td>${ids(t.alert_ids)}</td></tr>`).join("");
+  return `<p class="small">Horas normalizadas a UTC; se conserva la hora original. La etapa viene del mapeo MITRE.</p>
+  <div class="tbl-wrap"><table><thead><tr><th>UTC</th><th>Original</th><th>Evento</th><th>Etapa</th><th>Alerta</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function scopeList(list, key) {
+  if (!list || !list.length) return `<p class="none">Ninguno</p>`;
+  return `<ul>${list.map(a => `<li><b>${esc(a[key])}</b> · ${ids(a.basis_alert_ids)}${a.observed_activity ? `<br><span class="small">${esc(a.observed_activity)}</span>` : ""}</li>`).join("")}</ul>`;
+}
+
+function panelScope(c) {
+  const b = c.report.blast_radius;
+  return `<div class="scope">
+    <section><span class="eyebrow">Observados</span>${scopeList(b.observed_assets, "asset")}<p class="small">Aparecen en alertas. No equivale a compromiso.</p></section>
+    <section><span class="eyebrow">Sospechosos</span>${scopeList(b.suspected_assets, "asset")}</section>
+    <section><span class="eyebrow">Confirmados</span>${scopeList(b.confirmed_assets, "asset")}<p class="small">El agente nunca confirma: lo decide el analista.</p></section>
+    <section><span class="eyebrow">Identidades sospechosas</span>${scopeList(b.suspected_identities, "identity")}</section>
+  </div>
+  <div style="display:grid;gap:6px"><span class="eyebrow">Desconocidos</span><ul class="bullets">${b.unknowns.map(u => `<li>${esc(u)}</li>`).join("")}</ul></div>`;
+}
+
+function panelIoc(c) {
+  const e = c.report.enrichment;
+  const head = `<p><span class="chip">${esc(e.status)}</span> ${esc(e.note || "")}</p>`;
+  if (!e.items.length) return head + `<p class="small">El caso no trae enriquecimiento. El agente no consulta reputación por su cuenta.</p>`;
+  const rows = e.items.map(i => `<tr><td class="mono">${esc(i.indicator)}</td><td>${esc(i.type)}</td><td>${esc(i.verdict)}</td><td>${esc(i.source)}</td>
+    <td>${i.matched_alert_ids.length ? ids(i.matched_alert_ids) : '<span class="chip miss">sin coincidencia</span>'}</td></tr>`).join("");
+  return head + `<div class="tbl-wrap"><table><thead><tr><th>Indicador</th><th>Tipo</th><th>Veredicto</th><th>Fuente</th><th>Alertas</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function panelActions(c) {
+  const r = c.report;
+  const acts = r.recommended_actions.length
+    ? `<div class="tbl-wrap"><table><thead><tr><th>Prioridad</th><th>Acción propuesta</th><th>Por qué</th><th>Evidencia</th></tr></thead><tbody>${r.recommended_actions.map(a => `<tr>
+        <td><span class="chip pri-${a.priority}">${PRIORITY_LABEL[a.priority]}</span></td><td>${esc(a.action)}</td><td>${esc(a.rationale)}</td><td>${ids(a.evidence_ids)}</td></tr>`).join("")}</tbody></table></div>
+       <p class="small">Todas requieren aprobación humana. El agente no ejecuta ninguna.</p>`
+    : `<p class="small">Sin acciones propuestas.</p>`;
+  return `<h3>Acciones recomendadas</h3>${acts}<h3>Limitaciones que declara el reporte</h3><ul class="bullets">${r.limitations.map(l => `<li>${esc(l)}</li>`).join("")}</ul>`;
+}
+
+function panelInput(c) {
+  return `<p>${esc(c.description)}</p><p class="small">Archivo: <code>${esc(c.input_path)}</code>. El texto de las alertas se trata como dato: se muestra tal cual, sin interpretarlo.</p>
+  <pre class="json">${esc(JSON.stringify({ alerts: c.alerts, enrichment: c.enrichment_input ?? undefined }, null, 2))}</pre>`;
+}
+
+function panelJson(c) {
+  return `<p class="small">Contrato <code>urn:soc-investigation-report:schema:1.1</code> de la skill. Este es el objeto que valida <code>validate_report.py</code>.</p>
+  <pre class="json">${esc(JSON.stringify(c.report, null, 2))}</pre>`;
+}
+
+const PANELS = { hyp: panelHyp, timeline: panelTimeline, scope: panelScope, ioc: panelIoc, actions: panelActions, input: panelInput, json: panelJson };
+
+function renderFile() {
+  const c = current();
+  if (!c) { document.getElementById("file").innerHTML = `<div class="panel"><p>No hay casos cargados.</p></div>`; return; }
+  const r = c.report, review = reviewOf(c), w = r.input.time_window_utc;
+  document.getElementById("file").innerHTML = `
+    <div class="file-head">
+      <div class="row"><div style="display:grid;gap:4px;min-width:0"><span class="eyebrow">${esc(r.case_id)}${c.holdout ? " · caso de control" : ""}</span><h3 style="font-size:1.3rem">${esc(c.title)}</h3></div>
+        <button class="btn ghost" type="button" id="replay">Repetir investigación</button></div>
+      <div class="facts"><span>Formato <b>${esc(r.input.source_format)}</b></span><span>Alertas <b>${r.input.processed_alert_count}/${r.input.alert_count}</b></span>
+        <span>Ventana <b class="mono">${w ? esc(w.start.slice(11, 16)) + "–" + esc(w.end.slice(11, 16)) + " UTC" : "—"}</b></span>
+        <span>Revisión <span class="chip st-${review.status}">${STATUS_LABEL[review.status]}</span></span></div>
+    </div>
+    <div class="tabs" role="tablist">${TABS.map(([k, l]) => `<button class="tab" role="tab" type="button" data-tab="${k}" aria-selected="${k === state.tab}">${l}</button>`).join("")}</div>
+    <div class="panel" role="tabpanel">${PANELS[state.tab](c)}</div>
+    <div class="review">
+      <div style="display:grid;gap:4px"><h3>Revisión del analista</h3>
+      <p class="small">El agente se detiene aquí. En esta demo la decisión queda solo en tu navegador; en el agente se envía con <code>submit_review</code> y reanuda el grafo.</p></div>
+      ${review.status !== "pending" ? `<p><span class="chip st-${review.status}">${STATUS_LABEL[review.status]}</span> por <b>${esc(review.analyst || "—")}</b>${review.notes ? ` · ${esc(review.notes)}` : ""} <button class="copy" type="button" id="reset">Volver a pendiente</button></p>` : ""}
+      <div class="review-row">
+        <label class="field" for="analyst">Analista<input id="analyst" type="text" autocomplete="off" placeholder="p. ej. analista-l2"></label>
+        <label class="field" for="notes" style="flex-basis:280px">Notas<input id="notes" type="text" autocomplete="off" placeholder="Qué corriges o por qué rechazas"></label>
+      </div>
+      <div class="decisions"><button type="button" data-d="validated">Validar</button><button type="button" data-d="corrected">Corregir</button><button type="button" data-d="rejected">Rechazar</button></div>
+    </div>`;
+}
+
+function renderCoverage() {
+  const rows = [];
+  let hits = 0, total = 0;
+  DATA.forEach(c => {
+    if (!c.expected.length) {
+      rows.push(`<tr><td>${esc(c.title)}</td><td>Ninguna (ruido benigno)</td><td><span class="chip ${c.report.hypotheses.length ? "miss" : "hit"}">${c.report.hypotheses.length ? "falso positivo" : "correcto: sin hipótesis"}</span></td><td></td></tr>`);
+      return;
+    }
+    c.expected.forEach((e, i) => {
+      total++; if (e.detected) hits++;
+      const conf = e.detected ? (c.report.hypotheses.find(h => h.statement.includes(e.id.split(".")[0])) || {}).confidence : null;
+      rows.push(`<tr class="${c.holdout ? "holdout" : ""}"><td>${i === 0 ? esc(c.title) : ""}</td><td><code>${esc(e.id)}</code> ${esc(e.name)}</td>
+        <td><span class="chip ${e.detected ? "hit" : "miss"}">${e.detected ? "detectada" + (conf ? " · " + conf : "") : "no detectada"}</span></td><td class="small">${esc(e.note || "")}</td></tr>`);
+    });
+  });
+  document.getElementById("cov-table").innerHTML = `<thead><tr><th>Caso</th><th>Técnica esperada</th><th>Resultado</th><th>Nota</th></tr></thead><tbody>${rows.join("")}</tbody>`;
+  const holdout = DATA.find(c => c.holdout);
+  const hoHits = holdout ? holdout.expected.filter(e => e.detected).length : 0;
+  document.getElementById("tally").innerHTML = `
+    <div><span class="big">${hits}/${total}</span><p class="small">técnicas de referencia detectadas en ${DATA.length} casos</p><div class="bar" aria-hidden="true"><span style="width:${total ? (hits / total) * 100 : 0}%"></span></div></div>
+    ${holdout ? `<div><span class="big">${hoHits}/${holdout.expected.length}</span><p class="small">en el caso de control, que no se usó para ajustar reglas</p></div>` : ""}`;
+}
+
+function renderRun() {
+  const cmds = [
+    ["Un caso, reporte en la terminal", "python agent/graph.py data/synthetic/phishing_ecs.json"],
+    ["El caso de control", "python agent/graph.py data/holdout/kerberoast_rdp_rclone_ecs.json"],
+    ["Todos los casos y reconstruir esta página", "python agent/run_synthetic.py\npython demo/build_demo.py"],
+    ["Las pruebas automatizadas", "python -m pytest tests -q"],
+  ];
+  document.getElementById("run").innerHTML = cmds.map(([t, c], i) => `<div class="cmd"><div class="top"><b>${esc(t)}</b><button class="copy" type="button" data-copy="${i}">Copiar</button></div><pre id="cmd-${i}">${esc(c)}</pre></div>`).join("");
+  document.getElementById("run").addEventListener("click", ev => {
+    const b = ev.target.closest("[data-copy]"); if (!b) return;
+    const pre = document.getElementById("cmd-" + b.dataset.copy);
+    const done = () => { b.textContent = "Copiado"; setTimeout(() => (b.textContent = "Copiar"), 1400); };
+    const select = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selecciona y copia"; };
+    try { navigator.clipboard.writeText(pre.textContent).then(done, select); } catch { select(); }
+  });
+}
+
+function renderAll() { renderPhases(); renderCases(); renderFile(); }
+
+async function replay() {
+  if (state.replaying) return;
+  state.replaying = true;
+  const btn = document.getElementById("replay"); if (btn) { btn.disabled = true; btn.textContent = "Investigando…"; }
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const log = current().report.audit_trail || [];
+  for (let i = 0; i < PHASES.length; i++) {
+    renderPhases(i);
+    const entry = log.find(e => e.node === PHASES[i].node);
+    const wait = reduce ? 120 : Math.min(1400, 350 + (entry ? entry.duration_ms / 5 : 300));
+    await new Promise(r => setTimeout(r, wait));
+  }
+  state.replaying = false;
+  renderPhases();
+  const b2 = document.getElementById("replay"); if (b2) { b2.disabled = false; b2.textContent = "Repetir investigación"; }
+  document.getElementById("phases").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+}
+
+document.getElementById("cases").addEventListener("click", ev => {
+  const b = ev.target.closest(".case-btn"); if (!b || state.replaying) return;
+  state.key = b.dataset.key; store.set("soc-demo-case", state.key); renderAll();
+});
+document.getElementById("file").addEventListener("click", ev => {
+  const t = ev.target.closest("[data-tab]");
+  if (t) { state.tab = t.dataset.tab; renderFile(); document.querySelector(`[data-tab="${state.tab}"]`).focus(); return; }
+  if (ev.target.closest("#replay")) { replay(); return; }
+  if (ev.target.closest("#reset")) { delete state.reviews[state.key]; store.set("soc-demo-reviews", state.reviews); renderAll(); return; }
+  const d = ev.target.closest("[data-d]");
+  if (d) {
+    const analyst = document.getElementById("analyst").value.trim() || "analista (demo)";
+    const notes = document.getElementById("notes").value.trim() || null;
+    state.reviews[state.key] = { status: d.dataset.d, analyst, notes, reviewed_at: new Date().toISOString() };
+    store.set("soc-demo-reviews", state.reviews); renderAll();
+  }
+});
+
+renderAll(); renderCoverage(); renderRun();
+const gen = DATA.map(c => c.report.generated_at).filter(Boolean).sort().at(-1);
+document.getElementById("footer").textContent = `Reportes generados por el agente${gen ? " el " + gen.slice(0, 10) : ""}. Casos sintéticos; las IP pertenecen a rangos de documentación. Motor de reglas deterministas, sin LLM.`;
+</script>

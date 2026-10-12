@@ -1,0 +1,12 @@
+{
+  "case_id": "SYN-RANSOM-004",
+  "synthetic": true,
+  "description": "Ejecución remota vía SMB, borrado de shadow copies y cifrado masivo de archivos.",
+  "alerts": [
+    {"id": "rw-1", "timestamp": "2026-09-17T01:00:00Z", "rule_name": "smb_admin_share_access", "user": "adm_it", "host": "SRV-APP-02", "source_ip": "10.0.3.14", "dest_ip": "10.0.3.20", "tags": ["lateral_movement"]},
+    {"id": "rw-2", "timestamp": "2026-09-17T01:04:00Z", "rule_name": "remote_exec_psexec_service", "user": "adm_it", "host": "SRV-FILE-01", "source_ip": "10.0.3.14", "dest_ip": "10.0.3.20", "tags": ["remote_exec"]},
+    {"id": "rw-3", "timestamp": "2026-09-17T01:09:00Z", "rule_name": "shadow_copy_deleted", "user": "adm_it", "host": "SRV-FILE-01", "tags": ["defense_evasion"]},
+    {"id": "rw-4", "timestamp": "2026-09-17T01:12:00Z", "rule_name": "mass_file_encryption", "user": "adm_it", "host": "SRV-FILE-01", "tags": ["file_encryption"]},
+    {"id": "rw-5", "timestamp": "2026-09-17T01:13:00Z", "rule_name": "ransom_note_created", "user": "adm_it", "host": "SRV-FILE-01", "tags": ["ransom_note"]}
+  ]
+}

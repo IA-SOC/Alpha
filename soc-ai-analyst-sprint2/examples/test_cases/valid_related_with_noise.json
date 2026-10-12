@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "case_id": "INC-SPRINT2-RELATED-001",
+  "submitted_at": "2026-10-02T20:00:00-05:00",
+  "title": "Related authentication activity with unrelated DNS noise",
+  "correlation": {"fields": ["source.ip", "user.name", "host.name"]},
+  "alerts": [
+    {
+      "alert_id": "elastic-auth-001",
+      "source_system": "elastic",
+      "source_version": "8.19",
+      "ecs_version": "8.x",
+      "raw_alert": {
+        "event": {"id": "elastic-auth-001", "category": "authentication", "outcome": "failure"},
+        "source": {"ip": "203.0.113.50"},
+        "user": {"name": "jsmith"},
+        "host": {"name": "workstation-07"},
+        "@timestamp": "2026-10-02T19:55:00-05:00"
+      }
+    },
+    {
+      "alert_id": "elastic-auth-002",
+      "source_system": "elastic",
+      "source_version": "8.19",
+      "ecs_version": "8.x",
+      "raw_alert": {
+        "event": {"id": "elastic-auth-002", "category": "authentication", "outcome": "success"},
+        "source": {"ip": "203.0.113.50"},
+        "user": {"name": "jsmith"},
+        "host": {"name": "workstation-07"},
+        "@timestamp": "2026-10-02T19:57:00-05:00"
+      }
+    },
+    {
+      "alert_id": "elastic-noise-001",
+      "source_system": "elastic",
+      "source_version": "8.19",
+      "ecs_version": "8.x",
+      "raw_alert": {
+        "event": {"id": "elastic-noise-001", "category": "network"},
+        "source": {"ip": "198.51.100.8"},
+        "host": {"name": "dns-server-02"},
+        "dns": {"question": {"name": "updates.example.test"}},
+        "@timestamp": "2026-10-02T19:56:00-05:00"
+      }
+    }
+  ]
+}

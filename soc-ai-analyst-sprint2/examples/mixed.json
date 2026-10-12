@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "case_id": "INC-2026-000003",
+  "submitted_at": "2026-09-29T20:30:00Z",
+  "alerts": [
+    {
+      "alert_id": "elastic-event-002",
+      "source_system": "elastic",
+      "source_version": "9.4",
+      "raw_alert": {
+        "event": {
+          "id": "elastic-event-002"
+        },
+        "user": {
+          "name": "user-001"
+        }
+      }
+    },
+    {
+      "alert_id": "wazuh-event-002",
+      "source_system": "wazuh",
+      "source_version": "4.14",
+      "raw_alert": {
+        "id": "wazuh-event-002",
+        "data": {
+          "srcuser": "user-001"
+        }
+      }
+    }
+  ],
+  "correlation": {
+    "fields": [
+      "user"
+    ]
+  },
+  "enrichments": []
+}

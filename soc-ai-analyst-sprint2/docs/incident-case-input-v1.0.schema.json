@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOC AI Analyst Incident Case Input v1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "submitted_at",
+    "alerts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "case_id": {
+      "$ref": "#/$defs/nonBlankString"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "alerts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "$ref": "#/$defs/alert"
+      }
+    },
+    "correlation": {
+      "$ref": "#/$defs/correlation"
+    },
+    "enrichments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/enrichment"
+      }
+    }
+  },
+  "$defs": {
+    "nonBlankString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "alert": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alert_id",
+        "source_system",
+        "raw_alert"
+      ],
+      "properties": {
+        "alert_id": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "source_system": {
+          "enum": [
+            "elastic",
+            "wazuh"
+          ]
+        },
+        "source_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+        },
+        "ecs_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.(x|[0-9]+(\\.[0-9]+)?)$"
+        },
+        "raw_alert": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": true
+        }
+      }
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fields"
+      ],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonBlankString"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "enrichment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "observable"
+      ],
+      "properties": {
+        "provider": {
+          "$ref": "#/$defs/nonBlankString"
+        },
+        "observable": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "$ref": "#/$defs/nonBlankString"
+            },
+            "value": {
+              "$ref": "#/$defs/nonBlankString"
+            }
+          }
+        },
+        "related_alert_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonBlankString"
+          },
+          "uniqueItems": true
+        },
+        "raw_result": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

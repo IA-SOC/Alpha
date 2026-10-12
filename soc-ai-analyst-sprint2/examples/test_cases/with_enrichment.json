@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "case_id": "INC-SPRINT2-ENRICHED-001",
+  "submitted_at": "2026-10-02T20:10:00-05:00",
+  "alerts": [
+    {
+      "alert_id": "elastic-ioc-001",
+      "source_system": "elastic",
+      "raw_alert": {"event": {"id": "elastic-ioc-001"}, "source": {"ip": "203.0.113.77"}}
+    }
+  ],
+  "enrichments": [
+    {
+      "provider": "virustotal",
+      "observable": {"type": "ip", "value": "203.0.113.77"},
+      "related_alert_ids": ["elastic-ioc-001"],
+      "raw_result": {"reputation": "malicious", "score": 85}
+    }
+  ]
+}

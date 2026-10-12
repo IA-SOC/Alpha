@@ -1,0 +1,164 @@
+{
+  "case_id": "HOLDOUT-KRB-006",
+  "generated_at": "2026-09-30T14:49:30.636500Z",
+  "methodology": {
+    "skill": "soc-case-investigator",
+    "report_schema": "urn:soc-investigation-report:schema:1.1",
+    "engine": "LangGraph + MCP servers (reglas deterministas)",
+    "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+  },
+  "input": {
+    "source_format": "elastic_ecs",
+    "schema_version": null,
+    "alert_count": 5,
+    "processed_alert_count": 5,
+    "time_window_utc": {
+      "start": "2026-09-19T14:03:12Z",
+      "end": "2026-09-19T15:21:30Z"
+    },
+    "missing_fields": [],
+    "warnings": []
+  },
+  "executive_summary": "Caso HOLDOUT-KRB-006: 5 alertas procesadas. Ninguna coincide con el catálogo de técnicas; no se sostiene una hipótesis de ataque con estos datos.",
+  "attack_mapping": [],
+  "hypotheses": [],
+  "timeline": [
+    {
+      "timestamp_original": "2026-09-19T14:03:12Z",
+      "timestamp_utc": "2026-09-19T14:03:12Z",
+      "timezone_unknown": false,
+      "description": "Microsoft Office Child Process Spawned PowerShell en host WKS-31 (usuario: rquispe)",
+      "stage": "progression",
+      "alert_ids": [
+        "ho-001"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-19T14:19:40Z",
+      "timestamp_utc": "2026-09-19T14:19:40Z",
+      "timezone_unknown": false,
+      "description": "Kerberos Service Ticket Requests with RC4 Encryption Burst en host DC-01 (usuario: rquispe)",
+      "stage": "progression",
+      "alert_ids": [
+        "ho-002"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-19T15:02:05Z",
+      "timestamp_utc": "2026-09-19T15:02:05Z",
+      "timezone_unknown": false,
+      "description": "RDP Logon to Server from Workstation with Service Account en host SRV-ERP-02 (usuario: svc_sqlreport)",
+      "stage": "progression",
+      "alert_ids": [
+        "ho-003"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-19T15:20:48Z",
+      "timestamp_utc": "2026-09-19T15:20:48Z",
+      "timezone_unknown": false,
+      "description": "Rclone Execution with Cloud Remote en host SRV-ERP-02 (usuario: svc_sqlreport)",
+      "stage": "progression",
+      "alert_ids": [
+        "ho-004"
+      ],
+      "certainty": "observed"
+    },
+    {
+      "timestamp_original": "2026-09-19T15:21:30Z",
+      "timestamp_utc": "2026-09-19T15:21:30Z",
+      "timezone_unknown": false,
+      "description": "Unusual Volume of Outbound Data to Cloud Storage en host SRV-ERP-02 (usuario: svc_sqlreport)",
+      "stage": "progression",
+      "alert_ids": [
+        "ho-005"
+      ],
+      "certainty": "observed"
+    }
+  ],
+  "blast_radius": {
+    "observed_assets": [
+      {
+        "asset": "WKS-31",
+        "basis_alert_ids": [
+          "ho-001"
+        ],
+        "observed_activity": "Microsoft Office Child Process Spawned PowerShell"
+      },
+      {
+        "asset": "DC-01",
+        "basis_alert_ids": [
+          "ho-002"
+        ],
+        "observed_activity": "Kerberos Service Ticket Requests with RC4 Encryption Burst"
+      },
+      {
+        "asset": "SRV-ERP-02",
+        "basis_alert_ids": [
+          "ho-003",
+          "ho-004",
+          "ho-005"
+        ],
+        "observed_activity": "RDP Logon to Server from Workstation with Service Account; Rclone Execution with Cloud Remote; Unusual Volume of Outbound Data to Cloud Storage"
+      }
+    ],
+    "confirmed_assets": [],
+    "suspected_assets": [],
+    "confirmed_identities": [],
+    "suspected_identities": [],
+    "unknowns": [
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+    ]
+  },
+  "enrichment": {
+    "status": "no_disponible",
+    "items": [],
+    "note": "El caso no trae enriquecimiento de IoC; no se hicieron consultas externas."
+  },
+  "recommended_actions": [],
+  "limitations": [
+    "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+    "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+    "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+    "Caso sintético: la confianza se limita a 'media' como máximo."
+  ],
+  "audit_trail": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-09-30T14:49:23.199351Z",
+      "duration_ms": 0,
+      "detail": "5 alertas, formato elastic_ecs"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-09-30T14:49:28.982796Z",
+      "duration_ms": 5782,
+      "detail": "0 técnicas candidatas, 0 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-09-30T14:49:30.633932Z",
+      "duration_ms": 1650,
+      "detail": "5 eventos, 3 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-09-30T14:49:30.635233Z",
+      "duration_ms": 0,
+      "detail": "estado no_disponible, 0 IoC"
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "analyst": null,
+    "notes": null,
+    "reviewed_at": null
+  }
+}
