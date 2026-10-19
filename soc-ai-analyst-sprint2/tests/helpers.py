@@ -1,6 +1,30 @@
 """Synthetic fixtures; no customer-export layout is asserted."""
 
 from typing import Any
+from uuid import uuid4
+
+from tests.test_correlation_engine import case_for, event
+
+CASES_URL = "/api/v1/cases"
+
+
+def tagged(aid: str, tags: list[str], **kwargs: Any) -> dict[str, Any]:
+    """Alert whose tags drive the rule catalog in core/logic.py."""
+    alert = event(aid, **kwargs)
+    alert["raw_alert"]["tags"] = tags
+    return alert
+
+
+def investigate(client, *alerts: dict[str, Any]) -> dict[str, Any]:
+    """Submit a case through the API and return the investigation result."""
+    payload = case_for(*alerts).model_dump(exclude_unset=True)
+    payload["case_id"] = f"TEST-{uuid4()}"
+    response = client.post(CASES_URL, json=payload)
+    assert response.status_code == 201, response.text
+    case_id = response.json()["case_id"]
+    response = client.post(f"{CASES_URL}/{case_id}/investigate")
+    assert response.status_code == 200, response.text
+    return response.json()
 
 
 def make_case(
