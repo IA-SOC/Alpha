@@ -43,6 +43,7 @@ from langgraph.types import Command, interrupt
 from agent import investigation as inv
 from agent.normalize import normalize_case
 from agent.render import render_markdown
+from app.services.agent_adapter import correlate_direct
 from orchestrator.client import SERVERS, McpToolClient
 
 SKILL_DIR = ROOT / "skills" / "soc-case-investigator"
@@ -66,6 +67,7 @@ class InvestigationState(TypedDict, total=False):
     input_summary: Dict[str, Any]
     mitre_mappings: List[Dict[str, Any]]
     chain: Dict[str, Any]
+    correlation: Optional[Dict[str, Any]]
     attack_mapping: List[Dict[str, Any]]
     hypotheses: List[Dict[str, Any]]
     timeline: List[Dict[str, Any]]
@@ -115,19 +117,25 @@ async def investigar_hipotesis(state: InvestigationState) -> Dict[str, Any]:
     alerts = state["alerts"]
     mappings = await call_tool("mitre", "map_to_mitre", {"alerts": _mcp_view(alerts)}) if alerts else []
     chain = await call_tool("hypothesis", "generate_attack_hypothesis", {"mitre_mappings": mappings})
-    analysis = inv.build_attack_analysis(alerts, mappings, bool(state["case"].get("synthetic")))
+    synthetic = bool(state["case"].get("synthetic"))
     context = state["case"].get("investigation_context", {})
-    if context.get("adapter_version") == "backend-v1":
-        analysis = inv.correlated_attack_analysis(
-            alerts, mappings, bool(state["case"].get("synthetic")), context,
-        )
-        # The legacy chain combines techniques globally; do not present that as
-        # an established sequence when alert correlation is available.
+    correlation = (context["correlation"] if context.get("adapter_version") == "backend-v1"
+                   else correlate_direct(state["case"], alerts) if alerts else None)
+    # The legacy chain combines techniques globally, across unrelated alerts;
+    # never present that as an established attack sequence.
+    if correlation:
+        analysis = inv.correlated_attack_analysis(alerts, mappings, synthetic, {"correlation": correlation})
         chain = {**chain, "summary": "Técnicas candidatas evaluadas por grupos de alertas; "
                  "la correlación no demuestra causalidad ni una secuencia de ataque."}
+    else:
+        analysis = inv.build_attack_analysis(alerts, mappings, synthetic)
+        if mappings:
+            chain = {**chain, "summary": "Técnicas candidatas evaluadas sin correlación de alertas; "
+                     "no se afirma una secuencia de ataque."}
     return {
         "mitre_mappings": mappings,
         "chain": chain,
+        "correlation": correlation,
         **analysis,
         "audit_log": [_audit("investigar_hipotesis", started,
                              f"{len(mappings)} técnicas candidatas, {len(analysis['hypotheses'])} hipótesis")],
@@ -202,9 +210,14 @@ def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
     }
     context = case.get("investigation_context", {})
     if context.get("adapter_version") == "backend-v1":
-        report["correlation"] = context["correlation"]
         report["submitted_case_id"] = context["submitted_case_id"]
-        report["limitations"] += context["correlation"]["limitations"]
+    if state.get("correlation"):
+        report["correlation"] = state["correlation"]
+        report["limitations"] += state["correlation"]["limitations"]
+    elif state["alerts"]:
+        report["limitations"].append(
+            "No se pudo correlacionar las alertas (IDs duplicados o alertas fuera del contrato v1.0); "
+            "las hipótesis agrupan por técnica y pueden mezclar actividad no relacionada.")
     validation = run_skill_validator(case, report)
     return {
         "report": report,

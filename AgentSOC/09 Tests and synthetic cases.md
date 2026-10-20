@@ -12,13 +12,13 @@ updated: 2026-10-19
 
 | File | Scenario | Format | Alerts | Agent result |
 | --- | --- | --- | --- | --- |
-| `data/synthetic/phishing_ecs.json` | Phishing with credential theft; hostile text in the email subject; 3 IoC | ECS | 4 | T1566 · `media` |
+| `data/synthetic/phishing_ecs.json` | Phishing with credential theft; hostile text in the email subject; 3 IoC | ECS | 4 | T1566 · `baja` ×2 (the two phishing alerts are not correlated) |
 | `data/synthetic/bruteforce_wazuh.json` | SSH brute force, successful login, sudo; internal SSH that matches a backup | Wazuh | 8 | T1110 · `media`; T1021 · `insuficiente` |
-| `data/synthetic/exfiltration.json` | Compression and outbound transfer with DNS tunneling | Internal | 4 | T1041 · `media` |
-| `data/synthetic/pre_ransomware.json` | SMB, PsExec, shadow copy deletion, encryption | Internal | 5 | T1021 · `media`; T1486 · `media` |
+| `data/synthetic/exfiltration.json` | Compression and outbound transfer with DNS tunneling | Internal | 4 | T1041 · `media`; T1041 · `baja` |
+| `data/synthetic/pre_ransomware.json` | SMB, PsExec, shadow copy deletion, encryption | Internal | 5 | T1021 · `media`; T1486 · `media`; T1569.002 · `baja`; T1490 · `baja` |
 | `data/synthetic/benign_noise.json` | Update and authorized scan; broken times | Internal | 3 | No hypotheses |
-| `data/sample_case_bruteforce.json` | Original scaffold case | Internal | 4 | T1021 · `media`; T1110 · `baja` |
-| `data/holdout/kerberoast_rdp_rclone_ecs.json` | **Holdout:** Office macro, Kerberoasting, RDP, rclone to the cloud | ECS | 5 | **No hypotheses** |
+| `data/sample_case_bruteforce.json` | Original scaffold case | Internal | 4 | T1110 · `baja`; T1021 · `baja` ×2 |
+| `data/holdout/kerberoast_rdp_rclone_ecs.json` | **Holdout:** Office macro, Kerberoasting, RDP, rclone to the cloud | ECS | 5 | T1021 · `baja` |
 
 ### API cases (contract v1.0)
 

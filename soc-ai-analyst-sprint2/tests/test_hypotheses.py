@@ -11,7 +11,6 @@ Criteria used here until #37 lands, taken from the skill protocol
 - a hypothesis stays inside one correlation group, and no attack sequence is
   asserted across groups that are not related.
 
-Checks that need #38 are strict xfails, so they fail loudly once it is fixed.
 """
 
 import asyncio
@@ -172,10 +171,47 @@ def direct_agent_summary():
     return asyncio.run(run())
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#38: the direct agent path chains techniques from unrelated alerts",
-)
 def test_direct_agent_summary_asserts_no_sequence_across_unrelated_alerts():
     summary = direct_agent_summary()
     assert not any(marker in summary for marker in SEQUENCE_MARKERS)
+
+
+def direct_report(case):
+    async def run():
+        app = build_graph()
+        config = {"configurable": {"thread_id": case["case_id"]}}
+        await app.ainvoke({"case": case, "audit_log": []}, config)
+        return app.get_state(config).values["report"]
+
+    return asyncio.run(run())
+
+
+def test_direct_agent_keeps_unrelated_alerts_of_one_technique_apart():
+    """#38: run directly, a shared technique does not merge unrelated activity."""
+
+    def alert(aid, host, user, ip, time):
+        return {"id": aid, "timestamp": time, "rule_name": "brute_force",
+                "host": host, "user": user, "source_ip": ip}
+
+    case = {
+        "case_id": "DIRECT-GROUPS",
+        "alerts": [
+            alert("a1", "web-01", "bob", "198.51.100.20", "2026-10-09T10:00:00Z"),
+            alert("a2", "web-01", "bob", "198.51.100.20", "2026-10-09T10:01:00Z"),
+            alert("b1", "db-09", "eve", "203.0.113.9", "2026-10-09T15:00:00Z"),
+        ],
+    }
+    report = direct_report(case)
+    cited = sorted(
+        sorted(e["alert_id"] for e in h["evidence_for"]) for h in report["hypotheses"]
+    )
+    assert cited == [["a1", "a2"], ["b1"]]
+    assert report["correlation"]["related_groups"] == [["a1", "a2"]]
+    for rel in report["correlation"]["relationships"]:
+        for evidence in rel["evidence"]:
+            for field in evidence["fields"]:
+                index, *keys = field["path"].lstrip("/").split("/")[1:]
+                value = case["alerts"][int(index)]
+                for key in keys:
+                    value = value[key]
+                assert value == field["value"]

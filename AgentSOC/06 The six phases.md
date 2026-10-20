@@ -1,7 +1,7 @@
 ---
 tags: [agentsoc, architecture]
 aliases: [Phases, Graph nodes]
-updated: 2026-10-11
+updated: 2026-10-19
 ---
 
 # The six phases
@@ -52,9 +52,9 @@ flowchart LR
    - **ordinal confidence** (see below).
 4. Sorts hypotheses by confidence, then by tactic (initial access first).
 
-### New in Sprint 2: analysis per correlation group
+### Analysis per correlation group
 
-With the adapter, `correlated_attack_analysis` splits the work:
+Alerts from the API come with their correlation. Since Sprint 3 (#38), cases run directly (`agent/run_synthetic.py`, the demo) are correlated too: `correlate_direct` wraps the alerts in the v1.0 contract only to run the same engine, and rewrites the evidence pointers into the case as given. If the case can't be wrapped (duplicate IDs, alerts outside the contract), the report says so in its limitations. Then `correlated_attack_analysis` splits the work:
 
 - Each **related group** (a connected component of `related` pairs) is analysed on its own.
 - Every alert outside a group (uncertain or unrelated) is analysed as a **singleton**.
@@ -62,7 +62,7 @@ With the adapter, `correlated_attack_analysis` splits the work:
 
 The effect: **an unrelated alert can no longer raise another group's confidence just because it matches the same technique**. Two unrelated brute-force alerts give two separate low-confidence hypotheses, not one medium one. Each hypothesis carries `correlation_group_alert_ids`, and each piece of evidence carries `source_fields` (path and value in the original case).
 
-The global attack chain is kept, but its summary now says that techniques were evaluated per group and that correlation does not prove a sequence.
+The global attack chain is kept, but its summary never states a sequence: it says techniques were evaluated per group and that correlation does not prove one.
 
 ### Confidence rule
 
