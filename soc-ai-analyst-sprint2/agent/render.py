@@ -50,7 +50,11 @@ def render_markdown(report: Dict[str, Any]) -> str:
         lines.append(f"| {m['tactic']} | {m['technique_id']} {m['technique_name']} | {m['status']} | "
                      f"{_ids([e['alert_id'] for e in m['evidence']])} |")
     lines += ["", "## Línea de tiempo", "| Hora original | Hora UTC / estado de zona | Evento observado o inferido | Alertas fuente |", "|---|---|---|---|"]
+    undated = [t for t in report["timeline"] if not t["timestamp_utc"]]
     for t in report["timeline"]:
+        if undated and t is undated[0]:
+            lines += ["", "### Eventos sin hora UTC utilizable (fuera de la secuencia)",
+                      "| Hora original | Estado de zona | Evento observado o inferido | Alertas fuente |", "|---|---|---|---|"]
         utc = t["timestamp_utc"] or ("zona desconocida" if t["timezone_unknown"] else "sin timestamp")
         lines.append(f"| {t['timestamp_original'] or '—'} | {utc} | {t['description']} ({t['certainty']}) | {_ids(t['alert_ids'])} |")
     lines += [

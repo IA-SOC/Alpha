@@ -25,8 +25,10 @@ def build_case_timeline(alerts: List[Dict[str, Any]],
             clasificar cada evento en una etapa del ataque.
 
     Returns:
-        Lista de eventos ordenados cronológicamente, cada uno con alert_id,
-        timestamp, description y stage (initial_access | progression | impact).
+        Lista de eventos, cada uno con alert_id, timestamp, description y stage
+        (initial_access | progression | impact). Primero los que tienen hora UTC
+        utilizable, en orden cronológico; al final, aparte y en orden de
+        entrada, los que no tienen hora o no tienen zona horaria.
     """
     return build_timeline(alerts, mitre_mappings)
 

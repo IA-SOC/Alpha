@@ -10,7 +10,6 @@ Criteria used here until #27 lands, taken from the skill protocol
 - undated or zone-less events are kept apart from the dated sequence;
 - every entry points to exactly one submitted alert, and none is lost.
 
-Checks that need #28 are strict xfails, so they fail loudly once it is fixed.
 """
 
 from datetime import datetime
@@ -94,10 +93,6 @@ def test_missing_zone_is_flagged_and_never_assumed_utc(timeline):
     assert no_zone["timezone_unknown"] is True
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#28: undated and zone-less events are sorted to the top of the timeline",
-)
 def test_undated_and_zone_less_events_come_after_the_dated_sequence(timeline):
     positions = [bool(t["timestamp_utc"]) for t in timeline]
     first_without_time = positions.index(False)

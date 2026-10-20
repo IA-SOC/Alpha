@@ -10,7 +10,8 @@ Es la misma lógica que en soc-agent/agent/*.py, adaptada a dicts en vez de
 dataclasses para que viaje directo como argumentos/resultados de tools MCP.
 """
 from collections import defaultdict
-from typing import Any, Dict, List
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # ---------------------------------------------------------------------------
 # Catálogo de reglas MITRE ATT&CK (ampliar con la guía real del cliente)
@@ -116,15 +117,32 @@ def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return sorted(mappings, key=lambda m: m["confidence"], reverse=True)
 
 
+def _utc_instant(timestamp: Any) -> Optional[datetime]:
+    """Instante comparable, o None si falta, es inválido o no tiene zona horaria."""
+    try:
+        parsed = datetime.fromisoformat(str(timestamp).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed.tzinfo else None
+
+
 def build_timeline(alerts: List[Dict[str, Any]], mappings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Alertas + mapeo MITRE -> línea de tiempo ordenada, con etapa por evento."""
+    """Alertas + mapeo MITRE -> línea de tiempo con etapa por evento.
+
+    Los eventos con hora UTC utilizable van primero, por instante (empates en
+    orden de entrada); después, aparte y en orden de entrada, los que no la tienen.
+    """
     alert_to_tactic = {}
     for mapping in mappings:
         for alert_id in mapping["supporting_alert_ids"]:
             alert_to_tactic.setdefault(alert_id, mapping["tactic"])
 
+    dated = sorted((a for a in alerts if _utc_instant(a["timestamp"])),
+                   key=lambda a: _utc_instant(a["timestamp"]))
+    undated = [a for a in alerts if not _utc_instant(a["timestamp"])]
+
     events = []
-    for alert in sorted(alerts, key=lambda a: a["timestamp"]):
+    for alert in dated + undated:
         tactic = alert_to_tactic.get(alert["id"])
         stage = TACTIC_TO_STAGE.get(tactic, "progression")
         description = alert.get("rule_name", "")
