@@ -25,6 +25,7 @@ ALTERNATIVES = {
     "Credential Access": ["Usuario legítimo que olvidó su contraseña o script con credenciales vencidas."],
     "Lateral Movement": ["Tarea administrativa o de respaldo legítima entre servidores."],
     "Initial Access": ["Correo legítimo de proveedor clasificado como sospechoso por la regla."],
+    "Execution": ["Herramienta de administración remota (PsExec) usada por soporte de TI."],
     "Exfiltration": ["Replicación o respaldo externo autorizado."],
     "Impact": ["Cifrado o limpieza legítima por software de respaldo/DLP."],
 }
@@ -33,6 +34,7 @@ UNKNOWNS = {
     "Credential Access": ["No hay telemetría de EDR que confirme ejecución posterior al acceso."],
     "Lateral Movement": ["Falta confirmar si la sesión remota tenía un cambio aprobado."],
     "Initial Access": ["No se sabe si el usuario introdujo credenciales en el sitio."],
+    "Execution": ["Se desconoce qué binario ejecutó el servicio y con qué privilegios."],
     "Exfiltration": ["Se desconoce el contenido y el volumen exacto transferido."],
     "Impact": ["Se desconoce el alcance total de archivos afectados y el estado de backups."],
 }
@@ -41,6 +43,7 @@ PRIORITY_BY_TACTIC = {
     "Impact": "urgent",
     "Exfiltration": "urgent",
     "Lateral Movement": "high",
+    "Execution": "high",
     "Credential Access": "high",
     "Initial Access": "medium",
 }

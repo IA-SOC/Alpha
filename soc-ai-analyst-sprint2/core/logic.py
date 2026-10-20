@@ -9,6 +9,7 @@ sin tocar la lógica.
 Es la misma lógica que en soc-agent/agent/*.py, adaptada a dicts en vez de
 dataclasses para que viaje directo como argumentos/resultados de tools MCP.
 """
+import re
 from collections import defaultdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -42,7 +43,21 @@ RULES = [
         "tactic": "Exfiltration",
     },
     {
-        "match_any": ["file_encryption", "shadow_copy_deleted", "ransom_note"],
+        "match_any": ["psexec", "service_execution"],
+        "technique_id": "T1569.002",
+        "technique_name": "System Services: Service Execution",
+        "tactic": "Execution",
+    },
+    {
+        # vssadmin/wbadmin también cubren su uso legítimo: el mapeo es solo candidato.
+        "match_any": ["shadow_copy_delet", "shadow_copies_delet", "vssadmin", "wbadmin",
+                      "backup_catalog_delet"],
+        "technique_id": "T1490",
+        "technique_name": "Inhibit System Recovery",
+        "tactic": "Impact",
+    },
+    {
+        "match_any": ["file_encryption", "ransom_note", "ransomware"],
         "technique_id": "T1486",
         "technique_name": "Data Encrypted for Impact",
         "tactic": "Impact",
@@ -51,6 +66,7 @@ RULES = [
 
 TACTIC_TO_STAGE = {
     "Initial Access": "initial_access",
+    "Execution": "progression",
     "Credential Access": "initial_access",
     "Lateral Movement": "progression",
     "Persistence": "progression",
@@ -70,6 +86,9 @@ ACTIONS_BY_TACTIC = {
     "Initial Access": [
         "Bloquear el vector de entrada identificado (IP, dominio o archivo)",
     ],
+    "Execution": [
+        "Revisar y deshabilitar los servicios creados recientemente en los hosts afectados",
+    ],
     "Exfiltration": [
         "Bloquear las conexiones salientes hacia los destinos identificados",
         "Notificar al equipo de respuesta a incidentes de exfiltración",
@@ -80,14 +99,18 @@ ACTIONS_BY_TACTIC = {
     ],
 }
 
-TACTIC_ORDER = ["Initial Access", "Credential Access", "Lateral Movement",
+TACTIC_ORDER = ["Initial Access", "Execution", "Credential Access", "Lateral Movement",
                 "Persistence", "Exfiltration", "Impact"]
 
 
 def _alert_signals(alert: Dict[str, Any]) -> List[str]:
-    signals = [alert.get("rule_name", "").lower()]
-    signals += [t.lower() for t in alert.get("tags", [])]
-    return signals
+    """Nombre de regla y tags en minúsculas, con todo lo no alfanumérico como "_".
+
+    Así "Volume Shadow Copy Deletion" o "Tactic: Lateral Movement" coinciden
+    con patrones escritos como shadow_copy_delet o lateral_movement.
+    """
+    signals = [alert.get("rule_name") or ""] + list(alert.get("tags") or [])
+    return [re.sub(r"[^a-z0-9]+", "_", str(s).lower()) for s in signals]
 
 
 def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

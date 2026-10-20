@@ -32,7 +32,7 @@ EXPECTED_TECHNIQUES = {
     "phishing_ecs": {"T1566"},
     "bruteforce_wazuh": {"T1110", "T1021"},
     "exfiltration": {"T1041"},
-    "pre_ransomware": {"T1021", "T1486"},
+    "pre_ransomware": {"T1021", "T1569.002", "T1490", "T1486"},
     "benign_noise": set(),
 }
 

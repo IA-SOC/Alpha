@@ -1,7 +1,7 @@
 ---
 tags: [agentsoc, improvements, index]
 aliases: [Improvements, Agent roadmap]
-updated: 2026-10-11
+updated: 2026-10-19
 ---
 
 # Improving the agent
@@ -37,7 +37,6 @@ Step-by-step guides, ordered from least to most effort. Each one says which file
 
 ## Other pending improvements
 
-- Split rules that are grouped today: shadow copies → T1490; PsExec → T1569.002.
 - Make evidence against look at the time window, not just the host.
 - Extend the traceability check to the legacy `observation` text.
 - Pin an ATT&CK version and store it in `source_version`.

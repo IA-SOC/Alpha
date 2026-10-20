@@ -9,14 +9,13 @@ Criteria used here until #32 lands, taken from the skill protocol
 - a shared technique never makes alerts related, and correlation never
   depends on technique labels.
 
-Checks that need #33 are strict xfails, so they fail loudly once it is fixed.
 """
 
 import pytest
 from fastapi.testclient import TestClient
 
 from app.main import create_app
-from core.logic import RULES
+from core.logic import RULES, map_alerts_to_mitre
 from tests.helpers import investigate, tagged
 
 PATTERNS = [
@@ -126,11 +125,26 @@ def test_related_alerts_keep_one_group_across_techniques(client):
         assert mapping["correlation_group_alert_ids"] == ["login", "share"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#33: shadow-copy deletion is still mapped to T1486 with file encryption",
-)
 def test_shadow_copy_deletion_maps_to_inhibit_system_recovery(client):
     result = investigate(client, tagged("vss", ["shadow_copy_deleted"]))
     techniques = {m["technique_id"] for m in result["report"]["attack_mapping"]}
     assert techniques == {"T1490"}
+
+
+@pytest.mark.parametrize(
+    "rule_name, technique_id",
+    [
+        ("Volume Shadow Copy Deletion via VssAdmin", "T1490"),
+        ("Volume Shadow Copy Deleted or Resized via VssAdmin", "T1490"),
+        ("Deleting Backup Catalogs with Wbadmin", "T1490"),
+        ("Shadow copies deletion via vssadmin.exe", "T1490"),
+        ("PsExec Network Connection", "T1569.002"),
+        ("PsExec service installed (PSEXESVC)", "T1569.002"),
+        ("Ransomware - Detected - Elastic Defend", "T1486"),
+        ("Tactic: Lateral Movement", "T1021"),
+    ],
+)
+def test_vendor_rule_names_match_despite_punctuation(rule_name, technique_id):
+    """#33: real Elastic/Wazuh rule names, not only underscore keywords."""
+    alert = {"id": "a", "rule_name": rule_name, "tags": []}
+    assert [m["technique_id"] for m in map_alerts_to_mitre([alert])] == [technique_id]
