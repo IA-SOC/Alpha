@@ -42,6 +42,27 @@ FIELDS = {
 }
 
 
+# Fields the agent reads to classify an alert; cited as its source evidence.
+SIGNAL_PATHS = (
+    "rule_name",
+    "kibana.alert.rule.name",
+    "rule.name",
+    "rule.description",
+    "event.action",
+    "tags",
+    "rule.groups",
+    "event.category",
+    "host.name",
+    "host.hostname",
+    "agent.name",
+    "user.name",
+    "data.srcuser",
+    "data.dstuser",
+    "host",
+    "user",
+)
+
+
 def escape(value: str) -> str:
     return value.replace("~", "~0").replace("/", "~1")
 

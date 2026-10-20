@@ -46,10 +46,19 @@ def verify_traceability(context: dict, report: dict) -> None:
                     raise ValueError("Invalid declared IoC reference")
             for field in association["fields"]:
                 check_field(field)
+    for entry in report["timeline"]:
+        for field in entry["source_fields"]:
+            check_field(field)
+            if field["alert_id"] not in entry["alert_ids"]:
+                raise ValueError("Timeline evidence cites another alert")
+    for mapping in report["attack_mapping"]:
+        for evidence in mapping["evidence"]:
+            for field in evidence["source_fields"]:
+                check_field(field)
     for hypothesis in report["hypotheses"]:
         for key in ("evidence_for", "evidence_against"):
             for evidence in hypothesis[key]:
-                for field in evidence.get("source_fields", []):
+                for field in evidence["source_fields"]:
                     check_field(field)
         for evidence in hypothesis.get("ioc_evidence", []):
             item = iocs[evidence["evidence_id"]]

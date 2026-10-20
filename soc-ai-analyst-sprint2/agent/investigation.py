@@ -60,6 +60,7 @@ def _evidence(alert: Dict[str, Any], role: str, relevance: str) -> Dict[str, Any
         "observation": f"{alert['rule_name'] or 'sin regla'} en {alert.get('host') or 'host desconocido'}"
                        + (f" (usuario {alert['user']})" if alert.get("user") else ""),
         "relevance": relevance,
+        "source_fields": deepcopy(alert["source_fields"]),
     }
 
 
@@ -154,6 +155,7 @@ def build_timeline(alerts: List[Dict[str, Any]], mcp_timeline: List[Dict[str, An
             "stage": event["stage"],
             "alert_ids": [alert["id"]],
             "certainty": "observed",
+            "source_fields": deepcopy(alert["source_fields"]),
         })
     return timeline
 
@@ -264,9 +266,6 @@ def correlated_attack_analysis(alerts, mappings, synthetic, context):
         for values in analysis.values():
             for item in values:
                 item["correlation_group_alert_ids"] = group
-                for key in ("evidence", "evidence_for", "evidence_against"):
-                    for ev in item.get(key, []):
-                        ev["source_fields"] = deepcopy(context["signal_evidence"][ev["alert_id"]])
         for key in combined:
             combined[key].extend(analysis[key])
     combined["hypotheses"].sort(key=lambda h: -LEVELS.index(h["confidence"]))

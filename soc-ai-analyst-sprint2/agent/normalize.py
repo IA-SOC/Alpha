@@ -11,8 +11,11 @@ missing_fields y los timestamps sin zona horaria se marcan como
 timezone_unknown en vez de asumirse UTC.
 """
 import re
+from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
+
+from app.services.evidence import SIGNAL_PATHS, read_field
 
 MAX_ALERTS = 50
 
@@ -107,6 +110,16 @@ def _strings(obj: Any) -> List[Tuple[str, str]]:
     return out
 
 
+def _source_fields(raw: Dict[str, Any], alert_id: str, prefix: str) -> List[Dict[str, Any]]:
+    """Campos crudos que lee el agente, citados por JSON Pointer dentro del caso."""
+    return [
+        {"alert_id": alert_id, "path": pointer, "value": deepcopy(value)}
+        for path in SIGNAL_PATHS + ("@timestamp", "timestamp")
+        for pointer, value in read_field(raw, path, prefix)
+        if isinstance(value, (str, list))
+    ]
+
+
 def normalize_alert(alert: Dict[str, Any], index: int) -> Dict[str, Any]:
     source_format = detect_format(alert)
 
@@ -155,6 +168,7 @@ def normalize_alert(alert: Dict[str, Any], index: int) -> Dict[str, Any]:
     ) if value in (None, "")]
     normalized["missing_fields"] = missing
     normalized["string_values"] = _strings(alert)
+    normalized["source_fields"] = _source_fields(alert, alert_id, f"/alerts/{index - 1}")
     return normalized
 
 
@@ -171,6 +185,10 @@ def normalize_case(case: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str
             normalized["id_is_native"] = True
             normalized["raw"] = original["raw_alert"]
             normalized["string_values"] = _strings(original["raw_alert"])
+            # Pointers into the submitted case, not into the _source view the agent reads.
+            normalized["source_fields"] = deepcopy(context["signal_evidence"][original["alert_id"]])
+            if event.get("timestamp_evidence"):
+                normalized["source_fields"].append(deepcopy(event["timestamp_evidence"]))
             normalized["source_format"] = (
                 "wazuh" if original["source_system"] == "wazuh" else
                 "elastic_security" if normalized["source_format"] == "elastic_security" else "elastic_ecs"

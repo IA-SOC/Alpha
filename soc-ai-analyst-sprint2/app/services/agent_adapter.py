@@ -3,28 +3,9 @@
 from copy import deepcopy
 
 from app.services.correlation import correlate
-from app.services.evidence import extract_events, read_field
+from app.services.evidence import SIGNAL_PATHS, extract_events, read_field
 from app.services.ioc_integration import integrate_iocs
 from app.storage.case_store import AcceptedCase
-
-SIGNAL_PATHS = (
-    "rule_name",
-    "kibana.alert.rule.name",
-    "rule.name",
-    "rule.description",
-    "event.action",
-    "tags",
-    "rule.groups",
-    "event.category",
-    "host.name",
-    "host.hostname",
-    "agent.name",
-    "user.name",
-    "data.srcuser",
-    "data.dstuser",
-    "host",
-    "user",
-)
 
 
 def adapt_case(accepted: AcceptedCase, window_seconds: int = 300) -> dict:
