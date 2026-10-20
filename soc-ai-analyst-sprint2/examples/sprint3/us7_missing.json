@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S3-US7_MISSING",
+  "submitted_at": "2026-10-19T20:00:00Z",
+  "description": "Synthetic lab case; no customer data.",
+  "alerts": [
+    {
+      "alert_id": "minimal-elastic",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "minimal-elastic"
+        },
+        "custom": {
+          "value": null
+        }
+      }
+    },
+    {
+      "alert_id": "minimal-wazuh",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "minimal-wazuh"
+      }
+    }
+  ]
+}
