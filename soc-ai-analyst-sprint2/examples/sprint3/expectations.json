@@ -1,0 +1,162 @@
+{
+  "us4_elastic": {
+    "story": "US4",
+    "file": "us4_elastic.json",
+    "dated_order": [
+      "early",
+      "tie-b",
+      "tie-a",
+      "late"
+    ],
+    "unknown_time_ids": [
+      "missing",
+      "no-zone"
+    ],
+    "utc_by_id": {
+      "late": "2026-10-09T12:05:00+00:00",
+      "missing": null,
+      "tie-b": "2026-10-09T12:00:00+00:00",
+      "tie-a": "2026-10-09T12:00:00+00:00",
+      "no-zone": null,
+      "early": "2026-10-09T11:59:00+00:00"
+    }
+  },
+  "us4_wazuh": {
+    "story": "US4",
+    "file": "us4_wazuh.json",
+    "dated_order": [
+      "early",
+      "tie-b",
+      "tie-a",
+      "late"
+    ],
+    "unknown_time_ids": [
+      "missing",
+      "no-zone"
+    ],
+    "utc_by_id": {
+      "late": "2026-10-09T12:05:00+00:00",
+      "missing": null,
+      "tie-b": "2026-10-09T12:00:00+00:00",
+      "tie-a": "2026-10-09T12:00:00+00:00",
+      "no-zone": null,
+      "early": "2026-10-09T11:59:00+00:00"
+    }
+  },
+  "us4_mixed": {
+    "story": "US4",
+    "file": "us4_mixed.json",
+    "dated_order": [
+      "early",
+      "tie-b",
+      "tie-a",
+      "late"
+    ],
+    "unknown_time_ids": [
+      "missing",
+      "no-zone"
+    ],
+    "utc_by_id": {
+      "late": "2026-10-09T12:05:00+00:00",
+      "missing": null,
+      "tie-b": "2026-10-09T12:00:00+00:00",
+      "tie-a": "2026-10-09T12:00:00+00:00",
+      "no-zone": null,
+      "early": "2026-10-09T11:59:00+00:00"
+    }
+  },
+  "us5_positive": {
+    "story": "US5",
+    "file": "us5_positive.json",
+    "mapping_by_alert": {
+      "positive-0": [
+        "T1110",
+        "Credential Access"
+      ],
+      "positive-1": [
+        "T1021",
+        "Lateral Movement"
+      ],
+      "positive-2": [
+        "T1566",
+        "Initial Access"
+      ],
+      "positive-3": [
+        "T1041",
+        "Exfiltration"
+      ],
+      "positive-4": [
+        "T1486",
+        "Impact"
+      ]
+    }
+  },
+  "us5_negative": {
+    "story": "US5",
+    "file": "us5_negative.json",
+    "mapping_by_alert": {}
+  },
+  "us5_unknown": {
+    "story": "US5",
+    "file": "us5_unknown.json",
+    "mapping_by_alert": {}
+  },
+  "us6_attack": {
+    "story": "US6",
+    "file": "us6_attack.json",
+    "support_ids": [
+      "login-1",
+      "login-2"
+    ],
+    "against_ids": [],
+    "confidence": "media"
+  },
+  "us6_benign": {
+    "story": "US6",
+    "file": "us6_benign.json",
+    "support_ids": [],
+    "against_ids": [],
+    "confidence": null
+  },
+  "us6_ambiguous": {
+    "story": "US6",
+    "file": "us6_ambiguous.json",
+    "support_ids": [
+      "login-1",
+      "login-2"
+    ],
+    "against_ids": [
+      "approved"
+    ],
+    "confidence": "baja"
+  },
+  "us7_nested_custom": {
+    "story": "US7",
+    "file": "us7_nested_custom.json",
+    "original_pointers": {
+      "/alerts/0/raw_alert/_source/customer~1field~0/0": null,
+      "/alerts/0/raw_alert/_source/customer~1field~0/1/ticket": "LAB-42",
+      "/alerts/0/raw_alert/alert_id": "custom-value-not-the-canonical-id"
+    }
+  },
+  "us7_missing": {
+    "story": "US7",
+    "file": "us7_missing.json",
+    "original_pointers": {
+      "/alerts/0/raw_alert/custom/value": null
+    },
+    "unknown_time_ids": [
+      "minimal-elastic",
+      "minimal-wazuh"
+    ]
+  },
+  "us7_conflicting_providers": {
+    "story": "US7",
+    "file": "us7_conflicting_providers.json",
+    "original_pointers": {},
+    "providers": [
+      "synthetic-provider-a",
+      "synthetic-provider-b"
+    ]
+  }
+}

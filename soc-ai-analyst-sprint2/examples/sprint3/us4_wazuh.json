@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S3-US4_WAZUH",
+  "submitted_at": "2026-10-19T20:00:00Z",
+  "description": "Synthetic lab case; no customer data.",
+  "alerts": [
+    {
+      "alert_id": "late",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "late",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "timestamp": "2026-10-09T12:05:00Z",
+        "tags": []
+      }
+    },
+    {
+      "alert_id": "missing",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "missing",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "tags": []
+      }
+    },
+    {
+      "alert_id": "tie-b",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "tie-b",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "timestamp": "2026-10-09T07:00:00-05:00",
+        "tags": []
+      }
+    },
+    {
+      "alert_id": "tie-a",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "tie-a",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "timestamp": "2026-10-09T14:00:00+02:00",
+        "tags": []
+      }
+    },
+    {
+      "alert_id": "no-zone",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "no-zone",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "timestamp": "2026-10-09T12:01:00",
+        "tags": []
+      }
+    },
+    {
+      "alert_id": "early",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "early",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "timestamp": "2026-10-09T11:59:00Z",
+        "tags": []
+      }
+    }
+  ]
+}

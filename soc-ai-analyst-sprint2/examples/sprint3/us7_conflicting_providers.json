@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S3-US7_CONFLICTING_PROVIDERS",
+  "submitted_at": "2026-10-19T20:00:00Z",
+  "description": "Synthetic lab case; no customer data.",
+  "alerts": [
+    {
+      "alert_id": "provider-alert",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "provider-alert"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "host": {
+          "name": "lab-web"
+        },
+        "user": {
+          "name": "lab-user"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "brute_force"
+        ]
+      }
+    }
+  ],
+  "enrichments": [
+    {
+      "provider": "synthetic-provider-a",
+      "observable": {
+        "type": "ip",
+        "value": "192.0.2.10"
+      },
+      "related_alert_ids": [
+        "provider-alert"
+      ],
+      "raw_result": {
+        "verdict": "malicious",
+        "score": 95,
+        "details": {
+          "missing": null
+        }
+      }
+    },
+    {
+      "provider": "synthetic-provider-b",
+      "observable": {
+        "type": "ip",
+        "value": "192.0.2.10"
+      },
+      "related_alert_ids": [
+        "provider-alert"
+      ],
+      "raw_result": {
+        "verdict": "benign",
+        "score": 0,
+        "details": {
+          "allowlisted": true
+        }
+      }
+    }
+  ]
+}
