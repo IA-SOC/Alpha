@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-PHISH-001",
-  "generated_at": "2026-09-30T03:09:06.632247Z",
+  "generated_at": "2026-10-20T01:53:35.229980Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -19,7 +19,7 @@
     "missing_fields": [],
     "warnings": []
   },
-  "executive_summary": "Caso SYN-PHISH-001: 4 alertas procesadas. Secuencia de ataque sugerida: Phishing (T1566, táctica: Initial Access). Hipótesis principal: Actividad compatible con Phishing (T1566, táctica Initial Access) en MAIL-GW-01, WKS-22. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "executive_summary": "Caso SYN-PHISH-001: 4 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Phishing (T1566, táctica Initial Access) en MAIL-GW-01. Confianza baja. Ningún compromiso se da por confirmado hasta la revisión del analista.",
   "attack_mapping": [
     {
       "tactic": "Initial Access",
@@ -37,8 +37,56 @@
             "user"
           ],
           "observation": "suspicious_attachment_or_link_in_email en MAIL-GW-01 (usuario mlopez)",
-          "relevance": "Señal que coincide con el patrón de Phishing."
-        },
+          "relevance": "Señal que coincide con el patrón de Phishing.",
+          "source_fields": [
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/rule/name",
+              "value": "suspicious_attachment_or_link_in_email"
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/tags",
+              "value": [
+                "phishing"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/event/category",
+              "value": [
+                "email"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/host/name",
+              "value": "MAIL-GW-01"
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/user/name",
+              "value": "mlopez"
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/@timestamp",
+              "value": "2026-09-14T13:02:10Z"
+            }
+          ]
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "ecs-ph-001"
+      ]
+    },
+    {
+      "tactic": "Initial Access",
+      "technique_id": "T1566",
+      "technique_name": "Phishing",
+      "status": "candidate",
+      "evidence": [
         {
           "alert_id": "ecs-ph-002",
           "role": "supporting",
@@ -49,17 +97,56 @@
             "user"
           ],
           "observation": "credential_harvest_page_visited en WKS-22 (usuario mlopez)",
-          "relevance": "Señal que coincide con el patrón de Phishing."
+          "relevance": "Señal que coincide con el patrón de Phishing.",
+          "source_fields": [
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/rule/name",
+              "value": "credential_harvest_page_visited"
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/tags",
+              "value": [
+                "credential_harvest"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/event/category",
+              "value": [
+                "web"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/host/name",
+              "value": "WKS-22"
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/user/name",
+              "value": "mlopez"
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/@timestamp",
+              "value": "2026-09-14T13:05:44Z"
+            }
+          ]
         }
       ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "ecs-ph-002"
+      ]
     }
   ],
   "hypotheses": [
     {
-      "statement": "Actividad compatible con Phishing (T1566, táctica Initial Access) en MAIL-GW-01, WKS-22.",
-      "confidence": "media",
-      "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
+      "statement": "Actividad compatible con Phishing (T1566, táctica Initial Access) en MAIL-GW-01.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
       "evidence_for": [
         {
           "alert_id": "ecs-ph-001",
@@ -71,8 +158,63 @@
             "user"
           ],
           "observation": "suspicious_attachment_or_link_in_email en MAIL-GW-01 (usuario mlopez)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
-        },
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/rule/name",
+              "value": "suspicious_attachment_or_link_in_email"
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/tags",
+              "value": [
+                "phishing"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/event/category",
+              "value": [
+                "email"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/host/name",
+              "value": "MAIL-GW-01"
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/user/name",
+              "value": "mlopez"
+            },
+            {
+              "alert_id": "ecs-ph-001",
+              "path": "/alerts/0/@timestamp",
+              "value": "2026-09-14T13:02:10Z"
+            }
+          ]
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Correo legítimo de proveedor clasificado como sospechoso por la regla."
+      ],
+      "unknowns": [
+        "No se sabe si el usuario introdujo credenciales en el sitio."
+      ],
+      "rank": 1,
+      "correlation_group_alert_ids": [
+        "ecs-ph-001"
+      ],
+      "ioc_evidence": []
+    },
+    {
+      "statement": "Actividad compatible con Phishing (T1566, táctica Initial Access) en WKS-22.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
         {
           "alert_id": "ecs-ph-002",
           "role": "supporting",
@@ -83,7 +225,43 @@
             "user"
           ],
           "observation": "credential_harvest_page_visited en WKS-22 (usuario mlopez)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/rule/name",
+              "value": "credential_harvest_page_visited"
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/tags",
+              "value": [
+                "credential_harvest"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/event/category",
+              "value": [
+                "web"
+              ]
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/host/name",
+              "value": "WKS-22"
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/user/name",
+              "value": "mlopez"
+            },
+            {
+              "alert_id": "ecs-ph-002",
+              "path": "/alerts/1/@timestamp",
+              "value": "2026-09-14T13:05:44Z"
+            }
+          ]
         }
       ],
       "evidence_against": [],
@@ -93,7 +271,11 @@
       "unknowns": [
         "No se sabe si el usuario introdujo credenciales en el sitio."
       ],
-      "rank": 1
+      "rank": 2,
+      "correlation_group_alert_ids": [
+        "ecs-ph-002"
+      ],
+      "ioc_evidence": []
     }
   ],
   "timeline": [
@@ -106,7 +288,43 @@
       "alert_ids": [
         "ecs-ph-001"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ecs-ph-001",
+          "path": "/alerts/0/rule/name",
+          "value": "suspicious_attachment_or_link_in_email"
+        },
+        {
+          "alert_id": "ecs-ph-001",
+          "path": "/alerts/0/tags",
+          "value": [
+            "phishing"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-001",
+          "path": "/alerts/0/event/category",
+          "value": [
+            "email"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-001",
+          "path": "/alerts/0/host/name",
+          "value": "MAIL-GW-01"
+        },
+        {
+          "alert_id": "ecs-ph-001",
+          "path": "/alerts/0/user/name",
+          "value": "mlopez"
+        },
+        {
+          "alert_id": "ecs-ph-001",
+          "path": "/alerts/0/@timestamp",
+          "value": "2026-09-14T13:02:10Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-14T13:05:44Z",
@@ -117,7 +335,43 @@
       "alert_ids": [
         "ecs-ph-002"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ecs-ph-002",
+          "path": "/alerts/1/rule/name",
+          "value": "credential_harvest_page_visited"
+        },
+        {
+          "alert_id": "ecs-ph-002",
+          "path": "/alerts/1/tags",
+          "value": [
+            "credential_harvest"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-002",
+          "path": "/alerts/1/event/category",
+          "value": [
+            "web"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-002",
+          "path": "/alerts/1/host/name",
+          "value": "WKS-22"
+        },
+        {
+          "alert_id": "ecs-ph-002",
+          "path": "/alerts/1/user/name",
+          "value": "mlopez"
+        },
+        {
+          "alert_id": "ecs-ph-002",
+          "path": "/alerts/1/@timestamp",
+          "value": "2026-09-14T13:05:44Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-14T13:41:02Z",
@@ -128,7 +382,44 @@
       "alert_ids": [
         "ecs-ph-003"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ecs-ph-003",
+          "path": "/alerts/2/rule/name",
+          "value": "login_from_new_country"
+        },
+        {
+          "alert_id": "ecs-ph-003",
+          "path": "/alerts/2/tags",
+          "value": [
+            "authentication",
+            "anomalous_login"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-003",
+          "path": "/alerts/2/event/category",
+          "value": [
+            "authentication"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-003",
+          "path": "/alerts/2/host/name",
+          "value": "AAD-TENANT"
+        },
+        {
+          "alert_id": "ecs-ph-003",
+          "path": "/alerts/2/user/name",
+          "value": "mlopez"
+        },
+        {
+          "alert_id": "ecs-ph-003",
+          "path": "/alerts/2/@timestamp",
+          "value": "2026-09-14T13:41:02Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-14T13:44:30Z",
@@ -139,7 +430,44 @@
       "alert_ids": [
         "ecs-ph-004"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ecs-ph-004",
+          "path": "/alerts/3/rule/name",
+          "value": "new_inbox_forwarding_rule"
+        },
+        {
+          "alert_id": "ecs-ph-004",
+          "path": "/alerts/3/tags",
+          "value": [
+            "mailbox",
+            "persistence_candidate"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-004",
+          "path": "/alerts/3/event/category",
+          "value": [
+            "email"
+          ]
+        },
+        {
+          "alert_id": "ecs-ph-004",
+          "path": "/alerts/3/host/name",
+          "value": "AAD-TENANT"
+        },
+        {
+          "alert_id": "ecs-ph-004",
+          "path": "/alerts/3/user/name",
+          "value": "mlopez"
+        },
+        {
+          "alert_id": "ecs-ph-004",
+          "path": "/alerts/3/@timestamp",
+          "value": "2026-09-14T13:44:30Z"
+        }
+      ]
     }
   ],
   "blast_radius": {
@@ -168,32 +496,13 @@
       }
     ],
     "confirmed_assets": [],
-    "suspected_assets": [
-      {
-        "asset": "MAIL-GW-01",
-        "basis_alert_ids": [
-          "ecs-ph-001"
-        ]
-      },
-      {
-        "asset": "WKS-22",
-        "basis_alert_ids": [
-          "ecs-ph-002"
-        ]
-      }
-    ],
+    "suspected_assets": [],
     "confirmed_identities": [],
-    "suspected_identities": [
-      {
-        "identity": "mlopez",
-        "basis_alert_ids": [
-          "ecs-ph-001",
-          "ecs-ph-002"
-        ]
-      }
-    ],
+    "suspected_identities": [],
     "unknowns": [
-      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR).",
+      "Actividad ambigua en MAIL-GW-01 (alertas ecs-ph-001): hipótesis de confianza baja o insuficiente.",
+      "Actividad ambigua en WKS-22 (alertas ecs-ph-002): hipótesis de confianza baja o insuficiente."
     ]
   },
   "enrichment": {
@@ -250,12 +559,11 @@
   },
   "recommended_actions": [
     {
-      "priority": "medium",
+      "priority": "low",
       "action": "Bloquear el vector de entrada identificado (IP, dominio o archivo)",
-      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "rationale": "Derivada de la hipótesis 1 (confianza baja).",
       "evidence_ids": [
-        "ecs-ph-001",
-        "ecs-ph-002"
+        "ecs-ph-001"
       ],
       "requires_human_approval": true
     }
@@ -265,34 +573,39 @@
     "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
     "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
     "Caso sintético: la confianza se limita a 'media' como máximo.",
-    "Se detectó texto con forma de instrucción en ecs-ph-001.email.subject; se trató como dato no confiable y no se siguió."
+    "Se detectó texto con forma de instrucción en ecs-ph-001.email.subject; se trató como dato no confiable y no se siguió.",
+    "Related means shared observed entities, not a confirmed attack or causation.",
+    "Noise is relative to this case and rule profile; alerts are never discarded.",
+    "Groups are connected components, not proof that every pair is related.",
+    "Unknown custom fields are retained but require verified mappings to correlate.",
+    "Names are compared exactly; tenant/domain scoping requires customer validation."
   ],
   "audit_trail": [
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-09-30T03:09:00.475625Z",
+      "finished_at": "2026-10-20T01:53:31.811613Z",
       "duration_ms": 0,
       "detail": "4 alertas, formato elastic_ecs"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-09-30T03:09:04.594221Z",
-      "duration_ms": 4118,
-      "detail": "1 técnicas candidatas, 1 hipótesis"
+      "finished_at": "2026-10-20T01:53:34.055581Z",
+      "duration_ms": 2243,
+      "detail": "1 técnicas candidatas, 2 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-09-30T03:09:06.630596Z",
-      "duration_ms": 2036,
+      "finished_at": "2026-10-20T01:53:35.228207Z",
+      "duration_ms": 1172,
       "detail": "4 eventos, 3 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-09-30T03:09:06.631424Z",
+      "finished_at": "2026-10-20T01:53:35.229173Z",
       "duration_ms": 0,
       "detail": "estado provided, 3 IoC"
     }
@@ -302,5 +615,502 @@
     "analyst": null,
     "notes": null,
     "reviewed_at": null
+  },
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "ecs-ph-001",
+          "ecs-ph-002"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 214.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/host/name",
+                "value": "MAIL-GW-01"
+              },
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/host/name",
+                "value": "WKS-22"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: mlopez",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/user/name",
+                "value": "mlopez"
+              },
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/user/name",
+                "value": "mlopez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 214 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/@timestamp",
+                "value": "2026-09-14T13:02:10Z"
+              },
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/@timestamp",
+                "value": "2026-09-14T13:05:44Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "ecs-ph-001",
+          "ecs-ph-003"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 2332.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/host/name",
+                "value": "MAIL-GW-01"
+              },
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/host/name",
+                "value": "AAD-TENANT"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: mlopez",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/user/name",
+                "value": "mlopez"
+              },
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/user/name",
+                "value": "mlopez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 2332 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/@timestamp",
+                "value": "2026-09-14T13:02:10Z"
+              },
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/@timestamp",
+                "value": "2026-09-14T13:41:02Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "ecs-ph-001",
+          "ecs-ph-004"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 2540.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/host/name",
+                "value": "MAIL-GW-01"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/host/name",
+                "value": "AAD-TENANT"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: mlopez",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/user/name",
+                "value": "mlopez"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/user/name",
+                "value": "mlopez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 2540 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-001",
+                "path": "/alerts/0/@timestamp",
+                "value": "2026-09-14T13:02:10Z"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/@timestamp",
+                "value": "2026-09-14T13:44:30Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0004",
+        "alert_ids": [
+          "ecs-ph-002",
+          "ecs-ph-003"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 2118.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/host/name",
+                "value": "WKS-22"
+              },
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/host/name",
+                "value": "AAD-TENANT"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/destination/ip",
+                "value": "198.51.100.23"
+              },
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/source/ip",
+                "value": "198.51.100.77"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: mlopez",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/user/name",
+                "value": "mlopez"
+              },
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/user/name",
+                "value": "mlopez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 2118 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/@timestamp",
+                "value": "2026-09-14T13:05:44Z"
+              },
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/@timestamp",
+                "value": "2026-09-14T13:41:02Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0005",
+        "alert_ids": [
+          "ecs-ph-002",
+          "ecs-ph-004"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 2326.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/host/name",
+                "value": "WKS-22"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/host/name",
+                "value": "AAD-TENANT"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/destination/ip",
+                "value": "198.51.100.23"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/source/ip",
+                "value": "198.51.100.77"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: mlopez",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/user/name",
+                "value": "mlopez"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/user/name",
+                "value": "mlopez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 2326 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-002",
+                "path": "/alerts/1/@timestamp",
+                "value": "2026-09-14T13:05:44Z"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/@timestamp",
+                "value": "2026-09-14T13:44:30Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0006",
+        "alert_ids": [
+          "ecs-ph-003",
+          "ecs-ph-004"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 208.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: AAD-TENANT",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/host/name",
+                "value": "AAD-TENANT"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/host/name",
+                "value": "AAD-TENANT"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 198.51.100.77",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/source/ip",
+                "value": "198.51.100.77"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/source/ip",
+                "value": "198.51.100.77"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: mlopez",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/user/name",
+                "value": "mlopez"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/user/name",
+                "value": "mlopez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 208 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-ph-003",
+                "path": "/alerts/2/@timestamp",
+                "value": "2026-09-14T13:41:02Z"
+              },
+              {
+                "alert_id": "ecs-ph-004",
+                "path": "/alerts/3/@timestamp",
+                "value": "2026-09-14T13:44:30Z"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "ecs-ph-001",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002",
+          "rel-0003"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "ecs-ph-002",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0004",
+          "rel-0005"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "ecs-ph-003",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0004",
+          "rel-0006"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "ecs-ph-004",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0003",
+          "rel-0005",
+          "rel-0006"
+        ],
+        "explanation": "At least one related pair exists"
+      }
+    ],
+    "related_groups": [
+      [
+        "ecs-ph-003",
+        "ecs-ph-004"
+      ]
+    ],
+    "noise_alert_ids": [],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
   }
 }

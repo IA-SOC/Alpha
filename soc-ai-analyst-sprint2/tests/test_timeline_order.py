@@ -10,9 +10,9 @@ Criteria used here until #27 lands, taken from the skill protocol
 - undated or zone-less events are kept apart from the dated sequence;
 - every entry points to exactly one submitted alert, and none is lost.
 
-Checks that need #28 are strict xfails, so they fail loudly once it is fixed.
 """
 
+from copy import deepcopy
 from datetime import datetime
 
 import pytest
@@ -94,10 +94,6 @@ def test_missing_zone_is_flagged_and_never_assumed_utc(timeline):
     assert no_zone["timezone_unknown"] is True
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#28: undated and zone-less events are sorted to the top of the timeline",
-)
 def test_undated_and_zone_less_events_come_after_the_dated_sequence(timeline):
     positions = [bool(t["timestamp_utc"]) for t in timeline]
     first_without_time = positions.index(False)
@@ -119,3 +115,21 @@ def test_every_entry_points_to_one_submitted_alert(result, timeline):
 
 def test_entries_are_observed_not_inferred(timeline):
     assert {t["certainty"] for t in timeline} == {"observed"}
+
+
+def test_timeline_entries_cite_the_original_fields(result, timeline):
+    """#43: each entry points to the raw fields it came from; tampering is caught."""
+    for t in timeline:
+        assert t["source_fields"]
+        assert {f["alert_id"] for f in t["source_fields"]} == set(t["alert_ids"])
+    stamp = next(
+        f
+        for f in entry(timeline, "offset")["source_fields"]
+        if f["path"].endswith("@timestamp")
+    )
+    assert stamp["path"] == "/alerts/3/raw_alert/@timestamp"
+    assert stamp["value"] == "2026-10-09T07:02:00-05:00"
+    broken = deepcopy(result["report"])
+    broken["timeline"][0]["source_fields"][0]["value"] = "tampered"
+    with pytest.raises(ValueError):
+        verify_traceability(result["investigation_context"], broken)

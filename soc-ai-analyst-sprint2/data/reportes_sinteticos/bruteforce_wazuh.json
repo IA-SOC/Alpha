@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-BF-WAZUH-002",
-  "generated_at": "2026-09-30T03:08:51.768179Z",
+  "generated_at": "2026-10-20T01:53:27.866391Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -19,7 +19,7 @@
     "missing_fields": [],
     "warnings": []
   },
-  "executive_summary": "Caso SYN-BF-WAZUH-002: 8 alertas procesadas. Secuencia de ataque sugerida: Brute Force (T1110, táctica: Credential Access) → Remote Services (T1021, táctica: Lateral Movement). Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "executive_summary": "Caso SYN-BF-WAZUH-002: 8 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
   "attack_mapping": [
     {
       "tactic": "Credential Access",
@@ -37,7 +37,39 @@
             "user"
           ],
           "observation": "sshd: attempt to login using a non-existent user en web-01 (usuario deploy)",
-          "relevance": "Señal que coincide con el patrón de Brute Force."
+          "relevance": "Señal que coincide con el patrón de Brute Force.",
+          "source_fields": [
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/rule/description",
+              "value": "sshd: attempt to login using a non-existent user"
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/rule/groups",
+              "value": [
+                "syslog",
+                "sshd",
+                "invalid_login",
+                "brute_force"
+              ]
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/agent/name",
+              "value": "web-01"
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/data/dstuser",
+              "value": "deploy"
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/timestamp",
+              "value": "2026-09-15T03:02:11.000-0500"
+            }
+          ]
         },
         {
           "alert_id": "1726387335.1002",
@@ -49,7 +81,38 @@
             "user"
           ],
           "observation": "sshd: authentication failed en web-01 (usuario deploy)",
-          "relevance": "Señal que coincide con el patrón de Brute Force."
+          "relevance": "Señal que coincide con el patrón de Brute Force.",
+          "source_fields": [
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/rule/description",
+              "value": "sshd: authentication failed"
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/rule/groups",
+              "value": [
+                "syslog",
+                "sshd",
+                "authentication_failed"
+              ]
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/agent/name",
+              "value": "web-01"
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/data/dstuser",
+              "value": "deploy"
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-15T03:02:15.000-0500"
+            }
+          ]
         },
         {
           "alert_id": "1726387340.1003",
@@ -61,10 +124,48 @@
             "user"
           ],
           "observation": "sshd: brute force trying to get access to the system en web-01 (usuario deploy)",
-          "relevance": "Señal que coincide con el patrón de Brute Force."
+          "relevance": "Señal que coincide con el patrón de Brute Force.",
+          "source_fields": [
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/rule/description",
+              "value": "sshd: brute force trying to get access to the system"
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/rule/groups",
+              "value": [
+                "syslog",
+                "sshd",
+                "authentication_failures"
+              ]
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/agent/name",
+              "value": "web-01"
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/data/dstuser",
+              "value": "deploy"
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-15T03:02:20.000-0500"
+            }
+          ]
         }
       ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "1726387331.1001",
+        "1726387335.1002",
+        "1726387340.1003",
+        "1726387402.1004",
+        "1726387500.1005"
+      ]
     },
     {
       "tactic": "Lateral Movement",
@@ -82,10 +183,45 @@
             "user"
           ],
           "observation": "Internal SSH login from web tier to database tier en db-02 (usuario svc_backup)",
-          "relevance": "Señal que coincide con el patrón de Remote Services."
+          "relevance": "Señal que coincide con el patrón de Remote Services.",
+          "source_fields": [
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/rule/description",
+              "value": "Internal SSH login from web tier to database tier"
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/rule/groups",
+              "value": [
+                "sshd",
+                "lateral_movement"
+              ]
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/agent/name",
+              "value": "db-02"
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/data/dstuser",
+              "value": "svc_backup"
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/timestamp",
+              "value": "2026-09-15T03:15:00.000-0500"
+            }
+          ]
         }
       ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "1726388100.1006",
+        "1726388101.1007",
+        "1726388160.1008"
+      ]
     }
   ],
   "hypotheses": [
@@ -104,7 +240,39 @@
             "user"
           ],
           "observation": "sshd: attempt to login using a non-existent user en web-01 (usuario deploy)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/rule/description",
+              "value": "sshd: attempt to login using a non-existent user"
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/rule/groups",
+              "value": [
+                "syslog",
+                "sshd",
+                "invalid_login",
+                "brute_force"
+              ]
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/agent/name",
+              "value": "web-01"
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/data/dstuser",
+              "value": "deploy"
+            },
+            {
+              "alert_id": "1726387331.1001",
+              "path": "/alerts/0/timestamp",
+              "value": "2026-09-15T03:02:11.000-0500"
+            }
+          ]
         },
         {
           "alert_id": "1726387335.1002",
@@ -116,7 +284,38 @@
             "user"
           ],
           "observation": "sshd: authentication failed en web-01 (usuario deploy)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/rule/description",
+              "value": "sshd: authentication failed"
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/rule/groups",
+              "value": [
+                "syslog",
+                "sshd",
+                "authentication_failed"
+              ]
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/agent/name",
+              "value": "web-01"
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/data/dstuser",
+              "value": "deploy"
+            },
+            {
+              "alert_id": "1726387335.1002",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-15T03:02:15.000-0500"
+            }
+          ]
         },
         {
           "alert_id": "1726387340.1003",
@@ -128,7 +327,38 @@
             "user"
           ],
           "observation": "sshd: brute force trying to get access to the system en web-01 (usuario deploy)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/rule/description",
+              "value": "sshd: brute force trying to get access to the system"
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/rule/groups",
+              "value": [
+                "syslog",
+                "sshd",
+                "authentication_failures"
+              ]
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/agent/name",
+              "value": "web-01"
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/data/dstuser",
+              "value": "deploy"
+            },
+            {
+              "alert_id": "1726387340.1003",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-15T03:02:20.000-0500"
+            }
+          ]
         }
       ],
       "evidence_against": [],
@@ -138,7 +368,15 @@
       "unknowns": [
         "No hay telemetría de EDR que confirme ejecución posterior al acceso."
       ],
-      "rank": 1
+      "rank": 1,
+      "correlation_group_alert_ids": [
+        "1726387331.1001",
+        "1726387335.1002",
+        "1726387340.1003",
+        "1726387402.1004",
+        "1726387500.1005"
+      ],
+      "ioc_evidence": []
     },
     {
       "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en db-02.",
@@ -155,7 +393,37 @@
             "user"
           ],
           "observation": "Internal SSH login from web tier to database tier en db-02 (usuario svc_backup)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/rule/description",
+              "value": "Internal SSH login from web tier to database tier"
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/rule/groups",
+              "value": [
+                "sshd",
+                "lateral_movement"
+              ]
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/agent/name",
+              "value": "db-02"
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/data/dstuser",
+              "value": "svc_backup"
+            },
+            {
+              "alert_id": "1726388100.1006",
+              "path": "/alerts/5/timestamp",
+              "value": "2026-09-15T03:15:00.000-0500"
+            }
+          ]
         }
       ],
       "evidence_against": [
@@ -169,7 +437,38 @@
             "user"
           ],
           "observation": "Scheduled backup timer started (backup-nightly.timer) en db-02 (usuario svc_backup)",
-          "relevance": "Actividad legítima conocida en el mismo host y ventana."
+          "relevance": "Actividad legítima conocida en el mismo host y ventana.",
+          "source_fields": [
+            {
+              "alert_id": "1726388101.1007",
+              "path": "/alerts/6/rule/description",
+              "value": "Scheduled backup timer started (backup-nightly.timer)"
+            },
+            {
+              "alert_id": "1726388101.1007",
+              "path": "/alerts/6/rule/groups",
+              "value": [
+                "systemd",
+                "backup",
+                "scheduled_task"
+              ]
+            },
+            {
+              "alert_id": "1726388101.1007",
+              "path": "/alerts/6/agent/name",
+              "value": "db-02"
+            },
+            {
+              "alert_id": "1726388101.1007",
+              "path": "/alerts/6/data/dstuser",
+              "value": "svc_backup"
+            },
+            {
+              "alert_id": "1726388101.1007",
+              "path": "/alerts/6/timestamp",
+              "value": "2026-09-15T03:15:01.000-0500"
+            }
+          ]
         },
         {
           "alert_id": "1726388160.1008",
@@ -181,7 +480,37 @@
             "user"
           ],
           "observation": "tar archive created under /var/backups en db-02 (usuario svc_backup)",
-          "relevance": "Actividad legítima conocida en el mismo host y ventana."
+          "relevance": "Actividad legítima conocida en el mismo host y ventana.",
+          "source_fields": [
+            {
+              "alert_id": "1726388160.1008",
+              "path": "/alerts/7/rule/description",
+              "value": "tar archive created under /var/backups"
+            },
+            {
+              "alert_id": "1726388160.1008",
+              "path": "/alerts/7/rule/groups",
+              "value": [
+                "audit",
+                "backup"
+              ]
+            },
+            {
+              "alert_id": "1726388160.1008",
+              "path": "/alerts/7/agent/name",
+              "value": "db-02"
+            },
+            {
+              "alert_id": "1726388160.1008",
+              "path": "/alerts/7/data/dstuser",
+              "value": "svc_backup"
+            },
+            {
+              "alert_id": "1726388160.1008",
+              "path": "/alerts/7/timestamp",
+              "value": "2026-09-15T03:16:00.000-0500"
+            }
+          ]
         }
       ],
       "alternatives": [
@@ -190,7 +519,13 @@
       "unknowns": [
         "Falta confirmar si la sesión remota tenía un cambio aprobado."
       ],
-      "rank": 2
+      "rank": 2,
+      "correlation_group_alert_ids": [
+        "1726388100.1006",
+        "1726388101.1007",
+        "1726388160.1008"
+      ],
+      "ioc_evidence": []
     }
   ],
   "timeline": [
@@ -203,7 +538,39 @@
       "alert_ids": [
         "1726387331.1001"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726387331.1001",
+          "path": "/alerts/0/rule/description",
+          "value": "sshd: attempt to login using a non-existent user"
+        },
+        {
+          "alert_id": "1726387331.1001",
+          "path": "/alerts/0/rule/groups",
+          "value": [
+            "syslog",
+            "sshd",
+            "invalid_login",
+            "brute_force"
+          ]
+        },
+        {
+          "alert_id": "1726387331.1001",
+          "path": "/alerts/0/agent/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "1726387331.1001",
+          "path": "/alerts/0/data/dstuser",
+          "value": "deploy"
+        },
+        {
+          "alert_id": "1726387331.1001",
+          "path": "/alerts/0/timestamp",
+          "value": "2026-09-15T03:02:11.000-0500"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-15T03:02:15.000-0500",
@@ -214,7 +581,38 @@
       "alert_ids": [
         "1726387335.1002"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726387335.1002",
+          "path": "/alerts/1/rule/description",
+          "value": "sshd: authentication failed"
+        },
+        {
+          "alert_id": "1726387335.1002",
+          "path": "/alerts/1/rule/groups",
+          "value": [
+            "syslog",
+            "sshd",
+            "authentication_failed"
+          ]
+        },
+        {
+          "alert_id": "1726387335.1002",
+          "path": "/alerts/1/agent/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "1726387335.1002",
+          "path": "/alerts/1/data/dstuser",
+          "value": "deploy"
+        },
+        {
+          "alert_id": "1726387335.1002",
+          "path": "/alerts/1/timestamp",
+          "value": "2026-09-15T03:02:15.000-0500"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-15T03:02:20.000-0500",
@@ -225,7 +623,38 @@
       "alert_ids": [
         "1726387340.1003"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726387340.1003",
+          "path": "/alerts/2/rule/description",
+          "value": "sshd: brute force trying to get access to the system"
+        },
+        {
+          "alert_id": "1726387340.1003",
+          "path": "/alerts/2/rule/groups",
+          "value": [
+            "syslog",
+            "sshd",
+            "authentication_failures"
+          ]
+        },
+        {
+          "alert_id": "1726387340.1003",
+          "path": "/alerts/2/agent/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "1726387340.1003",
+          "path": "/alerts/2/data/dstuser",
+          "value": "deploy"
+        },
+        {
+          "alert_id": "1726387340.1003",
+          "path": "/alerts/2/timestamp",
+          "value": "2026-09-15T03:02:20.000-0500"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-15T03:03:22.000-0500",
@@ -236,7 +665,38 @@
       "alert_ids": [
         "1726387402.1004"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726387402.1004",
+          "path": "/alerts/3/rule/description",
+          "value": "sshd: authentication success"
+        },
+        {
+          "alert_id": "1726387402.1004",
+          "path": "/alerts/3/rule/groups",
+          "value": [
+            "syslog",
+            "sshd",
+            "authentication_success"
+          ]
+        },
+        {
+          "alert_id": "1726387402.1004",
+          "path": "/alerts/3/agent/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "1726387402.1004",
+          "path": "/alerts/3/data/dstuser",
+          "value": "deploy"
+        },
+        {
+          "alert_id": "1726387402.1004",
+          "path": "/alerts/3/timestamp",
+          "value": "2026-09-15T03:03:22.000-0500"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-15T03:05:00.000-0500",
@@ -247,7 +707,42 @@
       "alert_ids": [
         "1726387500.1005"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726387500.1005",
+          "path": "/alerts/4/rule/description",
+          "value": "Successful sudo to ROOT executed"
+        },
+        {
+          "alert_id": "1726387500.1005",
+          "path": "/alerts/4/rule/groups",
+          "value": [
+            "syslog",
+            "sudo"
+          ]
+        },
+        {
+          "alert_id": "1726387500.1005",
+          "path": "/alerts/4/agent/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "1726387500.1005",
+          "path": "/alerts/4/data/srcuser",
+          "value": "deploy"
+        },
+        {
+          "alert_id": "1726387500.1005",
+          "path": "/alerts/4/data/dstuser",
+          "value": "root"
+        },
+        {
+          "alert_id": "1726387500.1005",
+          "path": "/alerts/4/timestamp",
+          "value": "2026-09-15T03:05:00.000-0500"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-15T03:15:00.000-0500",
@@ -258,7 +753,37 @@
       "alert_ids": [
         "1726388100.1006"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726388100.1006",
+          "path": "/alerts/5/rule/description",
+          "value": "Internal SSH login from web tier to database tier"
+        },
+        {
+          "alert_id": "1726388100.1006",
+          "path": "/alerts/5/rule/groups",
+          "value": [
+            "sshd",
+            "lateral_movement"
+          ]
+        },
+        {
+          "alert_id": "1726388100.1006",
+          "path": "/alerts/5/agent/name",
+          "value": "db-02"
+        },
+        {
+          "alert_id": "1726388100.1006",
+          "path": "/alerts/5/data/dstuser",
+          "value": "svc_backup"
+        },
+        {
+          "alert_id": "1726388100.1006",
+          "path": "/alerts/5/timestamp",
+          "value": "2026-09-15T03:15:00.000-0500"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-15T03:15:01.000-0500",
@@ -269,7 +794,38 @@
       "alert_ids": [
         "1726388101.1007"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726388101.1007",
+          "path": "/alerts/6/rule/description",
+          "value": "Scheduled backup timer started (backup-nightly.timer)"
+        },
+        {
+          "alert_id": "1726388101.1007",
+          "path": "/alerts/6/rule/groups",
+          "value": [
+            "systemd",
+            "backup",
+            "scheduled_task"
+          ]
+        },
+        {
+          "alert_id": "1726388101.1007",
+          "path": "/alerts/6/agent/name",
+          "value": "db-02"
+        },
+        {
+          "alert_id": "1726388101.1007",
+          "path": "/alerts/6/data/dstuser",
+          "value": "svc_backup"
+        },
+        {
+          "alert_id": "1726388101.1007",
+          "path": "/alerts/6/timestamp",
+          "value": "2026-09-15T03:15:01.000-0500"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-15T03:16:00.000-0500",
@@ -280,7 +836,37 @@
       "alert_ids": [
         "1726388160.1008"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "1726388160.1008",
+          "path": "/alerts/7/rule/description",
+          "value": "tar archive created under /var/backups"
+        },
+        {
+          "alert_id": "1726388160.1008",
+          "path": "/alerts/7/rule/groups",
+          "value": [
+            "audit",
+            "backup"
+          ]
+        },
+        {
+          "alert_id": "1726388160.1008",
+          "path": "/alerts/7/agent/name",
+          "value": "db-02"
+        },
+        {
+          "alert_id": "1726388160.1008",
+          "path": "/alerts/7/data/dstuser",
+          "value": "svc_backup"
+        },
+        {
+          "alert_id": "1726388160.1008",
+          "path": "/alerts/7/timestamp",
+          "value": "2026-09-15T03:16:00.000-0500"
+        }
+      ]
     }
   ],
   "blast_radius": {
@@ -399,34 +985,39 @@
     "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
     "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
     "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
-    "Caso sintético: la confianza se limita a 'media' como máximo."
+    "Caso sintético: la confianza se limita a 'media' como máximo.",
+    "Related means shared observed entities, not a confirmed attack or causation.",
+    "Noise is relative to this case and rule profile; alerts are never discarded.",
+    "Groups are connected components, not proof that every pair is related.",
+    "Unknown custom fields are retained but require verified mappings to correlate.",
+    "Names are compared exactly; tenant/domain scoping requires customer validation."
   ],
   "audit_trail": [
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-09-30T03:08:45.577630Z",
-      "duration_ms": 0,
+      "finished_at": "2026-10-20T01:53:24.390556Z",
+      "duration_ms": 1,
       "detail": "8 alertas, formato wazuh"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-09-30T03:08:49.733040Z",
-      "duration_ms": 4155,
+      "finished_at": "2026-10-20T01:53:26.665938Z",
+      "duration_ms": 2275,
       "detail": "2 técnicas candidatas, 2 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-09-30T03:08:51.766596Z",
-      "duration_ms": 2033,
+      "finished_at": "2026-10-20T01:53:27.863546Z",
+      "duration_ms": 1196,
       "detail": "8 eventos, 2 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-09-30T03:08:51.767561Z",
+      "finished_at": "2026-10-20T01:53:27.865088Z",
       "duration_ms": 0,
       "detail": "estado provided, 1 IoC"
     }
@@ -436,5 +1027,2600 @@
     "analyst": null,
     "notes": null,
     "reviewed_at": null
+  },
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "1726387331.1001",
+          "1726387335.1002"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 4.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 203.0.113.88",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/srcip",
+                "value": "203.0.113.88"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/dstuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 4 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-15T03:02:11.000-0500"
+              },
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-15T03:02:15.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "1726387331.1001",
+          "1726387340.1003"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 9.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 203.0.113.88",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/srcip",
+                "value": "203.0.113.88"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/dstuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 9 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-15T03:02:11.000-0500"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-15T03:02:20.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "1726387331.1001",
+          "1726387402.1004"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 71.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 203.0.113.88",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/srcip",
+                "value": "203.0.113.88"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/dstuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 71 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-15T03:02:11.000-0500"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-15T03:03:22.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0004",
+        "alert_ids": [
+          "1726387331.1001",
+          "1726387500.1005"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 169.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/srcuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 169 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-15T03:02:11.000-0500"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-15T03:05:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0005",
+        "alert_ids": [
+          "1726387331.1001",
+          "1726388100.1006"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 769.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/srcip",
+                "value": "10.0.1.10"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 769 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-15T03:02:11.000-0500"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/timestamp",
+                "value": "2026-09-15T03:15:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0006",
+        "alert_ids": [
+          "1726387331.1001",
+          "1726388101.1007"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 770.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 770 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-15T03:02:11.000-0500"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/timestamp",
+                "value": "2026-09-15T03:15:01.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0007",
+        "alert_ids": [
+          "1726387331.1001",
+          "1726388160.1008"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 829.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 829 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387331.1001",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-15T03:02:11.000-0500"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/timestamp",
+                "value": "2026-09-15T03:16:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0008",
+        "alert_ids": [
+          "1726387335.1002",
+          "1726387340.1003"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 5.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 203.0.113.88",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/srcip",
+                "value": "203.0.113.88"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/dstuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 5 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-15T03:02:15.000-0500"
+              },
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-15T03:02:20.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0009",
+        "alert_ids": [
+          "1726387335.1002",
+          "1726387402.1004"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 67.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 203.0.113.88",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/srcip",
+                "value": "203.0.113.88"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/dstuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 67 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-15T03:02:15.000-0500"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-15T03:03:22.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0010",
+        "alert_ids": [
+          "1726387335.1002",
+          "1726387500.1005"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 165.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/srcuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 165 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-15T03:02:15.000-0500"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-15T03:05:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0011",
+        "alert_ids": [
+          "1726387335.1002",
+          "1726388100.1006"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 765.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/srcip",
+                "value": "10.0.1.10"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 765 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-15T03:02:15.000-0500"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/timestamp",
+                "value": "2026-09-15T03:15:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0012",
+        "alert_ids": [
+          "1726387335.1002",
+          "1726388101.1007"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 766.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 766 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-15T03:02:15.000-0500"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/timestamp",
+                "value": "2026-09-15T03:15:01.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0013",
+        "alert_ids": [
+          "1726387335.1002",
+          "1726388160.1008"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 825.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 825 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387335.1002",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-15T03:02:15.000-0500"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/timestamp",
+                "value": "2026-09-15T03:16:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0014",
+        "alert_ids": [
+          "1726387340.1003",
+          "1726387402.1004"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 62.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 203.0.113.88",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/srcip",
+                "value": "203.0.113.88"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/dstuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 62 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-15T03:02:20.000-0500"
+              },
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-15T03:03:22.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0015",
+        "alert_ids": [
+          "1726387340.1003",
+          "1726387500.1005"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 160.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/srcuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 160 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-15T03:02:20.000-0500"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-15T03:05:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0016",
+        "alert_ids": [
+          "1726387340.1003",
+          "1726388100.1006"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 760.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/srcip",
+                "value": "10.0.1.10"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 760 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-15T03:02:20.000-0500"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/timestamp",
+                "value": "2026-09-15T03:15:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0017",
+        "alert_ids": [
+          "1726387340.1003",
+          "1726388101.1007"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 761.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 761 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-15T03:02:20.000-0500"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/timestamp",
+                "value": "2026-09-15T03:15:01.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0018",
+        "alert_ids": [
+          "1726387340.1003",
+          "1726388160.1008"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 820.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 820 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387340.1003",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-15T03:02:20.000-0500"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/timestamp",
+                "value": "2026-09-15T03:16:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0019",
+        "alert_ids": [
+          "1726387402.1004",
+          "1726387500.1005"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 98.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: deploy",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/srcuser",
+                "value": "deploy"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 003",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/id",
+                "value": "003"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 98 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-15T03:03:22.000-0500"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-15T03:05:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0020",
+        "alert_ids": [
+          "1726387402.1004",
+          "1726388100.1006"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 698.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/srcip",
+                "value": "203.0.113.88"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/srcip",
+                "value": "10.0.1.10"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 698 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-15T03:03:22.000-0500"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/timestamp",
+                "value": "2026-09-15T03:15:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0021",
+        "alert_ids": [
+          "1726387402.1004",
+          "1726388101.1007"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 699.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 699 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-15T03:03:22.000-0500"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/timestamp",
+                "value": "2026-09-15T03:15:01.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0022",
+        "alert_ids": [
+          "1726387402.1004",
+          "1726388160.1008"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 758.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/data/dstuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 758 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387402.1004",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-15T03:03:22.000-0500"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/timestamp",
+                "value": "2026-09-15T03:16:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0023",
+        "alert_ids": [
+          "1726387500.1005",
+          "1726388100.1006"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 600.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/srcuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/dstuser",
+                "value": "root"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 600 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-15T03:05:00.000-0500"
+              },
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/timestamp",
+                "value": "2026-09-15T03:15:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0024",
+        "alert_ids": [
+          "1726387500.1005",
+          "1726388101.1007"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 601.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/srcuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/dstuser",
+                "value": "root"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 601 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-15T03:05:00.000-0500"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/timestamp",
+                "value": "2026-09-15T03:15:01.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0025",
+        "alert_ids": [
+          "1726387500.1005",
+          "1726388160.1008"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 660.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/srcuser",
+                "value": "deploy"
+              },
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/data/dstuser",
+                "value": "root"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "distinct",
+            "observation": "No shared value among the available wazuh_agent_id fields",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/agent/id",
+                "value": "003"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 660 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726387500.1005",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-15T03:05:00.000-0500"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/timestamp",
+                "value": "2026-09-15T03:16:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0026",
+        "alert_ids": [
+          "1726388100.1006",
+          "1726388101.1007"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 1.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: db-02",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/name",
+                "value": "db-02"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: svc_backup",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/dstuser",
+                "value": "svc_backup"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 007",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/id",
+                "value": "007"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/timestamp",
+                "value": "2026-09-15T03:15:00.000-0500"
+              },
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/timestamp",
+                "value": "2026-09-15T03:15:01.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0027",
+        "alert_ids": [
+          "1726388100.1006",
+          "1726388160.1008"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 60.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: db-02",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/name",
+                "value": "db-02"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: svc_backup",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/data/dstuser",
+                "value": "svc_backup"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 007",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/agent/id",
+                "value": "007"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 60 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726388100.1006",
+                "path": "/alerts/5/timestamp",
+                "value": "2026-09-15T03:15:00.000-0500"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/timestamp",
+                "value": "2026-09-15T03:16:00.000-0500"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0028",
+        "alert_ids": [
+          "1726388101.1007",
+          "1726388160.1008"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 59.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: db-02",
+            "fields": [
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/name",
+                "value": "db-02"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/name",
+                "value": "db-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: svc_backup",
+            "fields": [
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/data/dstuser",
+                "value": "svc_backup"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/data/dstuser",
+                "value": "svc_backup"
+              }
+            ]
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "assessment": "shared",
+            "observation": "Shared wazuh_agent_id: 007",
+            "fields": [
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/agent/id",
+                "value": "007"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/agent/id",
+                "value": "007"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 59 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "1726388101.1007",
+                "path": "/alerts/6/timestamp",
+                "value": "2026-09-15T03:15:01.000-0500"
+              },
+              {
+                "alert_id": "1726388160.1008",
+                "path": "/alerts/7/timestamp",
+                "value": "2026-09-15T03:16:00.000-0500"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "1726387331.1001",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002",
+          "rel-0003",
+          "rel-0004",
+          "rel-0005",
+          "rel-0006",
+          "rel-0007"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "1726387335.1002",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0008",
+          "rel-0009",
+          "rel-0010",
+          "rel-0011",
+          "rel-0012",
+          "rel-0013"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "1726387340.1003",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0008",
+          "rel-0014",
+          "rel-0015",
+          "rel-0016",
+          "rel-0017",
+          "rel-0018"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "1726387402.1004",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0003",
+          "rel-0009",
+          "rel-0014",
+          "rel-0019",
+          "rel-0020",
+          "rel-0021",
+          "rel-0022"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "1726387500.1005",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0004",
+          "rel-0010",
+          "rel-0015",
+          "rel-0019",
+          "rel-0023",
+          "rel-0024",
+          "rel-0025"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "1726388100.1006",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0005",
+          "rel-0011",
+          "rel-0016",
+          "rel-0020",
+          "rel-0023",
+          "rel-0026",
+          "rel-0027"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "1726388101.1007",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0006",
+          "rel-0012",
+          "rel-0017",
+          "rel-0021",
+          "rel-0024",
+          "rel-0026",
+          "rel-0028"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "1726388160.1008",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0007",
+          "rel-0013",
+          "rel-0018",
+          "rel-0022",
+          "rel-0025",
+          "rel-0027",
+          "rel-0028"
+        ],
+        "explanation": "At least one related pair exists"
+      }
+    ],
+    "related_groups": [
+      [
+        "1726387331.1001",
+        "1726387335.1002",
+        "1726387340.1003",
+        "1726387402.1004",
+        "1726387500.1005"
+      ],
+      [
+        "1726388100.1006",
+        "1726388101.1007",
+        "1726388160.1008"
+      ]
+    ],
+    "noise_alert_ids": [],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
   }
 }

@@ -1,6 +1,6 @@
 {
   "case_id": "HOLDOUT-KRB-006",
-  "generated_at": "2026-09-30T14:49:30.636500Z",
+  "generated_at": "2026-10-20T01:56:41.339749Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -19,9 +19,140 @@
     "missing_fields": [],
     "warnings": []
   },
-  "executive_summary": "Caso HOLDOUT-KRB-006: 5 alertas procesadas. Ninguna coincide con el catálogo de técnicas; no se sostiene una hipótesis de ataque con estos datos.",
-  "attack_mapping": [],
-  "hypotheses": [],
+  "executive_summary": "Caso HOLDOUT-KRB-006: 5 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-ERP-02. Confianza baja. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "attack_mapping": [
+    {
+      "tactic": "Lateral Movement",
+      "technique_id": "T1021",
+      "technique_name": "Remote Services",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "ho-003",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "RDP Logon to Server from Workstation with Service Account en SRV-ERP-02 (usuario svc_sqlreport)",
+          "relevance": "Señal que coincide con el patrón de Remote Services.",
+          "source_fields": [
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/rule/name",
+              "value": "RDP Logon to Server from Workstation with Service Account"
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/tags",
+              "value": [
+                "Domain: Endpoint",
+                "Tactic: Lateral Movement"
+              ]
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/event/category",
+              "value": [
+                "authentication"
+              ]
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/host/name",
+              "value": "SRV-ERP-02"
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/user/name",
+              "value": "svc_sqlreport"
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/@timestamp",
+              "value": "2026-09-19T15:02:05Z"
+            }
+          ]
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "ho-003"
+      ]
+    }
+  ],
+  "hypotheses": [
+    {
+      "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-ERP-02.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
+        {
+          "alert_id": "ho-003",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "RDP Logon to Server from Workstation with Service Account en SRV-ERP-02 (usuario svc_sqlreport)",
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/rule/name",
+              "value": "RDP Logon to Server from Workstation with Service Account"
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/tags",
+              "value": [
+                "Domain: Endpoint",
+                "Tactic: Lateral Movement"
+              ]
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/event/category",
+              "value": [
+                "authentication"
+              ]
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/host/name",
+              "value": "SRV-ERP-02"
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/user/name",
+              "value": "svc_sqlreport"
+            },
+            {
+              "alert_id": "ho-003",
+              "path": "/alerts/2/@timestamp",
+              "value": "2026-09-19T15:02:05Z"
+            }
+          ]
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Tarea administrativa o de respaldo legítima entre servidores."
+      ],
+      "unknowns": [
+        "Falta confirmar si la sesión remota tenía un cambio aprobado."
+      ],
+      "rank": 1,
+      "correlation_group_alert_ids": [
+        "ho-003"
+      ],
+      "ioc_evidence": []
+    }
+  ],
   "timeline": [
     {
       "timestamp_original": "2026-09-19T14:03:12Z",
@@ -32,7 +163,45 @@
       "alert_ids": [
         "ho-001"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ho-001",
+          "path": "/alerts/0/rule/name",
+          "value": "Microsoft Office Child Process Spawned PowerShell"
+        },
+        {
+          "alert_id": "ho-001",
+          "path": "/alerts/0/tags",
+          "value": [
+            "Domain: Endpoint",
+            "OS: Windows",
+            "Tactic: Execution"
+          ]
+        },
+        {
+          "alert_id": "ho-001",
+          "path": "/alerts/0/event/category",
+          "value": [
+            "process"
+          ]
+        },
+        {
+          "alert_id": "ho-001",
+          "path": "/alerts/0/host/name",
+          "value": "WKS-31"
+        },
+        {
+          "alert_id": "ho-001",
+          "path": "/alerts/0/user/name",
+          "value": "rquispe"
+        },
+        {
+          "alert_id": "ho-001",
+          "path": "/alerts/0/@timestamp",
+          "value": "2026-09-19T14:03:12Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-19T14:19:40Z",
@@ -43,7 +212,44 @@
       "alert_ids": [
         "ho-002"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ho-002",
+          "path": "/alerts/1/rule/name",
+          "value": "Kerberos Service Ticket Requests with RC4 Encryption Burst"
+        },
+        {
+          "alert_id": "ho-002",
+          "path": "/alerts/1/tags",
+          "value": [
+            "Domain: Identity",
+            "Tactic: Credential Access"
+          ]
+        },
+        {
+          "alert_id": "ho-002",
+          "path": "/alerts/1/event/category",
+          "value": [
+            "authentication"
+          ]
+        },
+        {
+          "alert_id": "ho-002",
+          "path": "/alerts/1/host/name",
+          "value": "DC-01"
+        },
+        {
+          "alert_id": "ho-002",
+          "path": "/alerts/1/user/name",
+          "value": "rquispe"
+        },
+        {
+          "alert_id": "ho-002",
+          "path": "/alerts/1/@timestamp",
+          "value": "2026-09-19T14:19:40Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-19T15:02:05Z",
@@ -54,7 +260,44 @@
       "alert_ids": [
         "ho-003"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ho-003",
+          "path": "/alerts/2/rule/name",
+          "value": "RDP Logon to Server from Workstation with Service Account"
+        },
+        {
+          "alert_id": "ho-003",
+          "path": "/alerts/2/tags",
+          "value": [
+            "Domain: Endpoint",
+            "Tactic: Lateral Movement"
+          ]
+        },
+        {
+          "alert_id": "ho-003",
+          "path": "/alerts/2/event/category",
+          "value": [
+            "authentication"
+          ]
+        },
+        {
+          "alert_id": "ho-003",
+          "path": "/alerts/2/host/name",
+          "value": "SRV-ERP-02"
+        },
+        {
+          "alert_id": "ho-003",
+          "path": "/alerts/2/user/name",
+          "value": "svc_sqlreport"
+        },
+        {
+          "alert_id": "ho-003",
+          "path": "/alerts/2/@timestamp",
+          "value": "2026-09-19T15:02:05Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-19T15:20:48Z",
@@ -65,7 +308,44 @@
       "alert_ids": [
         "ho-004"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ho-004",
+          "path": "/alerts/3/rule/name",
+          "value": "Rclone Execution with Cloud Remote"
+        },
+        {
+          "alert_id": "ho-004",
+          "path": "/alerts/3/tags",
+          "value": [
+            "Domain: Endpoint",
+            "Tactic: Exfiltration"
+          ]
+        },
+        {
+          "alert_id": "ho-004",
+          "path": "/alerts/3/event/category",
+          "value": [
+            "process"
+          ]
+        },
+        {
+          "alert_id": "ho-004",
+          "path": "/alerts/3/host/name",
+          "value": "SRV-ERP-02"
+        },
+        {
+          "alert_id": "ho-004",
+          "path": "/alerts/3/user/name",
+          "value": "svc_sqlreport"
+        },
+        {
+          "alert_id": "ho-004",
+          "path": "/alerts/3/@timestamp",
+          "value": "2026-09-19T15:20:48Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-19T15:21:30Z",
@@ -76,7 +356,44 @@
       "alert_ids": [
         "ho-005"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ho-005",
+          "path": "/alerts/4/rule/name",
+          "value": "Unusual Volume of Outbound Data to Cloud Storage"
+        },
+        {
+          "alert_id": "ho-005",
+          "path": "/alerts/4/tags",
+          "value": [
+            "Domain: Network",
+            "Tactic: Exfiltration"
+          ]
+        },
+        {
+          "alert_id": "ho-005",
+          "path": "/alerts/4/event/category",
+          "value": [
+            "network"
+          ]
+        },
+        {
+          "alert_id": "ho-005",
+          "path": "/alerts/4/host/name",
+          "value": "SRV-ERP-02"
+        },
+        {
+          "alert_id": "ho-005",
+          "path": "/alerts/4/user/name",
+          "value": "svc_sqlreport"
+        },
+        {
+          "alert_id": "ho-005",
+          "path": "/alerts/4/@timestamp",
+          "value": "2026-09-19T15:21:30Z"
+        }
+      ]
     }
   ],
   "blast_radius": {
@@ -110,7 +427,8 @@
     "confirmed_identities": [],
     "suspected_identities": [],
     "unknowns": [
-      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR).",
+      "Actividad ambigua en SRV-ERP-02 (alertas ho-003): hipótesis de confianza baja o insuficiente."
     ]
   },
   "enrichment": {
@@ -118,39 +436,63 @@
     "items": [],
     "note": "El caso no trae enriquecimiento de IoC; no se hicieron consultas externas."
   },
-  "recommended_actions": [],
+  "recommended_actions": [
+    {
+      "priority": "medium",
+      "action": "Aislar los hosts involucrados de la red",
+      "rationale": "Derivada de la hipótesis 1 (confianza baja).",
+      "evidence_ids": [
+        "ho-003"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "medium",
+      "action": "Revisar reglas de segmentación entre los hosts afectados",
+      "rationale": "Derivada de la hipótesis 1 (confianza baja).",
+      "evidence_ids": [
+        "ho-003"
+      ],
+      "requires_human_approval": true
+    }
+  ],
   "limitations": [
     "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
     "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
     "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
-    "Caso sintético: la confianza se limita a 'media' como máximo."
+    "Caso sintético: la confianza se limita a 'media' como máximo.",
+    "Related means shared observed entities, not a confirmed attack or causation.",
+    "Noise is relative to this case and rule profile; alerts are never discarded.",
+    "Groups are connected components, not proof that every pair is related.",
+    "Unknown custom fields are retained but require verified mappings to correlate.",
+    "Names are compared exactly; tenant/domain scoping requires customer validation."
   ],
   "audit_trail": [
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-09-30T14:49:23.199351Z",
+      "finished_at": "2026-10-20T01:56:38.040871Z",
       "duration_ms": 0,
       "detail": "5 alertas, formato elastic_ecs"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-09-30T14:49:28.982796Z",
-      "duration_ms": 5782,
-      "detail": "0 técnicas candidatas, 0 hipótesis"
+      "finished_at": "2026-10-20T01:56:40.257457Z",
+      "duration_ms": 2216,
+      "detail": "1 técnicas candidatas, 1 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-09-30T14:49:30.633932Z",
-      "duration_ms": 1650,
+      "finished_at": "2026-10-20T01:56:41.337850Z",
+      "duration_ms": 1079,
       "detail": "5 eventos, 3 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-09-30T14:49:30.635233Z",
+      "finished_at": "2026-10-20T01:56:41.338903Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }
@@ -160,5 +502,773 @@
     "analyst": null,
     "notes": null,
     "reviewed_at": null
+  },
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "ho-001",
+          "ho-002"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 988.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/host/name",
+                "value": "WKS-31"
+              },
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/host/name",
+                "value": "DC-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: rquispe",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/user/name",
+                "value": "rquispe"
+              },
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/user/name",
+                "value": "rquispe"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 988 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/@timestamp",
+                "value": "2026-09-19T14:03:12Z"
+              },
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/@timestamp",
+                "value": "2026-09-19T14:19:40Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "ho-001",
+          "ho-003"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 3533.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/host/name",
+                "value": "WKS-31"
+              },
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/user/name",
+                "value": "rquispe"
+              },
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 3533 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/@timestamp",
+                "value": "2026-09-19T14:03:12Z"
+              },
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/@timestamp",
+                "value": "2026-09-19T15:02:05Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "ho-001",
+          "ho-004"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 4656.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/host/name",
+                "value": "WKS-31"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/user/name",
+                "value": "rquispe"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 4656 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/@timestamp",
+                "value": "2026-09-19T14:03:12Z"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/@timestamp",
+                "value": "2026-09-19T15:20:48Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0004",
+        "alert_ids": [
+          "ho-001",
+          "ho-005"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 4698.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/host/name",
+                "value": "WKS-31"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/user/name",
+                "value": "rquispe"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 4698 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-001",
+                "path": "/alerts/0/@timestamp",
+                "value": "2026-09-19T14:03:12Z"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/@timestamp",
+                "value": "2026-09-19T15:21:30Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0005",
+        "alert_ids": [
+          "ho-002",
+          "ho-003"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 2545.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/host/name",
+                "value": "DC-01"
+              },
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.4.31",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/source/ip",
+                "value": "10.0.4.31"
+              },
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/source/ip",
+                "value": "10.0.4.31"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/user/name",
+                "value": "rquispe"
+              },
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 2545 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/@timestamp",
+                "value": "2026-09-19T14:19:40Z"
+              },
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/@timestamp",
+                "value": "2026-09-19T15:02:05Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0006",
+        "alert_ids": [
+          "ho-002",
+          "ho-004"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 3668.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/host/name",
+                "value": "DC-01"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/user/name",
+                "value": "rquispe"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 3668 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/@timestamp",
+                "value": "2026-09-19T14:19:40Z"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/@timestamp",
+                "value": "2026-09-19T15:20:48Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0007",
+        "alert_ids": [
+          "ho-002",
+          "ho-005"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 3710.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/host/name",
+                "value": "DC-01"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/source/ip",
+                "value": "10.0.4.31"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/destination/ip",
+                "value": "198.51.100.140"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/user/name",
+                "value": "rquispe"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 3710 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-002",
+                "path": "/alerts/1/@timestamp",
+                "value": "2026-09-19T14:19:40Z"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/@timestamp",
+                "value": "2026-09-19T15:21:30Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0008",
+        "alert_ids": [
+          "ho-003",
+          "ho-004"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1123.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-ERP-02",
+            "fields": [
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/host/name",
+                "value": "SRV-ERP-02"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: svc_sqlreport",
+            "fields": [
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/user/name",
+                "value": "svc_sqlreport"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1123 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/@timestamp",
+                "value": "2026-09-19T15:02:05Z"
+              },
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/@timestamp",
+                "value": "2026-09-19T15:20:48Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0009",
+        "alert_ids": [
+          "ho-003",
+          "ho-005"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1165.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-ERP-02",
+            "fields": [
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/host/name",
+                "value": "SRV-ERP-02"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/source/ip",
+                "value": "10.0.4.31"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/destination/ip",
+                "value": "198.51.100.140"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: svc_sqlreport",
+            "fields": [
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/user/name",
+                "value": "svc_sqlreport"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1165 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-003",
+                "path": "/alerts/2/@timestamp",
+                "value": "2026-09-19T15:02:05Z"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/@timestamp",
+                "value": "2026-09-19T15:21:30Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0010",
+        "alert_ids": [
+          "ho-004",
+          "ho-005"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 42.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-ERP-02",
+            "fields": [
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/host/name",
+                "value": "SRV-ERP-02"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/host/name",
+                "value": "SRV-ERP-02"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: svc_sqlreport",
+            "fields": [
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/user/name",
+                "value": "svc_sqlreport"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/user/name",
+                "value": "svc_sqlreport"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 42 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ho-004",
+                "path": "/alerts/3/@timestamp",
+                "value": "2026-09-19T15:20:48Z"
+              },
+              {
+                "alert_id": "ho-005",
+                "path": "/alerts/4/@timestamp",
+                "value": "2026-09-19T15:21:30Z"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "ho-001",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002",
+          "rel-0003",
+          "rel-0004"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "ho-002",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0005",
+          "rel-0006",
+          "rel-0007"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "ho-003",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0005",
+          "rel-0008",
+          "rel-0009"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "ho-004",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0003",
+          "rel-0006",
+          "rel-0008",
+          "rel-0010"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "ho-005",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0004",
+          "rel-0007",
+          "rel-0009",
+          "rel-0010"
+        ],
+        "explanation": "At least one related pair exists"
+      }
+    ],
+    "related_groups": [
+      [
+        "ho-004",
+        "ho-005"
+      ]
+    ],
+    "noise_alert_ids": [],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
   }
 }

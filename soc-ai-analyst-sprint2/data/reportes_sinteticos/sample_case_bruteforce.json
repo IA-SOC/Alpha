@@ -1,6 +1,6 @@
 {
   "case_id": "CASE-0001",
-  "generated_at": "2026-09-30T03:08:36.729136Z",
+  "generated_at": "2026-10-20T01:53:20.690958Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -21,41 +21,8 @@
       "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
     ]
   },
-  "executive_summary": "Caso CASE-0001: 4 alertas procesadas. Secuencia de ataque sugerida: Brute Force (T1110, táctica: Credential Access) → Remote Services (T1021, táctica: Lateral Movement). Hipótesis principal: Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-DB-01, WKS-15. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "executive_summary": "Caso CASE-0001: 4 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en WKS-15. Confianza baja. Ningún compromiso se da por confirmado hasta la revisión del analista.",
   "attack_mapping": [
-    {
-      "tactic": "Lateral Movement",
-      "technique_id": "T1021",
-      "technique_name": "Remote Services",
-      "status": "candidate",
-      "evidence": [
-        {
-          "alert_id": "a3",
-          "role": "supporting",
-          "fields": [
-            "rule_name",
-            "tags",
-            "host",
-            "user"
-          ],
-          "observation": "smb_admin_share_access en WKS-15 (usuario jgomez)",
-          "relevance": "Señal que coincide con el patrón de Remote Services."
-        },
-        {
-          "alert_id": "a4",
-          "role": "supporting",
-          "fields": [
-            "rule_name",
-            "tags",
-            "host",
-            "user"
-          ],
-          "observation": "remote_exec_detected en SRV-DB-01 (usuario jgomez)",
-          "relevance": "Señal que coincide con el patrón de Remote Services."
-        }
-      ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
-    },
     {
       "tactic": "Credential Access",
       "technique_id": "T1110",
@@ -72,18 +39,50 @@
             "user"
           ],
           "observation": "multiple_auth_failures en WKS-15 (usuario jgomez)",
-          "relevance": "Señal que coincide con el patrón de Brute Force."
+          "relevance": "Señal que coincide con el patrón de Brute Force.",
+          "source_fields": [
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/rule_name",
+              "value": "multiple_auth_failures"
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/tags",
+              "value": [
+                "authentication",
+                "brute_force"
+              ]
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/host",
+              "value": "WKS-15"
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/user",
+              "value": "jgomez"
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/timestamp",
+              "value": "2026-09-10T02:14:00Z"
+            }
+          ]
         }
       ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
-    }
-  ],
-  "hypotheses": [
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "a1"
+      ]
+    },
     {
-      "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-DB-01, WKS-15.",
-      "confidence": "media",
-      "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
-      "evidence_for": [
+      "tactic": "Lateral Movement",
+      "technique_id": "T1021",
+      "technique_name": "Remote Services",
+      "status": "candidate",
+      "evidence": [
         {
           "alert_id": "a3",
           "role": "supporting",
@@ -94,8 +93,49 @@
             "user"
           ],
           "observation": "smb_admin_share_access en WKS-15 (usuario jgomez)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
-        },
+          "relevance": "Señal que coincide con el patrón de Remote Services.",
+          "source_fields": [
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/rule_name",
+              "value": "smb_admin_share_access"
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/tags",
+              "value": [
+                "lateral_movement"
+              ]
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/host",
+              "value": "WKS-15"
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/user",
+              "value": "jgomez"
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-10T02:45:00Z"
+            }
+          ]
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "a3"
+      ]
+    },
+    {
+      "tactic": "Lateral Movement",
+      "technique_id": "T1021",
+      "technique_name": "Remote Services",
+      "status": "candidate",
+      "evidence": [
         {
           "alert_id": "a4",
           "role": "supporting",
@@ -106,18 +146,46 @@
             "user"
           ],
           "observation": "remote_exec_detected en SRV-DB-01 (usuario jgomez)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Señal que coincide con el patrón de Remote Services.",
+          "source_fields": [
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/rule_name",
+              "value": "remote_exec_detected"
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/tags",
+              "value": [
+                "lateral_movement",
+                "remote_exec"
+              ]
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/host",
+              "value": "SRV-DB-01"
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/user",
+              "value": "jgomez"
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/timestamp",
+              "value": "2026-09-10T03:10:00Z"
+            }
+          ]
         }
       ],
-      "evidence_against": [],
-      "alternatives": [
-        "Tarea administrativa o de respaldo legítima entre servidores."
-      ],
-      "unknowns": [
-        "Falta confirmar si la sesión remota tenía un cambio aprobado."
-      ],
-      "rank": 1
-    },
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "a4"
+      ]
+    }
+  ],
+  "hypotheses": [
     {
       "statement": "Actividad compatible con Brute Force (T1110, táctica Credential Access) en WKS-15.",
       "confidence": "baja",
@@ -133,7 +201,37 @@
             "user"
           ],
           "observation": "multiple_auth_failures en WKS-15 (usuario jgomez)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/rule_name",
+              "value": "multiple_auth_failures"
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/tags",
+              "value": [
+                "authentication",
+                "brute_force"
+              ]
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/host",
+              "value": "WKS-15"
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/user",
+              "value": "jgomez"
+            },
+            {
+              "alert_id": "a1",
+              "path": "/alerts/0/timestamp",
+              "value": "2026-09-10T02:14:00Z"
+            }
+          ]
         }
       ],
       "evidence_against": [],
@@ -143,7 +241,132 @@
       "unknowns": [
         "No hay telemetría de EDR que confirme ejecución posterior al acceso."
       ],
-      "rank": 2
+      "rank": 1,
+      "correlation_group_alert_ids": [
+        "a1"
+      ],
+      "ioc_evidence": []
+    },
+    {
+      "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en WKS-15.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
+        {
+          "alert_id": "a3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "smb_admin_share_access en WKS-15 (usuario jgomez)",
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/rule_name",
+              "value": "smb_admin_share_access"
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/tags",
+              "value": [
+                "lateral_movement"
+              ]
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/host",
+              "value": "WKS-15"
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/user",
+              "value": "jgomez"
+            },
+            {
+              "alert_id": "a3",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-10T02:45:00Z"
+            }
+          ]
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Tarea administrativa o de respaldo legítima entre servidores."
+      ],
+      "unknowns": [
+        "Falta confirmar si la sesión remota tenía un cambio aprobado."
+      ],
+      "rank": 2,
+      "correlation_group_alert_ids": [
+        "a3"
+      ],
+      "ioc_evidence": []
+    },
+    {
+      "statement": "Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-DB-01.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
+        {
+          "alert_id": "a4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "remote_exec_detected en SRV-DB-01 (usuario jgomez)",
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/rule_name",
+              "value": "remote_exec_detected"
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/tags",
+              "value": [
+                "lateral_movement",
+                "remote_exec"
+              ]
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/host",
+              "value": "SRV-DB-01"
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/user",
+              "value": "jgomez"
+            },
+            {
+              "alert_id": "a4",
+              "path": "/alerts/3/timestamp",
+              "value": "2026-09-10T03:10:00Z"
+            }
+          ]
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Tarea administrativa o de respaldo legítima entre servidores."
+      ],
+      "unknowns": [
+        "Falta confirmar si la sesión remota tenía un cambio aprobado."
+      ],
+      "rank": 3,
+      "correlation_group_alert_ids": [
+        "a4"
+      ],
+      "ioc_evidence": []
     }
   ],
   "timeline": [
@@ -156,7 +379,37 @@
       "alert_ids": [
         "a1"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "a1",
+          "path": "/alerts/0/rule_name",
+          "value": "multiple_auth_failures"
+        },
+        {
+          "alert_id": "a1",
+          "path": "/alerts/0/tags",
+          "value": [
+            "authentication",
+            "brute_force"
+          ]
+        },
+        {
+          "alert_id": "a1",
+          "path": "/alerts/0/host",
+          "value": "WKS-15"
+        },
+        {
+          "alert_id": "a1",
+          "path": "/alerts/0/user",
+          "value": "jgomez"
+        },
+        {
+          "alert_id": "a1",
+          "path": "/alerts/0/timestamp",
+          "value": "2026-09-10T02:14:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-10T02:20:00Z",
@@ -167,7 +420,36 @@
       "alert_ids": [
         "a2"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "a2",
+          "path": "/alerts/1/rule_name",
+          "value": "successful_login_after_failures"
+        },
+        {
+          "alert_id": "a2",
+          "path": "/alerts/1/tags",
+          "value": [
+            "authentication"
+          ]
+        },
+        {
+          "alert_id": "a2",
+          "path": "/alerts/1/host",
+          "value": "WKS-15"
+        },
+        {
+          "alert_id": "a2",
+          "path": "/alerts/1/user",
+          "value": "jgomez"
+        },
+        {
+          "alert_id": "a2",
+          "path": "/alerts/1/timestamp",
+          "value": "2026-09-10T02:20:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-10T02:45:00Z",
@@ -178,7 +460,36 @@
       "alert_ids": [
         "a3"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "a3",
+          "path": "/alerts/2/rule_name",
+          "value": "smb_admin_share_access"
+        },
+        {
+          "alert_id": "a3",
+          "path": "/alerts/2/tags",
+          "value": [
+            "lateral_movement"
+          ]
+        },
+        {
+          "alert_id": "a3",
+          "path": "/alerts/2/host",
+          "value": "WKS-15"
+        },
+        {
+          "alert_id": "a3",
+          "path": "/alerts/2/user",
+          "value": "jgomez"
+        },
+        {
+          "alert_id": "a3",
+          "path": "/alerts/2/timestamp",
+          "value": "2026-09-10T02:45:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-10T03:10:00Z",
@@ -189,7 +500,37 @@
       "alert_ids": [
         "a4"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "a4",
+          "path": "/alerts/3/rule_name",
+          "value": "remote_exec_detected"
+        },
+        {
+          "alert_id": "a4",
+          "path": "/alerts/3/tags",
+          "value": [
+            "lateral_movement",
+            "remote_exec"
+          ]
+        },
+        {
+          "alert_id": "a4",
+          "path": "/alerts/3/host",
+          "value": "SRV-DB-01"
+        },
+        {
+          "alert_id": "a4",
+          "path": "/alerts/3/user",
+          "value": "jgomez"
+        },
+        {
+          "alert_id": "a4",
+          "path": "/alerts/3/timestamp",
+          "value": "2026-09-10T03:10:00Z"
+        }
+      ]
     }
   ],
   "blast_radius": {
@@ -212,32 +553,13 @@
       }
     ],
     "confirmed_assets": [],
-    "suspected_assets": [
-      {
-        "asset": "WKS-15",
-        "basis_alert_ids": [
-          "a3"
-        ]
-      },
-      {
-        "asset": "SRV-DB-01",
-        "basis_alert_ids": [
-          "a4"
-        ]
-      }
-    ],
+    "suspected_assets": [],
     "confirmed_identities": [],
-    "suspected_identities": [
-      {
-        "identity": "jgomez",
-        "basis_alert_ids": [
-          "a3",
-          "a4"
-        ]
-      }
-    ],
+    "suspected_identities": [],
     "unknowns": [
-      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+      "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR).",
+      "Actividad ambigua en WKS-15 (alertas a1, a3): hipótesis de confianza baja o insuficiente.",
+      "Actividad ambigua en SRV-DB-01 (alertas a4): hipótesis de confianza baja o insuficiente."
     ]
   },
   "enrichment": {
@@ -247,29 +569,9 @@
   },
   "recommended_actions": [
     {
-      "priority": "high",
-      "action": "Aislar los hosts involucrados de la red",
-      "rationale": "Derivada de la hipótesis 1 (confianza media).",
-      "evidence_ids": [
-        "a3",
-        "a4"
-      ],
-      "requires_human_approval": true
-    },
-    {
-      "priority": "high",
-      "action": "Revisar reglas de segmentación entre los hosts afectados",
-      "rationale": "Derivada de la hipótesis 1 (confianza media).",
-      "evidence_ids": [
-        "a3",
-        "a4"
-      ],
-      "requires_human_approval": true
-    },
-    {
       "priority": "medium",
       "action": "Forzar rotación de credenciales de las cuentas involucradas",
-      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "rationale": "Derivada de la hipótesis 1 (confianza baja).",
       "evidence_ids": [
         "a1"
       ],
@@ -278,9 +580,27 @@
     {
       "priority": "medium",
       "action": "Habilitar/reforzar MFA en los hosts afectados",
-      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "rationale": "Derivada de la hipótesis 1 (confianza baja).",
       "evidence_ids": [
         "a1"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "medium",
+      "action": "Aislar los hosts involucrados de la red",
+      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "evidence_ids": [
+        "a3"
+      ],
+      "requires_human_approval": true
+    },
+    {
+      "priority": "medium",
+      "action": "Revisar reglas de segmentación entre los hosts afectados",
+      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "evidence_ids": [
+        "a3"
       ],
       "requires_human_approval": true
     }
@@ -289,34 +609,39 @@
     "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
     "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
     "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
-    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo).",
+    "Related means shared observed entities, not a confirmed attack or causation.",
+    "Noise is relative to this case and rule profile; alerts are never discarded.",
+    "Groups are connected components, not proof that every pair is related.",
+    "Unknown custom fields are retained but require verified mappings to correlate.",
+    "Names are compared exactly; tenant/domain scoping requires customer validation."
   ],
   "audit_trail": [
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-09-30T03:08:29.869473Z",
+      "finished_at": "2026-10-20T01:53:17.285729Z",
       "duration_ms": 0,
       "detail": "4 alertas, formato unknown"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-09-30T03:08:34.638810Z",
-      "duration_ms": 4768,
-      "detail": "2 técnicas candidatas, 2 hipótesis"
+      "finished_at": "2026-10-20T01:53:19.550957Z",
+      "duration_ms": 2264,
+      "detail": "2 técnicas candidatas, 3 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-09-30T03:08:36.727655Z",
-      "duration_ms": 2088,
+      "finished_at": "2026-10-20T01:53:20.688952Z",
+      "duration_ms": 1137,
       "detail": "4 eventos, 2 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-09-30T03:08:36.728452Z",
+      "finished_at": "2026-10-20T01:53:20.690100Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }
@@ -326,5 +651,568 @@
     "analyst": null,
     "notes": null,
     "reviewed_at": null
+  },
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "a1",
+          "a2"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 360.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: WKS-15",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/host",
+                "value": "WKS-15"
+              },
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/host",
+                "value": "WKS-15"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.0.15, 203.0.113.10",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/source_ip",
+                "value": "203.0.113.10"
+              },
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/dest_ip",
+                "value": "10.0.0.15"
+              },
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/source_ip",
+                "value": "203.0.113.10"
+              },
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/dest_ip",
+                "value": "10.0.0.15"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: jgomez",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/user",
+                "value": "jgomez"
+              },
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/user",
+                "value": "jgomez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 360 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-10T02:14:00Z"
+              },
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-10T02:20:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "a1",
+          "a3"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1860.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: WKS-15",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/host",
+                "value": "WKS-15"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/host",
+                "value": "WKS-15"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.0.15",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/dest_ip",
+                "value": "10.0.0.15"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/source_ip",
+                "value": "10.0.0.15"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: jgomez",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/user",
+                "value": "jgomez"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/user",
+                "value": "jgomez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1860 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-10T02:14:00Z"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-10T02:45:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "a1",
+          "a4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 3360.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/host",
+                "value": "WKS-15"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/host",
+                "value": "SRV-DB-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.0.15",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/dest_ip",
+                "value": "10.0.0.15"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/source_ip",
+                "value": "10.0.0.15"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: jgomez",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/user",
+                "value": "jgomez"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/user",
+                "value": "jgomez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 3360 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "a1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-10T02:14:00Z"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-10T03:10:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0004",
+        "alert_ids": [
+          "a2",
+          "a3"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1500.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: WKS-15",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/host",
+                "value": "WKS-15"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/host",
+                "value": "WKS-15"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.0.15",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/dest_ip",
+                "value": "10.0.0.15"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/source_ip",
+                "value": "10.0.0.15"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: jgomez",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/user",
+                "value": "jgomez"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/user",
+                "value": "jgomez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1500 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-10T02:20:00Z"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-10T02:45:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0005",
+        "alert_ids": [
+          "a2",
+          "a4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 3000.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/host",
+                "value": "WKS-15"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/host",
+                "value": "SRV-DB-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.0.15",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/dest_ip",
+                "value": "10.0.0.15"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/source_ip",
+                "value": "10.0.0.15"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: jgomez",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/user",
+                "value": "jgomez"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/user",
+                "value": "jgomez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 3000 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "a2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-10T02:20:00Z"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-10T03:10:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0006",
+        "alert_ids": [
+          "a3",
+          "a4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1500.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/host",
+                "value": "WKS-15"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/host",
+                "value": "SRV-DB-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.0.15, 10.0.0.22",
+            "fields": [
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/source_ip",
+                "value": "10.0.0.15"
+              },
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/dest_ip",
+                "value": "10.0.0.22"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/source_ip",
+                "value": "10.0.0.15"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/dest_ip",
+                "value": "10.0.0.22"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: jgomez",
+            "fields": [
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/user",
+                "value": "jgomez"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/user",
+                "value": "jgomez"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1500 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "a3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-10T02:45:00Z"
+              },
+              {
+                "alert_id": "a4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-10T03:10:00Z"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "a1",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002",
+          "rel-0003"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "a2",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0004",
+          "rel-0005"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "a3",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0004",
+          "rel-0006"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "a4",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0003",
+          "rel-0005",
+          "rel-0006"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      }
+    ],
+    "related_groups": [],
+    "noise_alert_ids": [],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
   }
 }

@@ -48,7 +48,7 @@ CASES = [
         "input": "data/synthetic/pre_ransomware.json", "report": "pre_ransomware.json",
         "expected": [
             {"id": "T1021", "name": "Remote Services (SMB y PsExec)"},
-            {"id": "T1490", "name": "Inhibit System Recovery", "note": "El agente asigna el borrado de shadow copies a T1486."},
+            {"id": "T1490", "name": "Inhibit System Recovery"},
             {"id": "T1486", "name": "Data Encrypted for Impact"},
         ],
     },

@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-RANSOM-004",
-  "generated_at": "2026-09-30T03:09:14.065925Z",
+  "generated_at": "2026-10-20T01:53:38.791383Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -21,53 +21,8 @@
       "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
     ]
   },
-  "executive_summary": "Caso SYN-RANSOM-004: 5 alertas procesadas. Secuencia de ataque sugerida: Remote Services (T1021, táctica: Lateral Movement) → Data Encrypted for Impact (T1486, táctica: Impact). Hipótesis principal: Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-APP-02, SRV-FILE-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "executive_summary": "Caso SYN-RANSOM-004: 5 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-APP-02, SRV-FILE-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
   "attack_mapping": [
-    {
-      "tactic": "Impact",
-      "technique_id": "T1486",
-      "technique_name": "Data Encrypted for Impact",
-      "status": "candidate",
-      "evidence": [
-        {
-          "alert_id": "rw-3",
-          "role": "supporting",
-          "fields": [
-            "rule_name",
-            "tags",
-            "host",
-            "user"
-          ],
-          "observation": "shadow_copy_deleted en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact."
-        },
-        {
-          "alert_id": "rw-4",
-          "role": "supporting",
-          "fields": [
-            "rule_name",
-            "tags",
-            "host",
-            "user"
-          ],
-          "observation": "mass_file_encryption en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact."
-        },
-        {
-          "alert_id": "rw-5",
-          "role": "supporting",
-          "fields": [
-            "rule_name",
-            "tags",
-            "host",
-            "user"
-          ],
-          "observation": "ransom_note_created en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact."
-        }
-      ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
-    },
     {
       "tactic": "Lateral Movement",
       "technique_id": "T1021",
@@ -84,7 +39,36 @@
             "user"
           ],
           "observation": "smb_admin_share_access en SRV-APP-02 (usuario adm_it)",
-          "relevance": "Señal que coincide con el patrón de Remote Services."
+          "relevance": "Señal que coincide con el patrón de Remote Services.",
+          "source_fields": [
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/rule_name",
+              "value": "smb_admin_share_access"
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/tags",
+              "value": [
+                "lateral_movement"
+              ]
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/host",
+              "value": "SRV-APP-02"
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/timestamp",
+              "value": "2026-09-17T01:00:00Z"
+            }
+          ]
         },
         {
           "alert_id": "rw-2",
@@ -96,10 +80,258 @@
             "user"
           ],
           "observation": "remote_exec_psexec_service en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Señal que coincide con el patrón de Remote Services."
+          "relevance": "Señal que coincide con el patrón de Remote Services.",
+          "source_fields": [
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/rule_name",
+              "value": "remote_exec_psexec_service"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/tags",
+              "value": [
+                "remote_exec"
+              ]
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-17T01:04:00Z"
+            }
+          ]
         }
       ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ]
+    },
+    {
+      "tactic": "Impact",
+      "technique_id": "T1486",
+      "technique_name": "Data Encrypted for Impact",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "rw-4",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "mass_file_encryption en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact.",
+          "source_fields": [
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/rule_name",
+              "value": "mass_file_encryption"
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/tags",
+              "value": [
+                "file_encryption"
+              ]
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/timestamp",
+              "value": "2026-09-17T01:12:00Z"
+            }
+          ]
+        },
+        {
+          "alert_id": "rw-5",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "ransom_note_created en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Data Encrypted for Impact.",
+          "source_fields": [
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/rule_name",
+              "value": "ransom_note_created"
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/tags",
+              "value": [
+                "ransom_note"
+              ]
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/timestamp",
+              "value": "2026-09-17T01:13:00Z"
+            }
+          ]
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ]
+    },
+    {
+      "tactic": "Execution",
+      "technique_id": "T1569.002",
+      "technique_name": "System Services: Service Execution",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "rw-2",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "remote_exec_psexec_service en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de System Services: Service Execution.",
+          "source_fields": [
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/rule_name",
+              "value": "remote_exec_psexec_service"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/tags",
+              "value": [
+                "remote_exec"
+              ]
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-17T01:04:00Z"
+            }
+          ]
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ]
+    },
+    {
+      "tactic": "Impact",
+      "technique_id": "T1490",
+      "technique_name": "Inhibit System Recovery",
+      "status": "candidate",
+      "evidence": [
+        {
+          "alert_id": "rw-3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "shadow_copy_deleted en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Señal que coincide con el patrón de Inhibit System Recovery.",
+          "source_fields": [
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/rule_name",
+              "value": "shadow_copy_deleted"
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/tags",
+              "value": [
+                "defense_evasion"
+              ]
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-17T01:09:00Z"
+            }
+          ]
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ]
     }
   ],
   "hypotheses": [
@@ -118,7 +350,36 @@
             "user"
           ],
           "observation": "smb_admin_share_access en SRV-APP-02 (usuario adm_it)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/rule_name",
+              "value": "smb_admin_share_access"
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/tags",
+              "value": [
+                "lateral_movement"
+              ]
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/host",
+              "value": "SRV-APP-02"
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-1",
+              "path": "/alerts/0/timestamp",
+              "value": "2026-09-17T01:00:00Z"
+            }
+          ]
         },
         {
           "alert_id": "rw-2",
@@ -130,7 +391,36 @@
             "user"
           ],
           "observation": "remote_exec_psexec_service en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/rule_name",
+              "value": "remote_exec_psexec_service"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/tags",
+              "value": [
+                "remote_exec"
+              ]
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-17T01:04:00Z"
+            }
+          ]
         }
       ],
       "evidence_against": [],
@@ -140,25 +430,21 @@
       "unknowns": [
         "Falta confirmar si la sesión remota tenía un cambio aprobado."
       ],
-      "rank": 1
+      "rank": 1,
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ],
+      "ioc_evidence": []
     },
     {
       "statement": "Actividad compatible con Data Encrypted for Impact (T1486, táctica Impact) en SRV-FILE-01.",
       "confidence": "media",
-      "confidence_basis": "3 alertas con 3 reglas distintas coinciden. Se ajusta a la baja: el caso es sintético.",
+      "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
       "evidence_for": [
-        {
-          "alert_id": "rw-3",
-          "role": "supporting",
-          "fields": [
-            "rule_name",
-            "tags",
-            "host",
-            "user"
-          ],
-          "observation": "shadow_copy_deleted en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
-        },
         {
           "alert_id": "rw-4",
           "role": "supporting",
@@ -169,7 +455,36 @@
             "user"
           ],
           "observation": "mass_file_encryption en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/rule_name",
+              "value": "mass_file_encryption"
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/tags",
+              "value": [
+                "file_encryption"
+              ]
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-4",
+              "path": "/alerts/3/timestamp",
+              "value": "2026-09-17T01:12:00Z"
+            }
+          ]
         },
         {
           "alert_id": "rw-5",
@@ -181,7 +496,36 @@
             "user"
           ],
           "observation": "ransom_note_created en SRV-FILE-01 (usuario adm_it)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/rule_name",
+              "value": "ransom_note_created"
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/tags",
+              "value": [
+                "ransom_note"
+              ]
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-5",
+              "path": "/alerts/4/timestamp",
+              "value": "2026-09-17T01:13:00Z"
+            }
+          ]
         }
       ],
       "evidence_against": [],
@@ -191,7 +535,143 @@
       "unknowns": [
         "Se desconoce el alcance total de archivos afectados y el estado de backups."
       ],
-      "rank": 2
+      "rank": 2,
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ],
+      "ioc_evidence": []
+    },
+    {
+      "statement": "Actividad compatible con System Services: Service Execution (T1569.002, táctica Execution) en SRV-FILE-01.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
+        {
+          "alert_id": "rw-2",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "remote_exec_psexec_service en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/rule_name",
+              "value": "remote_exec_psexec_service"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/tags",
+              "value": [
+                "remote_exec"
+              ]
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-2",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-17T01:04:00Z"
+            }
+          ]
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Herramienta de administración remota (PsExec) usada por soporte de TI."
+      ],
+      "unknowns": [
+        "Se desconoce qué binario ejecutó el servicio y con qué privilegios."
+      ],
+      "rank": 3,
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ],
+      "ioc_evidence": []
+    },
+    {
+      "statement": "Actividad compatible con Inhibit System Recovery (T1490, táctica Impact) en SRV-FILE-01.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
+        {
+          "alert_id": "rw-3",
+          "role": "supporting",
+          "fields": [
+            "rule_name",
+            "tags",
+            "host",
+            "user"
+          ],
+          "observation": "shadow_copy_deleted en SRV-FILE-01 (usuario adm_it)",
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/rule_name",
+              "value": "shadow_copy_deleted"
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/tags",
+              "value": [
+                "defense_evasion"
+              ]
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/host",
+              "value": "SRV-FILE-01"
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/user",
+              "value": "adm_it"
+            },
+            {
+              "alert_id": "rw-3",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-17T01:09:00Z"
+            }
+          ]
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Cifrado o limpieza legítima por software de respaldo/DLP."
+      ],
+      "unknowns": [
+        "Se desconoce el alcance total de archivos afectados y el estado de backups."
+      ],
+      "rank": 4,
+      "correlation_group_alert_ids": [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ],
+      "ioc_evidence": []
     }
   ],
   "timeline": [
@@ -204,7 +684,36 @@
       "alert_ids": [
         "rw-1"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "rw-1",
+          "path": "/alerts/0/rule_name",
+          "value": "smb_admin_share_access"
+        },
+        {
+          "alert_id": "rw-1",
+          "path": "/alerts/0/tags",
+          "value": [
+            "lateral_movement"
+          ]
+        },
+        {
+          "alert_id": "rw-1",
+          "path": "/alerts/0/host",
+          "value": "SRV-APP-02"
+        },
+        {
+          "alert_id": "rw-1",
+          "path": "/alerts/0/user",
+          "value": "adm_it"
+        },
+        {
+          "alert_id": "rw-1",
+          "path": "/alerts/0/timestamp",
+          "value": "2026-09-17T01:00:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-17T01:04:00Z",
@@ -215,7 +724,36 @@
       "alert_ids": [
         "rw-2"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "rw-2",
+          "path": "/alerts/1/rule_name",
+          "value": "remote_exec_psexec_service"
+        },
+        {
+          "alert_id": "rw-2",
+          "path": "/alerts/1/tags",
+          "value": [
+            "remote_exec"
+          ]
+        },
+        {
+          "alert_id": "rw-2",
+          "path": "/alerts/1/host",
+          "value": "SRV-FILE-01"
+        },
+        {
+          "alert_id": "rw-2",
+          "path": "/alerts/1/user",
+          "value": "adm_it"
+        },
+        {
+          "alert_id": "rw-2",
+          "path": "/alerts/1/timestamp",
+          "value": "2026-09-17T01:04:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-17T01:09:00Z",
@@ -226,7 +764,36 @@
       "alert_ids": [
         "rw-3"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "rw-3",
+          "path": "/alerts/2/rule_name",
+          "value": "shadow_copy_deleted"
+        },
+        {
+          "alert_id": "rw-3",
+          "path": "/alerts/2/tags",
+          "value": [
+            "defense_evasion"
+          ]
+        },
+        {
+          "alert_id": "rw-3",
+          "path": "/alerts/2/host",
+          "value": "SRV-FILE-01"
+        },
+        {
+          "alert_id": "rw-3",
+          "path": "/alerts/2/user",
+          "value": "adm_it"
+        },
+        {
+          "alert_id": "rw-3",
+          "path": "/alerts/2/timestamp",
+          "value": "2026-09-17T01:09:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-17T01:12:00Z",
@@ -237,7 +804,36 @@
       "alert_ids": [
         "rw-4"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "rw-4",
+          "path": "/alerts/3/rule_name",
+          "value": "mass_file_encryption"
+        },
+        {
+          "alert_id": "rw-4",
+          "path": "/alerts/3/tags",
+          "value": [
+            "file_encryption"
+          ]
+        },
+        {
+          "alert_id": "rw-4",
+          "path": "/alerts/3/host",
+          "value": "SRV-FILE-01"
+        },
+        {
+          "alert_id": "rw-4",
+          "path": "/alerts/3/user",
+          "value": "adm_it"
+        },
+        {
+          "alert_id": "rw-4",
+          "path": "/alerts/3/timestamp",
+          "value": "2026-09-17T01:12:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-17T01:13:00Z",
@@ -248,7 +844,36 @@
       "alert_ids": [
         "rw-5"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "rw-5",
+          "path": "/alerts/4/rule_name",
+          "value": "ransom_note_created"
+        },
+        {
+          "alert_id": "rw-5",
+          "path": "/alerts/4/tags",
+          "value": [
+            "ransom_note"
+          ]
+        },
+        {
+          "alert_id": "rw-5",
+          "path": "/alerts/4/host",
+          "value": "SRV-FILE-01"
+        },
+        {
+          "alert_id": "rw-5",
+          "path": "/alerts/4/user",
+          "value": "adm_it"
+        },
+        {
+          "alert_id": "rw-5",
+          "path": "/alerts/4/timestamp",
+          "value": "2026-09-17T01:13:00Z"
+        }
+      ]
     }
   ],
   "blast_radius": {
@@ -283,7 +908,6 @@
         "asset": "SRV-FILE-01",
         "basis_alert_ids": [
           "rw-2",
-          "rw-3",
           "rw-4",
           "rw-5"
         ]
@@ -296,7 +920,6 @@
         "basis_alert_ids": [
           "rw-1",
           "rw-2",
-          "rw-3",
           "rw-4",
           "rw-5"
         ]
@@ -317,7 +940,6 @@
       "action": "Aislar inmediatamente los hosts afectados",
       "rationale": "Derivada de la hipótesis 2 (confianza media).",
       "evidence_ids": [
-        "rw-3",
         "rw-4",
         "rw-5"
       ],
@@ -328,7 +950,6 @@
       "action": "Verificar integridad de backups antes de cualquier restauración",
       "rationale": "Derivada de la hipótesis 2 (confianza media).",
       "evidence_ids": [
-        "rw-3",
         "rw-4",
         "rw-5"
       ],
@@ -353,6 +974,15 @@
         "rw-2"
       ],
       "requires_human_approval": true
+    },
+    {
+      "priority": "medium",
+      "action": "Revisar y deshabilitar los servicios creados recientemente en los hosts afectados",
+      "rationale": "Derivada de la hipótesis 3 (confianza baja).",
+      "evidence_ids": [
+        "rw-2"
+      ],
+      "requires_human_approval": true
     }
   ],
   "limitations": [
@@ -360,34 +990,39 @@
     "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
     "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
     "Caso sintético: la confianza se limita a 'media' como máximo.",
-    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo).",
+    "Related means shared observed entities, not a confirmed attack or causation.",
+    "Noise is relative to this case and rule profile; alerts are never discarded.",
+    "Groups are connected components, not proof that every pair is related.",
+    "Unknown custom fields are retained but require verified mappings to correlate.",
+    "Names are compared exactly; tenant/domain scoping requires customer validation."
   ],
   "audit_trail": [
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-09-30T03:09:07.909218Z",
+      "finished_at": "2026-10-20T01:53:35.379841Z",
       "duration_ms": 0,
       "detail": "5 alertas, formato unknown"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-09-30T03:09:12.034066Z",
-      "duration_ms": 4124,
-      "detail": "2 técnicas candidatas, 2 hipótesis"
+      "finished_at": "2026-10-20T01:53:37.661771Z",
+      "duration_ms": 2281,
+      "detail": "4 técnicas candidatas, 4 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-09-30T03:09:14.064334Z",
-      "duration_ms": 2030,
+      "finished_at": "2026-10-20T01:53:38.788680Z",
+      "duration_ms": 1126,
       "detail": "5 eventos, 2 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-09-30T03:09:14.065116Z",
+      "finished_at": "2026-10-20T01:53:38.790024Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }
@@ -397,5 +1032,752 @@
     "analyst": null,
     "notes": null,
     "reviewed_at": null
+  },
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "rw-1",
+          "rw-2"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 240.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/host",
+                "value": "SRV-APP-02"
+              },
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.3.14, 10.0.3.20",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/source_ip",
+                "value": "10.0.3.14"
+              },
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/dest_ip",
+                "value": "10.0.3.20"
+              },
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/source_ip",
+                "value": "10.0.3.14"
+              },
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/dest_ip",
+                "value": "10.0.3.20"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 240 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-17T01:00:00Z"
+              },
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-17T01:04:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "rw-1",
+          "rw-3"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 540.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/host",
+                "value": "SRV-APP-02"
+              },
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 540 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-17T01:00:00Z"
+              },
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-17T01:09:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "rw-1",
+          "rw-4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 720.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/host",
+                "value": "SRV-APP-02"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 720 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-17T01:00:00Z"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-17T01:12:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0004",
+        "alert_ids": [
+          "rw-1",
+          "rw-5"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 780.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/host",
+                "value": "SRV-APP-02"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 780 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-17T01:00:00Z"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-17T01:13:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0005",
+        "alert_ids": [
+          "rw-2",
+          "rw-3"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 300.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-FILE-01",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/host",
+                "value": "SRV-FILE-01"
+              },
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 300 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-17T01:04:00Z"
+              },
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-17T01:09:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0006",
+        "alert_ids": [
+          "rw-2",
+          "rw-4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 480.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-FILE-01",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/host",
+                "value": "SRV-FILE-01"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 480 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-17T01:04:00Z"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-17T01:12:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0007",
+        "alert_ids": [
+          "rw-2",
+          "rw-5"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 540.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-FILE-01",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/host",
+                "value": "SRV-FILE-01"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 540 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-17T01:04:00Z"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-17T01:13:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0008",
+        "alert_ids": [
+          "rw-3",
+          "rw-4"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 180.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-FILE-01",
+            "fields": [
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/host",
+                "value": "SRV-FILE-01"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 180 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-17T01:09:00Z"
+              },
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-17T01:12:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0009",
+        "alert_ids": [
+          "rw-3",
+          "rw-5"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 240.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-FILE-01",
+            "fields": [
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/host",
+                "value": "SRV-FILE-01"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 240 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-17T01:09:00Z"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-17T01:13:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0010",
+        "alert_ids": [
+          "rw-4",
+          "rw-5"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 60.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: SRV-FILE-01",
+            "fields": [
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/host",
+                "value": "SRV-FILE-01"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/host",
+                "value": "SRV-FILE-01"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: adm_it",
+            "fields": [
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/user",
+                "value": "adm_it"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/user",
+                "value": "adm_it"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 60 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "rw-4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-17T01:12:00Z"
+              },
+              {
+                "alert_id": "rw-5",
+                "path": "/alerts/4/timestamp",
+                "value": "2026-09-17T01:13:00Z"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "rw-1",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002",
+          "rel-0003",
+          "rel-0004"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "rw-2",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0005",
+          "rel-0006",
+          "rel-0007"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "rw-3",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0005",
+          "rel-0008",
+          "rel-0009"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "rw-4",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0003",
+          "rel-0006",
+          "rel-0008",
+          "rel-0010"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "rw-5",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0004",
+          "rel-0007",
+          "rel-0009",
+          "rel-0010"
+        ],
+        "explanation": "At least one related pair exists"
+      }
+    ],
+    "related_groups": [
+      [
+        "rw-1",
+        "rw-2",
+        "rw-3",
+        "rw-4",
+        "rw-5"
+      ]
+    ],
+    "noise_alert_ids": [],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
   }
 }
