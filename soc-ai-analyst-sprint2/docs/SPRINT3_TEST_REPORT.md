@@ -57,6 +57,11 @@ tests should follow.
 
 ## Known defects, tracked as strict xfails
 
+> **Update:** #28, #33 and #38 are now fixed and the three xfail markers are
+> removed; #43 added timeline and MITRE traceability tests. The suite now runs
+> 240 passed, 0 xfailed. The table is kept as the record of what was found.
+> What changed per task is in [`docs/sprint3/`](sprint3/).
+
 | Test | Defect | Fixed by |
 | --- | --- | --- |
 | `test_undated_and_zone_less_events_come_after_the_dated_sequence` | Undated and zone-less events are sorted to the top of the timeline instead of being kept apart | #28 |

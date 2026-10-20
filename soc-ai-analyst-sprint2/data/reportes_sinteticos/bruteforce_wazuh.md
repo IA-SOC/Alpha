@@ -8,7 +8,7 @@
 - Limitaciones de entrada: ninguna detectada
 
 ## Resumen
-Caso SYN-BF-WAZUH-002: 8 alertas procesadas. Secuencia de ataque sugerida: Brute Force (T1110, táctica: Credential Access) → Remote Services (T1021, táctica: Lateral Movement). Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.
+Caso SYN-BF-WAZUH-002: 8 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.
 
 ## Hipótesis ordenadas
 ### 1. Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. — confianza: media
@@ -25,6 +25,36 @@ Caso SYN-BF-WAZUH-002: 8 alertas procesadas. Secuencia de ataque sugerida: Brute
 - Alternativas plausibles: Tarea administrativa o de respaldo legítima entre servidores.
 - Información que falta: Falta confirmar si la sesión remota tenía un cambio aprobado.
 
+
+## Correlación de alertas
+- rel-0001: 1726387331.1001, 1726387335.1002 — related (R1). At least two entity families match within the time window.
+- rel-0002: 1726387331.1001, 1726387340.1003 — related (R1). At least two entity families match within the time window.
+- rel-0003: 1726387331.1001, 1726387402.1004 — related (R1). At least two entity families match within the time window.
+- rel-0004: 1726387331.1001, 1726387500.1005 — related (R1). At least two entity families match within the time window.
+- rel-0005: 1726387331.1001, 1726388100.1006 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0006: 1726387331.1001, 1726388101.1007 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0007: 1726387331.1001, 1726388160.1008 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0008: 1726387335.1002, 1726387340.1003 — related (R1). At least two entity families match within the time window.
+- rel-0009: 1726387335.1002, 1726387402.1004 — related (R1). At least two entity families match within the time window.
+- rel-0010: 1726387335.1002, 1726387500.1005 — related (R1). At least two entity families match within the time window.
+- rel-0011: 1726387335.1002, 1726388100.1006 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0012: 1726387335.1002, 1726388101.1007 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0013: 1726387335.1002, 1726388160.1008 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0014: 1726387340.1003, 1726387402.1004 — related (R1). At least two entity families match within the time window.
+- rel-0015: 1726387340.1003, 1726387500.1005 — related (R1). At least two entity families match within the time window.
+- rel-0016: 1726387340.1003, 1726388100.1006 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0017: 1726387340.1003, 1726388101.1007 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0018: 1726387340.1003, 1726388160.1008 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0019: 1726387402.1004, 1726387500.1005 — related (R1). At least two entity families match within the time window.
+- rel-0020: 1726387402.1004, 1726388100.1006 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0021: 1726387402.1004, 1726388101.1007 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0022: 1726387402.1004, 1726388160.1008 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0023: 1726387500.1005, 1726388100.1006 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0024: 1726387500.1005, 1726388101.1007 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0025: 1726387500.1005, 1726388160.1008 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0026: 1726388100.1006, 1726388101.1007 — related (R1). At least two entity families match within the time window.
+- rel-0027: 1726388100.1006, 1726388160.1008 — related (R1). At least two entity families match within the time window.
+- rel-0028: 1726388101.1007, 1726388160.1008 — related (R1). At least two entity families match within the time window.
 ## Mapeo MITRE ATT&CK
 | Táctica | Técnica (ID y nombre) | Estado | Evidencia referenciada |
 |---|---|---|---|
@@ -52,7 +82,7 @@ Caso SYN-BF-WAZUH-002: 8 alertas procesadas. Secuencia de ataque sugerida: Brute
 
 ## IoC enriquecidos provistos
 Estado: provided. Enriquecimiento tomado del caso tal como vino; no se hicieron consultas externas.
-- 203.0.113.88 (ip, malicious, fuente feed-simulado-n8n) → alertas: 1726387331.1001, 1726387335.1002, 1726387340.1003, 1726387402.1004
+- 203.0.113.88 (ip, veredicto malicious, fuente feed-simulado-n8n) → alertas: 1726387331.1001, 1726387335.1002, 1726387340.1003, 1726387402.1004
 
 ## Acciones recomendadas
 1. [high] Forzar rotación de credenciales de las cuentas involucradas — Derivada de la hipótesis 1 (confianza media). Evidencia: 1726387331.1001, 1726387335.1002, 1726387340.1003. Requiere aprobación humana.
@@ -63,6 +93,11 @@ Estado: provided. Enriquecimiento tomado del caso tal como vino; no se hicieron 
 - Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.
 - El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.
 - Caso sintético: la confianza se limita a 'media' como máximo.
+- Related means shared observed entities, not a confirmed attack or causation.
+- Noise is relative to this case and rule profile; alerts are never discarded.
+- Groups are connected components, not proof that every pair is related.
+- Unknown custom fields are retained but require verified mappings to correlate.
+- Names are compared exactly; tenant/domain scoping requires customer validation.
 
 ## Revisión humana
 - Estado: pending
