@@ -89,12 +89,81 @@ def test_findings_reference_real_ioc_evidence_without_increasing_confidence(real
         verify_traceability(result["investigation_context"], broken)
 
 
+@pytest.mark.parametrize(
+    "section, mutate",
+    [
+        (
+            "timeline",
+            lambda report: report["timeline"][0]["alert_ids"].__setitem__(
+                0, "not-submitted"
+            ),
+        ),
+        (
+            "attack_mapping",
+            lambda report: report["attack_mapping"][0]["evidence"][0][
+                "source_fields"
+            ][0].__setitem__("path", "/alerts/0/raw_alert/not_present"),
+        ),
+        (
+            "blast_radius",
+            lambda report: report["blast_radius"]["observed_assets"][0][
+                "basis_alert_ids"
+            ].__setitem__(0, "not-submitted"),
+        ),
+        (
+            "recommended_actions",
+            lambda report: report["recommended_actions"][0]["evidence_ids"].__setitem__(
+                0, "not-submitted"
+            ),
+        ),
+        (
+            "hypothesis_ioc",
+            lambda report: report["hypotheses"][0]["ioc_evidence"][0].__setitem__(
+                "source_path", "/enrichments/999"
+            ),
+        ),
+    ],
+)
+def test_traceability_rejects_broken_references_and_paths(real_run, section, mutate):
+    result = real_run[-1]
+    broken = deepcopy(result["report"])
+    mutate(broken)
+    with pytest.raises(ValueError):
+        verify_traceability(result["investigation_context"], broken)
+
+
 def test_evidence_survives_restart_but_live_review_checkpoint_is_explicitly_temporary(
     real_run,
 ):
     _, _, path, cid, payload, result = real_run
     with TestClient(create_app(database_path=path)) as restarted:
-        assert restarted.get(f"{URL}/{cid}/investigation").json() == result
+        saved = restarted.get(f"{URL}/{cid}/investigation").json()
+        assert saved == result
+        assert saved["report"]["timeline"] == result["report"]["timeline"]
+        assert saved["report"]["attack_mapping"] == result["report"]["attack_mapping"]
+        assert all(
+            mapping["technique_id"]
+            and mapping["tactic"]
+            and mapping["source_version"]
+            and mapping["evidence"]
+            for mapping in saved["report"]["attack_mapping"]
+        )
+        assert saved["report"]["hypotheses"] == result["report"]["hypotheses"]
+        assert all(
+            hypothesis["evidence_for"]
+            for hypothesis in saved["report"]["hypotheses"]
+        )
+        assert any(
+            hypothesis["ioc_evidence"]
+            for hypothesis in saved["report"]["hypotheses"]
+        )
+        assert (
+            saved["report"]["enrichment"]["items"]
+            == result["report"]["enrichment"]["items"]
+        )
+        assert restarted.get(f"{URL}/{cid}").json()["submitted_case"] == (
+            payload.model_dump(exclude_unset=True)
+        )
         assert (
             restarted.post(
                 f"{URL}/{cid}/review",
@@ -148,10 +217,13 @@ def test_failure_retains_accepted_evidence_and_allows_retry(client, monkeypatch)
     async def fail(*args, **kwargs):
         raise RuntimeError("simulated MCP failure")
 
-    cid = submit(client, case_for(event("a")))
+    payload = case_for(event("a"))
+    cid = submit(client, payload)
     monkeypatch.setattr(module, "investigate", fail)
     assert client.post(f"{URL}/{cid}/investigate").status_code == 502
-    assert client.get(f"{URL}/{cid}").status_code == 200
+    accepted = client.get(f"{URL}/{cid}")
+    assert accepted.status_code == 200
+    assert accepted.json()["submitted_case"] == payload.model_dump(exclude_unset=True)
     assert client.get(f"{URL}/{cid}/investigation").status_code == 404
     monkeypatch.setattr(module, "investigate", original)
     assert client.post(f"{URL}/{cid}/investigate").status_code == 200
