@@ -42,14 +42,14 @@ class McpToolClient:
         session = await stack.enter_async_context(ClientSession(read, write))
         await session.initialize()
         result = await session.call_tool(tool_name, arguments)
-        if result.isError:
+        if result.is_error:
             error_text = "; ".join(c.text for c in result.content if hasattr(c, "text"))
             raise RuntimeError(f"MCP tool '{tool_name}' failed: {error_text}")
-        # FastMCP serializa el valor de retorno estructurado en structuredContent;
+        # MCPServer serializa el valor de retorno estructurado en structured_content;
         # es más confiable que reconstruirlo desde los bloques de texto (que
-        # FastMCP puede partir en un TextContent por elemento si la tool
+        # MCPServer puede partir en un TextContent por elemento si la tool
         # devuelve una lista).
-        structured = result.structuredContent
+        structured = result.structured_content
         if structured is not None and "result" in structured:
             return structured["result"]
         if structured is not None:
