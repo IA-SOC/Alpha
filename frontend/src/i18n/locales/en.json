@@ -293,7 +293,14 @@
         "reviewed": "This run already has a review, maybe saved from another tab.",
         "other": "The backend refused the review for this run.",
         "kept": "Your decisions and notes are saved in this browser. Investigate again and they come back filled in, ready to send.",
-        "rerun": "Investigate again"
+        "rerun": "Investigate again",
+        "showSaved": "Show the saved review"
+      },
+      "stale": {
+        "title": "There is a newer investigation of this case",
+        "body": "Someone ran the agent again after this report loaded, so this review would land on a run with other findings. Nothing was saved.",
+        "kept": "Your decisions and notes are saved in this browser and come back for every finding the new run shares.",
+        "load": "Load the newer investigation"
       }
     },
     "correlation": {

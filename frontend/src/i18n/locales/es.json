@@ -293,7 +293,14 @@
         "reviewed": "Esta ejecución ya tiene una revisión, quizá guardada desde otra pestaña.",
         "other": "El backend rechazó la revisión de esta ejecución.",
         "kept": "Tus decisiones y notas están guardadas en este navegador. Vuelve a investigar y aparecerán rellenas, listas para enviar.",
-        "rerun": "Volver a investigar"
+        "rerun": "Volver a investigar",
+        "showSaved": "Ver la revisión guardada"
+      },
+      "stale": {
+        "title": "Hay una investigación más reciente de este caso",
+        "body": "Alguien volvió a lanzar el agente después de que se cargara este informe, así que esta revisión caería en una ejecución con otros hallazgos. No se guardó nada.",
+        "kept": "Tus decisiones y notas están guardadas en este navegador y vuelven en cada hallazgo que comparta la nueva ejecución.",
+        "load": "Cargar la investigación más reciente"
       }
     },
     "correlation": {

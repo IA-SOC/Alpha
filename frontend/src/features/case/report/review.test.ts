@@ -2,7 +2,19 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { Report } from '../../../api/types'
 import { sampleInvestigation } from '../../../test/fixtures'
-import { clearDraft, composeNotes, emptyDraft, findingsOf, loadDraft, type ReviewDraft, saveDraft, suggestedStatus, toDecision } from './review'
+import {
+  clearDraft,
+  composeNotes,
+  draftAnalyst,
+  emptyDraft,
+  findingsOf,
+  findingsSignature,
+  loadDraft,
+  type ReviewDraft,
+  saveDraft,
+  suggestedStatus,
+  toDecision,
+} from './review'
 
 const report = sampleInvestigation.report
 const findings = findingsOf(report)
@@ -51,9 +63,15 @@ describe('Suggested outcome', () => {
   })
 
   it('sends the analyst choice over the suggestion', () => {
-    const draft = { ...decided('validated', 'validated'), status: 'rejected' as const }
+    const draft = { ...decided('validated', 'validated'), status: 'rejected' as const, statusFor: findingsSignature(findings) }
 
     expect(toDecision(findings, draft, '  Ana  ')).toMatchObject({ status: 'rejected', analyst: 'Ana' })
+  })
+
+  it('drops the analyst choice when a new run reached other findings', () => {
+    const draft = { ...decided('validated', 'validated'), status: 'rejected' as const, statusFor: 'hypothesis:something else' }
+
+    expect(toDecision(findings, draft, 'Ana').status).toBe('validated')
   })
 })
 
@@ -76,6 +94,15 @@ describe('Review notes', () => {
   })
 })
 
+describe('Analyst name', () => {
+  it('keeps a typed name only for the session it was typed in', () => {
+    const draft = { ...emptyDraft(), analyst: 'Night shift lead', analystFor: 'Ana' }
+
+    expect(draftAnalyst(draft, 'Ana')).toBe('Night shift lead')
+    expect(draftAnalyst(draft, 'Luis')).toBe('Luis')
+  })
+})
+
 describe('Review draft', () => {
   it('comes back from storage for the same case only', () => {
     saveDraft('case-a', decided('validated', 'rejected'))
@@ -88,6 +115,23 @@ describe('Review draft', () => {
     localStorage.setItem('soc.review.case-a', '{not json')
 
     expect(loadDraft('case-a')).toEqual(emptyDraft())
+  })
+
+  it('keeps only the well formed parts of an older or edited draft', () => {
+    localStorage.setItem(
+      'soc.review.case-a',
+      JSON.stringify({
+        findings: { a: {}, b: { decision: 'maybe', note: 7 }, c: { decision: 'rejected', note: 'ok' }, d: 'x' },
+        generalNote: null,
+        status: 'validated',
+        analyst: 'Ana',
+      }),
+    )
+
+    expect(loadDraft('case-a')).toEqual({
+      findings: { a: { note: '' }, b: { note: '' }, c: { decision: 'rejected', note: 'ok' } },
+      generalNote: '',
+    })
   })
 
   it('stays in memory for this tab when storage is blocked', () => {

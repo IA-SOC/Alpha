@@ -153,14 +153,17 @@ describe('Analyst review', () => {
 
   it('offers to investigate again after a backend restart and fills the decisions back in', async () => {
     let restarted = true
+    let latest: Investigation = sampleInvestigation
     const backend = openReview({
+      [`GET ${base}/investigation`]: () => json(200, latest),
       [`POST ${base}/review`]: async () =>
         restarted
           ? json(409, { detail: 'No resumable investigation in this process' })
           : json(200, reviewed((await sentReviews(backend.fetch)).at(-1)!)),
       [`POST ${base}/investigate`]: () => {
         restarted = false
-        return json(200, { ...sampleInvestigation, run_id: 'second-run' })
+        latest = { ...sampleInvestigation, run_id: 'second-run' }
+        return json(200, latest)
       },
     })
     const user = userEvent.setup()
@@ -181,15 +184,68 @@ describe('Analyst review', () => {
     expect(backend.calls(`POST ${base}/review`)).toBe(2)
   })
 
-  it('explains a run that already has a review', async () => {
-    openReview({ [`POST ${base}/review`]: json(409, { detail: 'The investigation is not awaiting review' }) })
+  it('shows the review saved elsewhere instead of running the agent again', async () => {
+    let latest: Investigation = sampleInvestigation
+    const backend = openReview({
+      [`GET ${base}/investigation`]: () => json(200, latest),
+      [`POST ${base}/review`]: () => {
+        latest = reviewed({ status: 'validated', analyst: 'Other tab', notes: 'Saved first.' })
+        return json(409, { detail: 'The investigation is not awaiting review' })
+      },
+    })
     const user = userEvent.setup()
     await decideAll(user)
 
     await user.click(screen.getByRole('button', { name: 'Save review' }))
 
     expect(await screen.findByText('This run already has a review, maybe saved from another tab.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Investigate again' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Investigate again' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Show the saved review' }))
+    expect(await screen.findByText('Other tab')).toBeInTheDocument()
+    expect(backend.calls(`POST ${base}/investigate`)).toBe(0)
+  })
+
+  it('saves nothing when another run of the case started after the report loaded', async () => {
+    let latest: Investigation = sampleInvestigation
+    const backend = openReview({ [`GET ${base}/investigation`]: () => json(200, latest) })
+    const user = userEvent.setup()
+    await decideAll(user)
+    latest = { ...sampleInvestigation, run_id: 'newer-run' }
+
+    await user.click(screen.getByRole('button', { name: 'Save review' }))
+
+    expect(await screen.findByText('There is a newer investigation of this case')).toBeInTheDocument()
+    expect(backend.calls(`POST ${base}/review`)).toBe(0)
+    await user.click(screen.getByRole('button', { name: 'Load the newer investigation' }))
+    await vi.waitFor(() => expect(screen.queryByText('There is a newer investigation of this case')).not.toBeInTheDocument())
+    expect(within(finding(hypothesisLegend)).getByRole('radio', { name: 'Validate' })).toBeChecked()
+  })
+
+  it('uses the signed in name, not one typed by an analyst who signed out', async () => {
+    localStorage.setItem(
+      `soc.review.${caseId}`,
+      JSON.stringify({ findings: {}, generalNote: '', analyst: 'Previous analyst', analystFor: 'Someone else' }),
+    )
+    openReview()
+
+    expect(await screen.findByRole('textbox', { name: 'Analyst' })).toHaveValue('Test Analyst')
+  })
+
+  it('announces the missing count again on every failed attempt', async () => {
+    openReview()
+    const user = userEvent.setup()
+    await screen.findByRole('group', { name: hypothesisLegend })
+    await user.click(screen.getByRole('button', { name: 'Save review' }))
+    const first = screen.getByRole('alert')
+    expect(first).toHaveFocus()
+
+    await decide(user, hypothesisLegend, 'Validate', 'ok')
+    await user.click(screen.getByRole('button', { name: 'Save review' }))
+
+    const second = screen.getByRole('alert')
+    expect(second).not.toBe(first)
+    expect(second).toHaveFocus()
+    expect(second).toHaveTextContent('3 things are missing')
   })
 
   it('keeps everything when the backend is down', async () => {

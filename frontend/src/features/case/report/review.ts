@@ -45,15 +45,24 @@ export interface FindingDraft {
 
 export interface ReviewDraft {
   findings: Record<string, FindingDraft>
-  // Set only when the analyst picks a status other than the suggested one.
+  // Set only when the analyst picks a status other than the suggested one. It counts only for the
+  // findings it was picked for, so a new run with other conclusions goes back to the suggestion.
   status?: Decision
+  statusFor?: string
+  // A name typed over the session's, kept only while that same session is signed in.
   analyst?: string
+  analystFor?: string
   generalNote: string
 }
 
 export const emptyDraft = (): ReviewDraft => ({ findings: {}, generalNote: '' })
 
 export const findingDraft = (draft: ReviewDraft, key: string): FindingDraft => draft.findings[key] ?? { note: '' }
+
+export const findingsSignature = (findings: Finding[]) => findings.map((finding) => finding.key).join('\n')
+
+export const draftAnalyst = (draft: ReviewDraft, sessionAnalyst: string) =>
+  draft.analyst !== undefined && draft.analystFor === sessionAnalyst ? draft.analyst : sessionAnalyst
 
 // All validated or all rejected keeps that word. Any mix means the analyst changed the outcome.
 export function suggestedStatus(findings: Finding[], draft: ReviewDraft): Decision | undefined {
@@ -62,6 +71,11 @@ export function suggestedStatus(findings: Finding[], draft: ReviewDraft): Decisi
   if (picked.every((decision) => decision === 'validated')) return 'validated'
   if (picked.every((decision) => decision === 'rejected')) return 'rejected'
   return 'corrected'
+}
+
+export function chosenStatus(findings: Finding[], draft: ReviewDraft): Decision | undefined {
+  if (draft.status && draft.statusFor === findingsSignature(findings)) return draft.status
+  return suggestedStatus(findings, draft)
 }
 
 export interface ReviewProblems {
@@ -78,7 +92,7 @@ export function problemsOf(findings: Finding[], draft: ReviewDraft, analyst: str
     analyst: blank(analyst),
     // With nothing to decide, the general note is what the backend's required notes hold.
     generalNote: findings.length === 0 && blank(draft.generalNote),
-    status: !(draft.status ?? suggestedStatus(findings, draft)),
+    status: !chosenStatus(findings, draft),
     decision: new Set(findings.filter((finding) => !findingDraft(draft, finding.key).decision).map((finding) => finding.key)),
     note: new Set(findings.filter((finding) => blank(findingDraft(draft, finding.key).note)).map((finding) => finding.key)),
   }
@@ -105,7 +119,7 @@ export function composeNotes(findings: Finding[], draft: ReviewDraft): string {
 
 export function toDecision(findings: Finding[], draft: ReviewDraft, analyst: string): ReviewDecision {
   return {
-    status: (draft.status ?? suggestedStatus(findings, draft))!,
+    status: chosenStatus(findings, draft)!,
     analyst: analyst.trim(),
     notes: composeNotes(findings, draft),
   }
@@ -119,15 +133,37 @@ const memory = new Map<string, ReviewDraft>()
 export function loadDraft(caseId: string): ReviewDraft {
   try {
     const raw = localStorage.getItem(storageKey(caseId))
-    if (raw) {
-      const value = JSON.parse(raw) as Partial<ReviewDraft>
-      if (value && typeof value === 'object' && value.findings && typeof value.findings === 'object')
-        return { ...emptyDraft(), ...value, findings: value.findings }
-    }
+    if (raw) return parseDraft(JSON.parse(raw))
   } catch {
     // Blocked or broken storage, use what this tab remembers.
   }
   return memory.get(caseId) ?? emptyDraft()
+}
+
+const isDecision = (value: unknown): value is Decision => decisions.includes(value as Decision)
+const text = (value: unknown) => (typeof value === 'string' ? value : undefined)
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
+
+// Storage may hold an older or hand edited draft, so each field is checked before the form trusts it.
+function parseDraft(value: unknown): ReviewDraft {
+  const draft = emptyDraft()
+  if (!isRecord(value)) return draft
+  if (isRecord(value.findings)) {
+    for (const [key, entry] of Object.entries(value.findings)) {
+      if (!isRecord(entry)) continue
+      draft.findings[key] = { note: text(entry.note) ?? '', ...(isDecision(entry.decision) && { decision: entry.decision }) }
+    }
+  }
+  draft.generalNote = text(value.generalNote) ?? ''
+  if (isDecision(value.status) && text(value.statusFor) !== undefined) {
+    draft.status = value.status
+    draft.statusFor = text(value.statusFor)
+  }
+  if (text(value.analyst) !== undefined && text(value.analystFor) !== undefined) {
+    draft.analyst = text(value.analyst)
+    draft.analystFor = text(value.analystFor)
+  }
+  return draft
 }
 
 export function saveDraft(caseId: string, draft: ReviewDraft) {

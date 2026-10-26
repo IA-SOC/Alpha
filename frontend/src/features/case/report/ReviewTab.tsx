@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { type FormEvent, type ReactNode, useId, useMemo, useRef, useState } from 'react'
+import { type FormEvent, type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { api, ApiError } from '../../../api/client'
@@ -9,11 +9,14 @@ import { PrimaryButton } from '../../../ui/buttons'
 import { formatUtc } from './format'
 import { Chip, Confidence, Panel } from './parts'
 import {
+  chosenStatus,
   clearDraft,
   type Decision,
   decisions,
+  draftAnalyst,
   type Finding,
   findingDraft,
+  findingsSignature,
   findingsOf,
   loadDraft,
   problemCount,
@@ -25,12 +28,17 @@ import {
   toDecision,
 } from './review'
 
-// The two 409 details from app/services/investigation_service.py. Both mean this run can no
-// longer take a review, so the way out is a new run.
+// The two 409 details from app/services/investigation_service.py. After a restart only a new run
+// can take a review. A run that already has one just needs reloading, since a new run would
+// replace the stored report and the review saved with it.
 const conflictReasons: Record<string, string> = {
   'No resumable investigation in this process': 'restarted',
   'The investigation is not awaiting review': 'reviewed',
 }
+
+// The backend applies a review to the latest run of the case and takes no run ID, so a form built
+// from an older run is stopped here before it records notes about findings the new run lacks.
+class StaleRun extends Error {}
 
 export function ReviewTab({ investigation, onRerun }: { investigation: Investigation; onRerun: () => void }) {
   if (investigation.report.review.status !== 'pending') return <RecordedReview report={investigation.report} />
@@ -69,11 +77,15 @@ function ReviewForm({ investigation, onRerun }: { investigation: Investigation; 
   const caseId = investigation.case_id
   const findings = useMemo(() => findingsOf(investigation.report), [investigation.report])
   const [draft, setDraft] = useState(() => loadDraft(caseId))
-  const [tried, setTried] = useState(false)
+  const [attempts, setAttempts] = useState(0)
   const summaryRef = useRef<HTMLDivElement>(null)
 
   const send = useMutation<Investigation, Error, ReviewDecision>({
-    mutationFn: (decision) => api.review(caseId, decision),
+    mutationFn: async (decision) => {
+      const latest = await api.getInvestigation(caseId)
+      if (latest.run_id !== investigation.run_id) throw new StaleRun()
+      return api.review(caseId, decision)
+    },
     onSuccess: (data) => {
       clearDraft(caseId)
       queryClient.setQueryData(['investigation', caseId], data)
@@ -85,18 +97,23 @@ function ReviewForm({ investigation, onRerun }: { investigation: Investigation; 
     saveDraft(caseId, next)
   }
 
-  const analyst = draft.analyst ?? session?.analyst ?? ''
+  const sessionAnalyst = session?.analyst ?? ''
+  const analyst = draftAnalyst(draft, sessionAnalyst)
   const suggested = suggestedStatus(findings, draft)
   const problems = problemsOf(findings, draft, analyst)
-  const shown = tried ? problems : undefined
+  const shown = attempts > 0 ? problems : undefined
+  const reload = () => void queryClient.invalidateQueries({ queryKey: ['investigation', caseId] })
+
+  // Each failed attempt mounts the summary again, so screen readers announce the new count.
+  useEffect(() => {
+    if (attempts > 0) summaryRef.current?.focus()
+  }, [attempts])
   const decided = findings.filter((finding) => findingDraft(draft, finding.key).decision).length
 
   function submit(event: FormEvent) {
     event.preventDefault()
-    setTried(true)
     if (problemCount(problems) > 0) {
-      // The summary is rendered in this same update, so focus it once it is on screen.
-      requestAnimationFrame(() => summaryRef.current?.focus())
+      setAttempts((count) => count + 1)
       return
     }
     send.mutate(toDecision(findings, draft, analyst))
@@ -110,7 +127,7 @@ function ReviewForm({ investigation, onRerun }: { investigation: Investigation; 
       </div>
 
       {shown && problemCount(shown) > 0 && (
-        <div ref={summaryRef} tabIndex={-1} role="alert" className="rounded-2xl bg-surface p-5">
+        <div key={attempts} ref={summaryRef} tabIndex={-1} role="alert" className="rounded-2xl bg-surface p-5">
           <p className="border-l-4 border-state-error pl-4 text-sm">{t('report.review.problems', { count: problemCount(shown) })}</p>
         </div>
       )}
@@ -144,18 +161,24 @@ function ReviewForm({ investigation, onRerun }: { investigation: Investigation; 
 
       <Panel title={t('report.review.outcome')}>
         <Outcome
-          selected={draft.status ?? suggested}
+          selected={chosenStatus(findings, draft)}
           suggested={suggested}
           noFindings={findings.length === 0}
           missing={shown?.status ?? false}
-          onSelect={(status) => update({ ...draft, status: status === suggested ? undefined : status })}
+          onSelect={(status) =>
+            update(
+              status === suggested
+                ? { ...draft, status: undefined, statusFor: undefined }
+                : { ...draft, status, statusFor: findingsSignature(findings) },
+            )
+          }
         />
         <TextField
           label={t('report.review.analyst')}
           value={analyst}
           maxLength={maxNameLength}
           error={shown?.analyst ? t('report.review.analystMissing') : undefined}
-          onChange={(value) => update({ ...draft, analyst: value })}
+          onChange={(value) => update({ ...draft, analyst: value, analystFor: sessionAnalyst })}
         />
         <TextArea
           label={findings.length === 0 ? t('report.review.generalNoteRequired') : t('report.review.generalNote')}
@@ -171,7 +194,7 @@ function ReviewForm({ investigation, onRerun }: { investigation: Investigation; 
         </div>
       </Panel>
 
-      {send.error && <SendFailed error={send.error} onRerun={onRerun} />}
+      {send.error && <SendFailed error={send.error} onRerun={onRerun} onReload={reload} />}
     </form>
   )
 }
@@ -390,6 +413,19 @@ function TextArea({
   )
 }
 
+function Notice({ title, body, kept, children }: { title: string; body: string; kept?: string; children: ReactNode }) {
+  return (
+    <section role="alert" className="rounded-2xl bg-surface p-5">
+      <div className="border-l-4 border-state-warn pl-4">
+        <h2 className="text-base">{title}</h2>
+        <p className="mt-1 text-sm text-muted">{body}</p>
+        {kept && <p className="mt-3 text-sm">{kept}</p>}
+        <div className="mt-4">{children}</div>
+      </div>
+    </section>
+  )
+}
+
 function FieldError({ id, children }: { id: string; children: ReactNode }) {
   return (
     <p id={id} className="mt-2 border-l-4 border-state-error pl-2 text-sm">
@@ -398,23 +434,31 @@ function FieldError({ id, children }: { id: string; children: ReactNode }) {
   )
 }
 
-function SendFailed({ error, onRerun }: { error: Error; onRerun: () => void }) {
+function SendFailed({ error, onRerun, onReload }: { error: Error; onRerun: () => void; onReload: () => void }) {
   const { t } = useTranslation()
   const apiError = error instanceof ApiError ? error : undefined
 
+  if (error instanceof StaleRun) {
+    return (
+      <Notice title={t('report.review.stale.title')} body={t('report.review.stale.body')} kept={t('report.review.stale.kept')}>
+        <PrimaryButton onClick={onReload}>{t('report.review.stale.load')}</PrimaryButton>
+      </Notice>
+    )
+  }
+
   if (apiError?.status === 409) {
     const reason = typeof apiError.detail === 'string' ? conflictReasons[apiError.detail] : undefined
+    if (reason === 'reviewed') {
+      return (
+        <Notice title={t('report.review.conflict.title')} body={t('report.review.conflict.reviewed')}>
+          <PrimaryButton onClick={onReload}>{t('report.review.conflict.showSaved')}</PrimaryButton>
+        </Notice>
+      )
+    }
     return (
-      <section role="alert" className="rounded-2xl bg-surface p-5">
-        <div className="border-l-4 border-state-warn pl-4">
-          <h2 className="text-base">{t('report.review.conflict.title')}</h2>
-          <p className="mt-1 text-sm text-muted">{t(`report.review.conflict.${reason ?? 'other'}`)}</p>
-          <p className="mt-3 text-sm">{t('report.review.conflict.kept')}</p>
-          <PrimaryButton onClick={onRerun} className="mt-4">
-            {t('report.review.conflict.rerun')}
-          </PrimaryButton>
-        </div>
-      </section>
+      <Notice title={t('report.review.conflict.title')} body={t(`report.review.conflict.${reason ?? 'other'}`)} kept={t('report.review.conflict.kept')}>
+        <PrimaryButton onClick={onRerun}>{t('report.review.conflict.rerun')}</PrimaryButton>
+      </Notice>
     )
   }
 
