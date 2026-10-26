@@ -35,3 +35,37 @@ export interface Investigation {
   validation: { ok: boolean; returncode: number; output: string; traceability_ok: boolean }
   audit_log: { phase: number; node: string; finished_at: string; duration_ms: number; detail: string }[]
 }
+
+// Fields the agent adds on top of report-schema.json, which allows extra properties. They come
+// from agent/investigation.py and app/services/agent_adapter.py in the backend.
+export interface SourceField {
+  alert_id: string
+  path: string // JSON Pointer into the submitted case
+  value: unknown
+}
+
+export type Evidence = ReportEvidence & { source_fields?: SourceField[] }
+
+export interface Observable {
+  type: string
+  value: string
+}
+
+export interface IocReference {
+  evidence_id: string
+  source_path: string
+  alert_id: string
+  provider: string
+  observable: Observable
+  association_methods: string[]
+  relevance: string
+}
+
+export interface EnrichmentItem {
+  evidence_id?: string
+  provider?: string
+  observable?: Observable
+  raw_result?: unknown
+  source_path?: string
+  associated_alert_ids?: string[]
+}

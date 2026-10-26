@@ -6,9 +6,14 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { api, ApiError } from '../../api/client'
 import type { Investigation, StoredCase } from '../../api/types'
 import { PrimaryButton, TextButton } from '../../ui/buttons'
+import { ReportView } from './report/ReportView'
 import { backendLimitSeconds, formatElapsed, RunTimeout, withTimeLimit } from './runLimit'
 
 const isMissing = (error: Error | null) => error instanceof ApiError && (error.status === 404 || error.status === 422)
+
+// A 4xx is an answer, not a hiccup: retrying a missing report only delays the Investigate button.
+const retryUnlessAnswered = (count: number, error: Error) =>
+  count < 2 && !(error instanceof ApiError && error.status >= 400 && error.status < 500)
 
 export function CasePage() {
   const { caseId = '' } = useParams()
@@ -16,8 +21,12 @@ export function CasePage() {
   const location = useLocation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const stored = useQuery({ queryKey: ['case', caseId], queryFn: () => api.getCase(caseId) })
-  const investigation = useQuery({ queryKey: ['investigation', caseId], queryFn: () => api.getInvestigation(caseId) })
+  const stored = useQuery({ queryKey: ['case', caseId], queryFn: () => api.getCase(caseId), retry: retryUnlessAnswered })
+  const investigation = useQuery({
+    queryKey: ['investigation', caseId],
+    queryFn: () => api.getInvestigation(caseId),
+    retry: retryUnlessAnswered,
+  })
   const run = useMutation<Investigation, Error>({
     mutationFn: () => withTimeLimit(api.investigate(caseId)),
     onSuccess: (data) => queryClient.setQueryData(['investigation', caseId], data),
@@ -50,7 +59,7 @@ export function CasePage() {
   let body
   if (run.isPending) body = <RunProgress />
   else if (run.error) body = <RunFailed error={run.error} onRetry={() => run.mutate()} />
-  else if (investigation.data) body = <ReportSummary investigation={investigation.data} />
+  else if (investigation.data) body = <ReportView investigation={investigation.data} />
   else if (investigation.isPending) body = <p className="text-sm text-muted">{t('case.loading')}</p>
   else if (isMissing(investigation.error)) body = <NotInvestigated onStart={() => run.mutate()} />
   else body = <LoadFailed error={investigation.error} onRetry={() => void investigation.refetch()} />
@@ -185,17 +194,6 @@ function LoadFailed({ error, onRetry }: { error: Error | null; onRetry: () => vo
           {t('newCase.retry')}
         </TextButton>
       </div>
-    </section>
-  )
-}
-
-function ReportSummary({ investigation }: { investigation: Investigation }) {
-  const { t } = useTranslation()
-
-  return (
-    <section className="rounded-2xl bg-surface p-5">
-      <h2 className="text-base">{t('case.report.summary')}</h2>
-      <p className="mt-2 max-w-3xl text-base">{investigation.report.executive_summary}</p>
     </section>
   )
 }

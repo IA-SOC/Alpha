@@ -113,9 +113,112 @@
     },
     "loadFailed": {
       "title": "No se pudo cargar el informe"
+    }
+  },
+  "report": {
+    "tabs": {
+      "label": "Secciones del informe",
+      "summary": "Resumen",
+      "mitre": "MITRE ATT&CK",
+      "review": "Revisión"
     },
-    "report": {
-      "summary": "Resumen"
+    "facts": {
+      "sources": "Fuentes",
+      "alerts": "Alertas",
+      "alertsValue": "{{processed}} de {{total}} procesadas",
+      "window": "Ventana de tiempo",
+      "generated": "Informe generado",
+      "review": "Revisión",
+      "to": "a"
+    },
+    "sourceFormat": {
+      "elastic_ecs": "Elastic ECS",
+      "elastic_security": "Elastic Security",
+      "wazuh": "Wazuh",
+      "mixed": "Fuentes mixtas",
+      "unknown": "Desconocido"
+    },
+    "reviewStatus": {
+      "pending": "Pendiente de revisión",
+      "validated": "Validado",
+      "corrected": "Corregido",
+      "rejected": "Rechazado"
+    },
+    "confidence": {
+      "label": "Confianza",
+      "alta": "Alta",
+      "media": "Media",
+      "baja": "Baja",
+      "insuficiente": "Insuficiente"
+    },
+    "priority": {
+      "urgent": "Urgente",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "summary": {
+      "title": "Qué encontró el agente"
+    },
+    "hypotheses": {
+      "title_one": "{{count}} hipótesis",
+      "title_other": "{{count}} hipótesis",
+      "none": "El agente no formuló ninguna hipótesis para este caso.",
+      "group": "Del grupo de alertas",
+      "for_one": "{{count}} evidencia a favor",
+      "for_other": "{{count}} evidencias a favor",
+      "against_one": "{{count}} evidencia en contra",
+      "against_other": "{{count}} evidencias en contra",
+      "noneFor": "No se registró evidencia a favor.",
+      "noneAgainst": "No se registró evidencia en contra.",
+      "alternatives": "Explicaciones alternativas",
+      "noAlternatives": "Ninguna.",
+      "unknowns": "Lo que aún se desconoce",
+      "noUnknowns": "Nada indicado.",
+      "iocs_one": "{{count}} IoC relacionado",
+      "iocs_other": "{{count}} IoC relacionados",
+      "iocSource": "De {{provider}}, vinculado a {{alert}}"
+    },
+    "evidence": {
+      "fields": "Campos leídos: {{fields}}"
+    },
+    "actions": {
+      "title_one": "{{count}} acción recomendada",
+      "title_other": "{{count}} acciones recomendadas",
+      "none": "El agente no recomendó ninguna acción.",
+      "priority": "Prioridad",
+      "basedOn": "Basada en",
+      "approval": "Necesita la aprobación de un analista antes de aplicarse."
+    },
+    "limits": {
+      "title": "Límites de este informe",
+      "none": "El informe no indica limitaciones.",
+      "missingFields": "Campos que faltan en las alertas"
+    },
+    "mitre": {
+      "intro": "Las técnicas llevan un estado, no una confianza. Una candidata coincide con el patrón de las alertas y aún necesita que un analista la confirme.",
+      "none": "El agente no asignó ninguna técnica de ATT&CK a este caso.",
+      "noTactic": "Sin táctica indicada",
+      "status": "Estado",
+      "statuses": {
+        "candidate": "Candidata",
+        "supported": "Respaldada",
+        "not_supported": "No respaldada",
+        "unknown": "Desconocido"
+      },
+      "evidence_one": "{{count}} evidencia",
+      "evidence_other": "{{count}} evidencias",
+      "noEvidence": "Sin evidencia registrada.",
+      "version": "Fuente de la técnica: {{version}}",
+      "noVersion": "Sin fuente de la técnica indicada"
+    },
+    "review": {
+      "title": "Revisión del analista",
+      "status": "Estado",
+      "analyst": "Analista",
+      "notes": "Notas",
+      "reviewedAt": "Revisado el",
+      "soon": "Registrar la revisión desde esta pantalla llega en la próxima actualización."
     }
   }
 }
