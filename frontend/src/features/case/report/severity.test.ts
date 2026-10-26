@@ -14,6 +14,13 @@ describe('originalSeverity', () => {
     expect(originalSeverity({ event: { severity: 47 } })).toEqual({ field: 'event.severity', value: 47 })
   })
 
+  it('looks inside the _source of an Elastic search hit', () => {
+    expect(originalSeverity({ _index: 'alerts', _source: { 'kibana.alert.severity': 'high' } })).toEqual({
+      field: '_source.kibana.alert.severity',
+      value: 'high',
+    })
+  })
+
   it('gives nothing when the alert carries no severity', () => {
     expect(originalSeverity(sampleCase.alerts[0].raw_alert)).toBeUndefined()
     expect(originalSeverity({ rule: { level: null } })).toBeUndefined()

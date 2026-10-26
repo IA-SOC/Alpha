@@ -1,7 +1,13 @@
-// Report times are ISO strings with an offset. They are shown in UTC, the way the report keeps them.
+// Report times are UTC by contract. One written without an offset is read as UTC too, never as
+// the browser's local time, which would shift it by the analyst's time zone.
+export function parseUtc(value: string) {
+  const bare = /T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(value)
+  return Date.parse(bare ? `${value}Z` : value)
+}
+
 export function formatUtc(value?: string | null) {
   if (!value) return undefined
-  const date = new Date(value)
+  const date = new Date(parseUtc(value))
   if (Number.isNaN(date.getTime())) return value
   return `${date.toISOString().slice(0, 19).replace('T', ' ')} UTC`
 }

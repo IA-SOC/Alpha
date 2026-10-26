@@ -44,7 +44,7 @@ export function AlertId({ id }: { id: string }) {
 export function AlertIds({ ids }: { ids: readonly string[] }) {
   return (
     <span className="inline-flex flex-wrap gap-x-3 gap-y-1">
-      {ids.map((id) => (
+      {[...new Set(ids)].map((id) => (
         <AlertId key={id} id={id} />
       ))}
     </span>

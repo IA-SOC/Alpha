@@ -103,7 +103,7 @@
       "agent": "La investigación falló",
       "pageTimeout": {
         "title": "Sin respuesta tras {{limit}}",
-        "body": "El backend nunca respondió. Puede que se parara mientras el agente trabajaba."
+        "body": "El backend nunca respondió. Puede que se parara, o que el agente aún termine. Recarga esta página en unos minutos para ver si ya está el informe."
       },
       "unexpected": {
         "title": "Algo falló al leer la respuesta"

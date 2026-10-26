@@ -11,12 +11,17 @@ const severityFields = [
 ] as const
 
 export function originalSeverity(rawAlert: unknown): { field: string; value: string | number } | undefined {
-  for (const field of severityFields) {
-    // Elastic exports carry these both nested and as flat dotted keys.
-    const nested = resolvePointer(rawAlert, `/${field.replaceAll('.', '/')}`)
-    const flat = resolvePointer(rawAlert, `/${field}`)
-    const hit = [nested, flat].find((resolved) => resolved.found && ['string', 'number'].includes(typeof resolved.value))
-    if (hit?.found) return { field, value: hit.value as string | number }
+  // An Elastic search hit wraps the alert in _source, which the backend's read_field also unwraps.
+  for (const prefix of ['', '_source.']) {
+    const root = prefix ? resolvePointer(rawAlert, '/_source') : { found: true as const, value: rawAlert }
+    if (!root.found) continue
+    for (const field of severityFields) {
+      // Elastic exports carry these both nested and as flat dotted keys.
+      const nested = resolvePointer(root.value, `/${field.replaceAll('.', '/')}`)
+      const flat = resolvePointer(root.value, `/${field}`)
+      const hit = [nested, flat].find((resolved) => resolved.found && ['string', 'number'].includes(typeof resolved.value))
+      if (hit?.found) return { field: prefix + field, value: hit.value as string | number }
+    }
   }
   return undefined
 }

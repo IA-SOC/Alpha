@@ -10,12 +10,17 @@ export class RunTimeout extends Error {
   }
 }
 
-export function withTimeLimit<T>(request: Promise<T>, ms = pageLimitMs): Promise<T> {
+// Gives the request a signal and aborts it when the page gives up, so nothing keeps waiting on it.
+export function withTimeLimit<T>(start: (signal: AbortSignal) => Promise<T>, ms = pageLimitMs): Promise<T> {
+  const controller = new AbortController()
   let timer: ReturnType<typeof setTimeout> | undefined
   const limit = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new RunTimeout()), ms)
+    timer = setTimeout(() => {
+      reject(new RunTimeout())
+      controller.abort()
+    }, ms)
   })
-  return Promise.race([request, limit]).finally(() => clearTimeout(timer))
+  return Promise.race([start(controller.signal), limit]).finally(() => clearTimeout(timer))
 }
 
 export function formatElapsed(seconds: number) {

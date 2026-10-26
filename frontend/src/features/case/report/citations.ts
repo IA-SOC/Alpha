@@ -12,22 +12,24 @@ export interface AlertCitations {
   fields: SourceField[]
 }
 
+const citationKey = (citation: Citation) => Object.values(citation).join(':')
+
 // Where the report uses each alert, and every field it reads from it, without duplicates.
 export function citationsByAlert(report: Report): Map<string, AlertCitations> {
   const byAlert = new Map<string, AlertCitations>()
+  const seen = new Set<string>()
   const entry = (alertId: string) => {
     let found = byAlert.get(alertId)
     if (!found) byAlert.set(alertId, (found = { citations: [], fields: [] }))
     return found
   }
+  const once = (key: string) => !seen.has(key) && Boolean(seen.add(key))
   const cite = (alertId: string, citation: Citation) => {
-    const { citations } = entry(alertId)
-    if (!citations.some((known) => JSON.stringify(known) === JSON.stringify(citation))) citations.push(citation)
+    if (once(`cite ${alertId} ${citationKey(citation)}`)) entry(alertId).citations.push(citation)
   }
   const read = (fields: SourceField[] | undefined) => {
     for (const field of fields ?? []) {
-      const { fields: known } = entry(field.alert_id)
-      if (!known.some((seen) => seen.path === field.path)) known.push(field)
+      if (once(`field ${field.alert_id} ${field.path}`)) entry(field.alert_id).fields.push(field)
     }
   }
 

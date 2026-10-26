@@ -1,11 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 
 import { api, ApiError } from '../../api/client'
 import type { Investigation, StoredCase } from '../../api/types'
-import { PrimaryButton, TextButton } from '../../ui/buttons'
+import { PrimaryButton, TextButton, textActionClass } from '../../ui/buttons'
 import { ReportView } from './report/ReportView'
 import { backendLimitSeconds, formatElapsed, RunTimeout, withTimeLimit } from './runLimit'
 
@@ -15,8 +15,13 @@ const isMissing = (error: Error | null) => error instanceof ApiError && (error.s
 const retryUnlessAnswered = (count: number, error: Error) =>
   count < 2 && !(error instanceof ApiError && error.status >= 400 && error.status < 500)
 
-export function CasePage() {
+// Keyed by the ID so a different case always starts with fresh run state.
+export function CaseRoute() {
   const { caseId = '' } = useParams()
+  return <CasePage key={caseId} caseId={caseId} />
+}
+
+function CasePage({ caseId }: { caseId: string }) {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
@@ -27,10 +32,15 @@ export function CasePage() {
     queryFn: () => api.getInvestigation(caseId),
     retry: retryUnlessAnswered,
   })
+  const runKey = ['investigate', caseId]
   const run = useMutation<Investigation, Error>({
-    mutationFn: () => withTimeLimit(api.investigate(caseId)),
+    mutationKey: runKey,
+    mutationFn: () => withTimeLimit((signal) => api.investigate(caseId, signal)),
     onSuccess: (data) => queryClient.setQueryData(['investigation', caseId], data),
   })
+  // Runs live in the shared mutation cache, so leaving the page mid-run and coming back shows the
+  // same run still going instead of offering a second one.
+  const latest = useMutationState({ filters: { mutationKey: runKey }, select: (mutation) => mutation.state }).at(-1)
   const { mutate } = run
   const started = useRef(false)
 
@@ -49,7 +59,7 @@ export function CasePage() {
       <section>
         <h1 className="text-2xl">{t('case.missing.title')}</h1>
         <p className="mt-1 text-[15px] text-muted">{t('case.missing.body')}</p>
-        <Link to="/cases/new" className="mt-4 inline-block text-sm font-medium underline decoration-aligo-rojo decoration-2 underline-offset-4">
+        <Link to="/cases/new" className={`mt-4 inline-block ${textActionClass}`}>
           {t('case.missing.newCase')}
         </Link>
       </section>
@@ -57,8 +67,8 @@ export function CasePage() {
   }
 
   let body
-  if (run.isPending) body = <RunProgress />
-  else if (run.error) body = <RunFailed error={run.error} onRetry={() => run.mutate()} />
+  if (latest?.status === 'pending') body = <RunProgress startedAt={latest.submittedAt} />
+  else if (latest?.status === 'error' && latest.error) body = <RunFailed error={latest.error as Error} onRetry={() => run.mutate()} />
   else if (investigation.data)
     body = <ReportView investigation={investigation.data} caseState={{ submitted: stored.data?.submitted_case, failed: stored.isError }} />
   else if (investigation.isPending) body = <p className="text-sm text-muted">{t('case.loading')}</p>
@@ -88,15 +98,16 @@ function CaseHeader({ caseId, stored }: { caseId: string; stored?: StoredCase })
   )
 }
 
-function RunProgress() {
+const secondsSince = (startedAt: number) => Math.max(0, Math.floor((Date.now() - startedAt) / 1000))
+
+function RunProgress({ startedAt }: { startedAt: number }) {
   const { t } = useTranslation()
-  const [seconds, setSeconds] = useState(0)
+  const [seconds, setSeconds] = useState(() => secondsSince(startedAt))
 
   useEffect(() => {
-    const startedAt = Date.now()
-    const timer = setInterval(() => setSeconds(Math.floor((Date.now() - startedAt) / 1000)), 1000)
+    const timer = setInterval(() => setSeconds(secondsSince(startedAt)), 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [startedAt])
 
   const shown = Math.min(seconds, backendLimitSeconds)
   return (

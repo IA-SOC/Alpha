@@ -47,7 +47,8 @@ export function Tabs({ label, tabs, selected, onSelect }: TabsProps) {
               role="tab"
               id={`tab-${tab.id}`}
               aria-selected={active}
-              aria-controls={`panel-${tab.id}`}
+              // Only the selected panel is rendered, so only its tab points at it.
+              aria-controls={active ? `panel-${tab.id}` : undefined}
               tabIndex={active ? 0 : -1}
               onClick={() => onSelect(tab.id)}
               className={`-mb-px flex-none whitespace-nowrap border-b-2 py-3 text-sm font-medium ${

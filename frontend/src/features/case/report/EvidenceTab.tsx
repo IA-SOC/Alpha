@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 
@@ -20,7 +20,7 @@ export function EvidenceTab({ investigation }: { investigation: Investigation })
   const { submitted, failed } = useSubmittedCase()
   const [params] = useSearchParams()
   const target = params.get('alert')
-  const citations = citationsByAlert(investigation.report)
+  const citations = useMemo(() => citationsByAlert(investigation.report), [investigation.report])
 
   if (!submitted) {
     return (

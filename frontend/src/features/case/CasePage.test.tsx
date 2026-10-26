@@ -96,9 +96,9 @@ describe('Investigating a case', () => {
     expect(screen.getByRole('button', { name: 'Run the investigation again' })).toBeInTheDocument()
   })
 
-  it('gives up on its own when the backend never answers', async () => {
+  it('gives up on its own when the backend never answers, and cancels the request', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
-    fakeBackend({
+    const backend = fakeBackend({
       [`GET ${base}`]: stored,
       [`GET ${base}/investigation`]: notRun,
       [`POST ${base}/investigate`]: pending().promise,
@@ -109,6 +109,28 @@ describe('Investigating a case', () => {
     await act(() => vi.advanceTimersByTimeAsync(320_000))
 
     expect(await screen.findByRole('heading', { name: 'No answer after 5:00' })).toBeInTheDocument()
+    expect((backend.fetch.mock.calls.find(([input]) => (input as Request).method === 'POST')![0] as Request).signal.aborted).toBe(true)
+  })
+
+  it('shows the same run after leaving the page and coming back, without a second one', async () => {
+    const answer = pending()
+    const backend = fakeBackend({
+      [`GET ${base}`]: stored,
+      [`GET ${base}/investigation`]: notRun,
+      [`POST ${base}/investigate`]: () => answer.promise,
+    })
+    const { router } = openAskingToRun()
+    await screen.findByRole('status')
+
+    await act(() => router.navigate('/cases/new'))
+    await act(() => router.navigate(`/cases/${caseId}`))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Investigating the case')
+    expect(screen.queryByRole('button', { name: 'Investigate' })).not.toBeInTheDocument()
+
+    answer.settle(json(200, sampleInvestigation))
+    expect(await screen.findByText(sampleInvestigation.report.executive_summary)).toBeInTheDocument()
+    expect(backend.calls(`POST ${base}/investigate`)).toBe(1)
   })
 
   it('does not run the agent again on a reload', async () => {

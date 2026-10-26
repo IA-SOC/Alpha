@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router'
 
-import { CasePage } from '../features/case/CasePage'
+import { CaseRoute } from '../features/case/CasePage'
 import { NewCasePage } from '../features/new-case/NewCasePage'
 import { EntryPage } from '../session/EntryPage'
 import { RequireSession } from '../session/RequireSession'
@@ -16,7 +16,7 @@ export const routes: RouteObject[] = [
         element: <RequireSession />,
         children: [
           { path: 'cases/new', element: <NewCasePage /> },
-          { path: 'cases/:caseId', element: <CasePage /> },
+          { path: 'cases/:caseId', element: <CaseRoute /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

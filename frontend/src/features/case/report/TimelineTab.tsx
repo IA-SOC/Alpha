@@ -12,21 +12,22 @@ export function TimelineTab({ investigation }: { investigation: Investigation })
   const { t } = useTranslation()
   const { report, correlation } = investigation
   const { story, noise, undated } = splitTimeline(report.timeline, correlation)
+  const uncertain = new Set(correlation.alerts.filter((alert) => alert.classification === 'uncertain').map((alert) => alert.alert_id))
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
         <Panel title={t('report.timeline.title', { count: story.length })}>
           <p className="mt-1 text-sm text-muted">{t('report.timeline.intro')}</p>
-          <Events entries={story} correlation={correlation} empty={t('report.timeline.none')} />
+          <Events entries={story} uncertain={uncertain} empty={t('report.timeline.none')} />
         </Panel>
         <Panel title={t('report.timeline.noiseTitle', { count: noise.length })}>
           <p className="mt-1 text-sm text-muted">{t('report.timeline.noiseIntro')}</p>
-          <Events entries={noise} correlation={correlation} empty={t('report.timeline.noNoise')} />
+          <Events entries={noise} uncertain={uncertain} empty={t('report.timeline.noNoise')} />
         </Panel>
         <Panel title={t('report.timeline.undatedTitle', { count: undated.length })}>
           <p className="mt-1 text-sm text-muted">{t('report.timeline.undatedIntro')}</p>
-          <Events entries={undated} correlation={correlation} empty={t('report.timeline.noUndated')} />
+          <Events entries={undated} uncertain={uncertain} empty={t('report.timeline.noUndated')} />
         </Panel>
       </div>
       <CorrelationPanel correlation={correlation} />
@@ -34,21 +35,20 @@ export function TimelineTab({ investigation }: { investigation: Investigation })
   )
 }
 
-function Events({ entries, correlation, empty }: { entries: TimelineEntry[]; correlation: Correlation; empty: string }) {
+function Events({ entries, uncertain, empty }: { entries: TimelineEntry[]; uncertain: Set<string>; empty: string }) {
   if (entries.length === 0) return <Empty>{empty}</Empty>
   return (
     <ol className="mt-3 divide-y divide-control">
       {entries.map((entry, index) => (
-        <Event key={`${entry.timestamp_original}-${entry.alert_ids.join()}-${index}`} entry={entry} correlation={correlation} />
+        <Event key={`${entry.timestamp_original}-${entry.alert_ids.join()}-${index}`} entry={entry} uncertain={uncertain} />
       ))}
     </ol>
   )
 }
 
-function Event({ entry, correlation }: { entry: TimelineEntry; correlation: Correlation }) {
+function Event({ entry, uncertain }: { entry: TimelineEntry; uncertain: Set<string> }) {
   const { t } = useTranslation()
   const utc = formatUtc(entry.timestamp_utc)
-  const uncertain = entry.alert_ids.filter((id) => correlation.alerts.some((alert) => alert.alert_id === id && alert.classification === 'uncertain'))
   const phase = stage(entry)
 
   return (
@@ -65,7 +65,7 @@ function Event({ entry, correlation }: { entry: TimelineEntry; correlation: Corr
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
           {phase && <Chip>{t(`report.stage.${phase}`, { defaultValue: phase })}</Chip>}
           {entry.certainty !== 'observed' && <Chip>{t(`report.certainty.${entry.certainty}`)}</Chip>}
-          {uncertain.length > 0 && <Chip>{t('report.timeline.uncertainLink')}</Chip>}
+          {entry.alert_ids.some((id) => uncertain.has(id)) && <Chip>{t('report.timeline.uncertainLink')}</Chip>}
           <AlertIds ids={entry.alert_ids} />
         </p>
       </div>

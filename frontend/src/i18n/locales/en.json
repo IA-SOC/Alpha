@@ -103,7 +103,7 @@
       "agent": "The investigation failed",
       "pageTimeout": {
         "title": "No answer after {{limit}}",
-        "body": "The backend never answered. It may have stopped while the agent was running."
+        "body": "The backend never answered. It may have stopped, or the agent may still finish. Reload this page in a few minutes to check for the report."
       },
       "unexpected": {
         "title": "Something went wrong reading the answer"
