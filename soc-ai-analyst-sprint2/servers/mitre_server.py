@@ -12,10 +12,10 @@ from typing import Any, Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from core.logic import map_alerts_to_mitre
 
-mcp = FastMCP("mitre-mapper")
+mcp = MCPServer("mitre-mapper")
 
 
 @mcp.tool()

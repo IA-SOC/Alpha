@@ -150,7 +150,6 @@ El orquestador original sigue funcionando por separado:
 
 - **Transporte MCP:** stdio; cada servidor corre como subproceso. Se puede
   migrar a HTTP/SSE sin tocar `core/logic.py`.
-- **Versión del SDK:** `mcp<2` (API FastMCP). La v2 renombró `FastMCP` a
-  `MCPServer`; migrar solo afecta a `servers/`.
-- **Resultado estructurado:** se lee `result.structuredContent`, porque
-  FastMCP puede partir una lista de retorno en varios bloques de texto.
+- **Versión del SDK:** `mcp` 2.x (API `MCPServer`, antes `FastMCP` en la v1).
+- **Resultado estructurado:** se lee `result.structured_content`, porque
+  MCPServer puede partir una lista de retorno en varios bloques de texto.
