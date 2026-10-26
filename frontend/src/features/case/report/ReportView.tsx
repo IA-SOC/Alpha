@@ -14,7 +14,14 @@ import { type SubmittedCaseState, SubmittedCaseContext } from './submittedCase'
 import { SummaryTab } from './SummaryTab'
 import { TimelineTab } from './TimelineTab'
 
-export function ReportView({ investigation, caseState }: { investigation: Investigation; caseState: SubmittedCaseState }) {
+interface ReportViewProps {
+  investigation: Investigation
+  caseState: SubmittedCaseState
+  // Starts a new run of the agent, for a review the current run can no longer take.
+  onRerun: () => void
+}
+
+export function ReportView({ investigation, caseState, onRerun }: ReportViewProps) {
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const { report } = investigation
@@ -25,7 +32,7 @@ export function ReportView({ investigation, caseState }: { investigation: Invest
     { id: 'evidence', label: t('report.tabs.evidence'), content: <EvidenceTab investigation={investigation} /> },
     { id: 'mitre', label: t('report.tabs.mitre'), content: <MitreTab report={report} /> },
     { id: 'assets', label: t('report.tabs.assets'), content: <AssetsTab report={report} /> },
-    { id: 'review', label: t('report.tabs.review'), content: <ReviewTab report={report} /> },
+    { id: 'review', label: t('report.tabs.review'), content: <ReviewTab investigation={investigation} onRerun={onRerun} /> },
   ]
 
   return (

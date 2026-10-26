@@ -97,7 +97,7 @@ describe('Case report', () => {
   it('opens the tab named in the address', async () => {
     openReport(sampleInvestigation, '?tab=review')
 
-    expect(await screen.findByRole('heading', { name: 'Analyst review' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Review outcome' })).toBeInTheDocument()
   })
 
   it('translates the labels and leaves the report text as it came', async () => {
