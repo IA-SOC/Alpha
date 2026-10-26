@@ -38,7 +38,8 @@
       "body": "Case {{id}} is stored and ready to investigate.",
       "uuid": "Application ID",
       "copy": "Copy",
-      "copied": "Copied"
+      "copied": "Copied",
+      "investigate": "Investigate"
     },
     "invalid": {
       "title_one": "{{count}} problem to fix",
@@ -76,5 +77,45 @@
   "session": {
     "signedInAs": "Signed in as",
     "signOut": "Sign out"
+  },
+  "case": {
+    "title": "Case",
+    "applicationId": "Application ID",
+    "loading": "Loading the case report",
+    "missing": {
+      "title": "No case with this ID",
+      "body": "The backend has no case stored under this application ID. It may be a typo, or the backend database was reset.",
+      "newCase": "Submit a new case"
+    },
+    "notRun": {
+      "title": "Not investigated yet",
+      "body": "The case is stored. Run the agent to get its report."
+    },
+    "run": {
+      "title": "Investigating the case",
+      "body": "The agent correlates the alerts, maps ATT&CK techniques, builds the timeline and checks the attached IoCs. The demo case takes a few seconds. Larger cases can take a few minutes.",
+      "limit": "of up to {{limit}}",
+      "timeUsed": "Time used of the limit",
+      "timeUsedValue": "{{elapsed}} of {{limit}}"
+    },
+    "failed": {
+      "timeout": "The investigation ran out of time",
+      "agent": "The investigation failed",
+      "pageTimeout": {
+        "title": "No answer after {{limit}}",
+        "body": "The backend never answered. It may have stopped while the agent was running."
+      },
+      "unexpected": {
+        "title": "Something went wrong reading the answer"
+      },
+      "kept": "Your case is still stored, so you can run it again without submitting it twice.",
+      "retry": "Run the investigation again"
+    },
+    "loadFailed": {
+      "title": "Couldn't load the report"
+    },
+    "report": {
+      "summary": "Summary"
+    }
   }
 }

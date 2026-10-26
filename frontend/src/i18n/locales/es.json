@@ -38,7 +38,8 @@
       "body": "El caso {{id}} está guardado y listo para investigar.",
       "uuid": "ID de la aplicación",
       "copy": "Copiar",
-      "copied": "Copiado"
+      "copied": "Copiado",
+      "investigate": "Investigar"
     },
     "invalid": {
       "title_one": "{{count}} problema por corregir",
@@ -76,5 +77,45 @@
   "session": {
     "signedInAs": "Sesión iniciada como",
     "signOut": "Cerrar sesión"
+  },
+  "case": {
+    "title": "Caso",
+    "applicationId": "ID de la aplicación",
+    "loading": "Cargando el informe del caso",
+    "missing": {
+      "title": "No hay ningún caso con este ID",
+      "body": "El backend no tiene ningún caso guardado con este ID de la aplicación. Puede ser una errata, o que se reiniciara la base de datos del backend.",
+      "newCase": "Enviar un caso nuevo"
+    },
+    "notRun": {
+      "title": "Todavía sin investigar",
+      "body": "El caso está guardado. Lanza el agente para obtener su informe."
+    },
+    "run": {
+      "title": "Investigando el caso",
+      "body": "El agente correlaciona las alertas, asigna técnicas de ATT&CK, arma la cronología y revisa los IoC adjuntos. El caso de demo tarda unos segundos. Los casos más grandes pueden tardar unos minutos.",
+      "limit": "de un máximo de {{limit}}",
+      "timeUsed": "Tiempo usado del límite",
+      "timeUsedValue": "{{elapsed}} de {{limit}}"
+    },
+    "failed": {
+      "timeout": "La investigación se quedó sin tiempo",
+      "agent": "La investigación falló",
+      "pageTimeout": {
+        "title": "Sin respuesta tras {{limit}}",
+        "body": "El backend nunca respondió. Puede que se parara mientras el agente trabajaba."
+      },
+      "unexpected": {
+        "title": "Algo falló al leer la respuesta"
+      },
+      "kept": "Tu caso sigue guardado, así que puedes lanzarlo otra vez sin enviarlo dos veces.",
+      "retry": "Lanzar la investigación otra vez"
+    },
+    "loadFailed": {
+      "title": "No se pudo cargar el informe"
+    },
+    "report": {
+      "summary": "Resumen"
+    }
   }
 }
