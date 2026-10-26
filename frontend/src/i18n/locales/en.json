@@ -120,7 +120,8 @@
       "label": "Report sections",
       "summary": "Summary",
       "mitre": "MITRE ATT&CK",
-      "review": "Review"
+      "review": "Review",
+      "evidence": "Evidence"
     },
     "facts": {
       "sources": "Sources",
@@ -180,7 +181,41 @@
       "iocSource": "From {{provider}}, linked to {{alert}}"
     },
     "evidence": {
-      "fields": "Fields read: {{fields}}"
+      "fields": "Fields read: {{fields}}",
+      "openAlert": "Open alert {{id}} in Evidence",
+      "sourceFields_one": "Show the {{count}} source field",
+      "sourceFields_other": "Show the {{count}} source fields",
+      "path": "Field in the case",
+      "value": "Value",
+      "check": "Check",
+      "matches": "Matches",
+      "differs": "The case holds this value. The report cites {{value}}",
+      "notFound": "Not found in the submitted case",
+      "caseLoading": "Loading the submitted case",
+      "caseFailed": "Couldn't load the submitted case, so the fields can't be checked.",
+      "alertsTitle_one": "{{count}} alert in the case",
+      "alertsTitle_other": "{{count}} alerts in the case",
+      "alertsIntro": "Every alert as it was submitted, with the fields the report read from it.",
+      "system": {
+        "elastic": "Elastic",
+        "wazuh": "Wazuh"
+      },
+      "severity": "Alert severity",
+      "severityField": "from {{field}}",
+      "noSeverity": "The alert carries no severity",
+      "correlation": "Correlation",
+      "citedBy": "Used in",
+      "notCited": "Not used in the report",
+      "cite": {
+        "hypothesis_for": "Hypothesis {{rank}}, for",
+        "hypothesis_against": "Hypothesis {{rank}}, against",
+        "timeline": "Timeline",
+        "action": "Action {{number}}"
+      },
+      "fieldsRead_one": "{{count}} field read by the report",
+      "fieldsRead_other": "{{count}} fields read by the report",
+      "noFields": "The report reads no fields from this alert.",
+      "original": "Show the original alert"
     },
     "actions": {
       "title_one": "{{count}} recommended action",
@@ -219,6 +254,28 @@
       "notes": "Notes",
       "reviewedAt": "Reviewed at",
       "soon": "Recording a review from this screen comes in the next update."
+    },
+    "correlation": {
+      "related": "Related",
+      "uncertain": "Uncertain",
+      "unrelated": "Unrelated"
+    },
+    "iocs": {
+      "title_one": "{{count}} IoC",
+      "title_other": "{{count}} IoCs",
+      "status": "Enrichment",
+      "statuses": {
+        "provided": "Provided with the case",
+        "partial": "Partly provided",
+        "no_disponible": "Not available"
+      },
+      "none": "The case brings no IoC enrichment.",
+      "provider": "Provider: {{provider}}",
+      "alerts": "Linked to",
+      "noAlerts": "no alert in this case",
+      "noResult": "The provider sent no result.",
+      "result": "What the provider returned",
+      "full": "Show the full result"
     }
   }
 }

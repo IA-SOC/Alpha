@@ -82,9 +82,10 @@ describe('Case report', () => {
     const { router } = openReport()
     await user.click(await screen.findByRole('tab', { name: 'Summary' }))
 
-    await user.keyboard('{ArrowRight}')
+    await user.keyboard('{End}{ArrowLeft}')
 
     expect(screen.getByRole('tab', { name: 'MITRE ATT&CK' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'MITRE ATT&CK' })).toHaveFocus()
     expect(router.state.location.search).toBe('?tab=mitre')
     const panel = screen.getByRole('tabpanel')
     expect(within(panel).getByRole('heading', { name: 'T1110 Brute Force' })).toBeInTheDocument()

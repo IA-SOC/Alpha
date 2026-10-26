@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 
-import type { Evidence, Hypothesis } from '../../../api/types'
+import type { Evidence, Hypothesis, SourceField } from '../../../api/types'
+import { textActionClass } from '../../../ui/buttons'
+import { formatValue } from './format'
+import { resolvePointer, sameValue } from './pointer'
+import { useSubmittedCase } from './submittedCase'
 
 export function Panel({ title, children, className = '' }: { title: ReactNode; children: ReactNode; className?: string }) {
   return (
@@ -21,8 +26,19 @@ export function Chip({ children }: { children: ReactNode }) {
   return <span className="inline-flex flex-none items-center whitespace-nowrap rounded bg-ground px-1.5 text-xs font-medium">{children}</span>
 }
 
+// Every alert ID opens that alert on the Evidence tab, with the fields the report read from it.
 export function AlertId({ id }: { id: string }) {
-  return <code className="font-mono text-[13px] break-all">{id}</code>
+  const { t } = useTranslation()
+
+  return (
+    <Link
+      to={{ search: `?tab=evidence&alert=${encodeURIComponent(id)}` }}
+      aria-label={t('report.evidence.openAlert', { id })}
+      className="font-mono text-[13px] break-all underline decoration-control decoration-1 underline-offset-4 hover:decoration-aligo-blanco"
+    >
+      {id}
+    </Link>
+  )
 }
 
 export function AlertIds({ ids }: { ids: readonly string[] }) {
@@ -79,6 +95,14 @@ function EvidenceItem({ evidence }: { evidence: Evidence }) {
       {evidence.fields && evidence.fields.length > 0 && (
         <p className="mt-1 text-xs text-muted">{t('report.evidence.fields', { fields: evidence.fields.join(', ') })}</p>
       )}
+      {evidence.source_fields && evidence.source_fields.length > 0 && (
+        <details className="mt-2">
+          <summary className={`cursor-pointer ${textActionClass}`}>
+            {t('report.evidence.sourceFields', { count: evidence.source_fields.length })}
+          </summary>
+          <SourceFields fields={evidence.source_fields} />
+        </details>
+      )}
     </li>
   )
 }
@@ -91,5 +115,66 @@ export function TextList({ items, empty }: { items: readonly string[]; empty: st
         <li key={index}>{item}</li>
       ))}
     </ul>
+  )
+}
+
+// Each cited field next to what the submitted case really holds at that path. A path that does not
+// resolve, or a value that differs, is said in words rather than hidden.
+export function SourceFields({ fields }: { fields: SourceField[] }) {
+  const { t } = useTranslation()
+  const { submitted, failed } = useSubmittedCase()
+
+  return (
+    <div className="mt-2 overflow-x-auto">
+      {/* Fixed columns so every alert's table lines up with the next one. */}
+      <table className="w-full min-w-[560px] table-fixed text-left text-sm">
+        <colgroup>
+          <col className="w-[44%]" />
+          <col className="w-[34%]" />
+          <col className="w-[22%]" />
+        </colgroup>
+        <thead className="text-xs text-muted">
+          <tr>
+            <th scope="col" className="py-1.5 pr-4 font-normal">
+              {t('report.evidence.path')}
+            </th>
+            <th scope="col" className="py-1.5 pr-4 font-normal">
+              {t('report.evidence.value')}
+            </th>
+            <th scope="col" className="py-1.5 font-normal">
+              {t('report.evidence.check')}
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-control">
+          {fields.map((field) => {
+            const resolved = submitted ? resolvePointer(submitted, field.path) : undefined
+            let value = field.value
+            let check: ReactNode
+            if (!resolved) check = <span className="text-muted">{failed ? t('report.evidence.caseFailed') : t('report.evidence.caseLoading')}</span>
+            else if (!resolved.found) check = <span className="border-l-4 border-state-error pl-2">{t('report.evidence.notFound')}</span>
+            else if (!sameValue(resolved.value, field.value)) {
+              value = resolved.value
+              check = (
+                <span className="border-l-4 border-state-warn pl-2">
+                  {t('report.evidence.differs', { value: formatValue(field.value) })}
+                </span>
+              )
+            } else check = <span className="text-muted">{t('report.evidence.matches')}</span>
+            return (
+              <tr key={`${field.alert_id}${field.path}`} className="align-top">
+                <td className="py-2 pr-4">
+                  <code className="font-mono text-[13px] break-all">{field.path}</code>
+                </td>
+                <td className="py-2 pr-4">
+                  <code className="font-mono text-[13px] break-all">{formatValue(value)}</code>
+                </td>
+                <td className="py-2">{check}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
   )
 }

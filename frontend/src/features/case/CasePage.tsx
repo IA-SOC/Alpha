@@ -59,7 +59,8 @@ export function CasePage() {
   let body
   if (run.isPending) body = <RunProgress />
   else if (run.error) body = <RunFailed error={run.error} onRetry={() => run.mutate()} />
-  else if (investigation.data) body = <ReportView investigation={investigation.data} />
+  else if (investigation.data)
+    body = <ReportView investigation={investigation.data} caseState={{ submitted: stored.data?.submitted_case, failed: stored.isError }} />
   else if (investigation.isPending) body = <p className="text-sm text-muted">{t('case.loading')}</p>
   else if (isMissing(investigation.error)) body = <NotInvestigated onStart={() => run.mutate()} />
   else body = <LoadFailed error={investigation.error} onRetry={() => void investigation.refetch()} />

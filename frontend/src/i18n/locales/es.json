@@ -120,7 +120,8 @@
       "label": "Secciones del informe",
       "summary": "Resumen",
       "mitre": "MITRE ATT&CK",
-      "review": "Revisión"
+      "review": "Revisión",
+      "evidence": "Evidencia"
     },
     "facts": {
       "sources": "Fuentes",
@@ -180,7 +181,41 @@
       "iocSource": "De {{provider}}, vinculado a {{alert}}"
     },
     "evidence": {
-      "fields": "Campos leídos: {{fields}}"
+      "fields": "Campos leídos: {{fields}}",
+      "openAlert": "Abrir la alerta {{id}} en Evidencia",
+      "sourceFields_one": "Ver el {{count}} campo de origen",
+      "sourceFields_other": "Ver los {{count}} campos de origen",
+      "path": "Campo en el caso",
+      "value": "Valor",
+      "check": "Comprobación",
+      "matches": "Coincide",
+      "differs": "El caso tiene este valor. El informe cita {{value}}",
+      "notFound": "No está en el caso enviado",
+      "caseLoading": "Cargando el caso enviado",
+      "caseFailed": "No se pudo cargar el caso enviado, así que no se pueden comprobar los campos.",
+      "alertsTitle_one": "{{count}} alerta en el caso",
+      "alertsTitle_other": "{{count}} alertas en el caso",
+      "alertsIntro": "Cada alerta tal como se envió, con los campos que el informe leyó de ella.",
+      "system": {
+        "elastic": "Elastic",
+        "wazuh": "Wazuh"
+      },
+      "severity": "Severidad de la alerta",
+      "severityField": "de {{field}}",
+      "noSeverity": "La alerta no trae severidad",
+      "correlation": "Correlación",
+      "citedBy": "Usada en",
+      "notCited": "No se usa en el informe",
+      "cite": {
+        "hypothesis_for": "Hipótesis {{rank}}, a favor",
+        "hypothesis_against": "Hipótesis {{rank}}, en contra",
+        "timeline": "Cronología",
+        "action": "Acción {{number}}"
+      },
+      "fieldsRead_one": "{{count}} campo leído por el informe",
+      "fieldsRead_other": "{{count}} campos leídos por el informe",
+      "noFields": "El informe no lee ningún campo de esta alerta.",
+      "original": "Ver la alerta original"
     },
     "actions": {
       "title_one": "{{count}} acción recomendada",
@@ -219,6 +254,28 @@
       "notes": "Notas",
       "reviewedAt": "Revisado el",
       "soon": "Registrar la revisión desde esta pantalla llega en la próxima actualización."
+    },
+    "correlation": {
+      "related": "Relacionada",
+      "uncertain": "Incierta",
+      "unrelated": "No relacionada"
+    },
+    "iocs": {
+      "title_one": "{{count}} IoC",
+      "title_other": "{{count}} IoC",
+      "status": "Enriquecimiento",
+      "statuses": {
+        "provided": "Aportado con el caso",
+        "partial": "Aportado en parte",
+        "no_disponible": "No disponible"
+      },
+      "none": "El caso no trae enriquecimiento de IoC.",
+      "provider": "Proveedor: {{provider}}",
+      "alerts": "Vinculado a",
+      "noAlerts": "ninguna alerta de este caso",
+      "noResult": "El proveedor no envió ningún resultado.",
+      "result": "Lo que devolvió el proveedor",
+      "full": "Ver el resultado completo"
     }
   }
 }
