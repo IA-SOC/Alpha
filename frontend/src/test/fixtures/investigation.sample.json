@@ -1,0 +1,2951 @@
+{
+  "case_id": "0c14bb82-623e-4f64-8450-63157759a8b5",
+  "run_id": "3e74c4cc-fd6d-46e6-824b-935b1625da13",
+  "status": "pending_review",
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 120.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/host/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/agent/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 192.0.2.50",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/source/ip",
+                "value": "192.0.2.50"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/srcip",
+                "value": "192.0.2.50"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: demo-user",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/user/name",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/dstuser",
+                "value": "demo-user"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 120 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/@timestamp",
+                "value": "2026-10-09T12:00:00Z"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/timestamp",
+                "value": "2026-10-09T07:02:00-05:00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "ecs-auth-001",
+          "ecs-noise-003"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 60.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/host/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/host/name",
+                "value": "dns-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/source/ip",
+                "value": "192.0.2.50"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/source/ip",
+                "value": "198.51.100.10"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/user/name",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/user/name",
+                "value": "backup"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 60 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/@timestamp",
+                "value": "2026-10-09T12:00:00Z"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/@timestamp",
+                "value": "2026-10-09T12:01:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "ecs-auth-001",
+          "ecs-uncertain-004"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 180.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/host/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/host/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/source/ip",
+                "value": "192.0.2.50"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/source/ip",
+                "value": "203.0.113.80"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/user/name",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/user/name",
+                "value": "other-user"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 180 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/@timestamp",
+                "value": "2026-10-09T12:00:00Z"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/@timestamp",
+                "value": "2026-10-09T12:03:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0004",
+        "alert_ids": [
+          "wazuh-auth-002",
+          "ecs-noise-003"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 60.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/host/name",
+                "value": "dns-02"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/srcip",
+                "value": "192.0.2.50"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/source/ip",
+                "value": "198.51.100.10"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/dstuser",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/user/name",
+                "value": "backup"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 60 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/timestamp",
+                "value": "2026-10-09T07:02:00-05:00"
+              },
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/@timestamp",
+                "value": "2026-10-09T12:01:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0005",
+        "alert_ids": [
+          "wazuh-auth-002",
+          "ecs-uncertain-004"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 60.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: web-01",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/host/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/srcip",
+                "value": "192.0.2.50"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/source/ip",
+                "value": "203.0.113.80"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/dstuser",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/user/name",
+                "value": "other-user"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 60 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/timestamp",
+                "value": "2026-10-09T07:02:00-05:00"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/@timestamp",
+                "value": "2026-10-09T12:03:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0006",
+        "alert_ids": [
+          "ecs-noise-003",
+          "ecs-uncertain-004"
+        ],
+        "classification": "unrelated",
+        "rule": "R3",
+        "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+        "time_delta_seconds": 120.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/host/name",
+                "value": "dns-02"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/host/name",
+                "value": "web-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "distinct",
+            "observation": "No shared value among the available ip fields",
+            "fields": [
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/source/ip",
+                "value": "198.51.100.10"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/source/ip",
+                "value": "203.0.113.80"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available user_name fields",
+            "fields": [
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/user/name",
+                "value": "backup"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/user/name",
+                "value": "other-user"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 120 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ecs-noise-003",
+                "path": "/alerts/2/raw_alert/@timestamp",
+                "value": "2026-10-09T12:01:00Z"
+              },
+              {
+                "alert_id": "ecs-uncertain-004",
+                "path": "/alerts/3/raw_alert/@timestamp",
+                "value": "2026-10-09T12:03:00Z"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "ecs-auth-001",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002",
+          "rel-0003"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "wazuh-auth-002",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0004",
+          "rel-0005"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "ecs-noise-003",
+        "classification": "unrelated",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0004",
+          "rel-0006"
+        ],
+        "explanation": "Every other alert is unrelated under this profile"
+      },
+      {
+        "alert_id": "ecs-uncertain-004",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0003",
+          "rel-0005",
+          "rel-0006"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      }
+    ],
+    "related_groups": [
+      [
+        "ecs-auth-001",
+        "wazuh-auth-002"
+      ]
+    ],
+    "noise_alert_ids": [
+      "ecs-noise-003"
+    ],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
+  },
+  "investigation_context": {
+    "adapter_version": "backend-v1",
+    "case_id": "0c14bb82-623e-4f64-8450-63157759a8b5",
+    "submitted_case_id": "SPRINT2-DEMO-3088c6f8ad2c",
+    "original_case": {
+      "schema_version": "1.0",
+      "case_id": "SPRINT2-DEMO-3088c6f8ad2c",
+      "submitted_at": "2026-10-09T12:10:00Z",
+      "alerts": [
+        {
+          "alert_id": "ecs-auth-001",
+          "source_system": "elastic",
+          "raw_alert": {
+            "event": {
+              "id": "ecs-auth-001",
+              "category": [
+                "authentication"
+              ],
+              "action": "failed_login",
+              "outcome": "failure"
+            },
+            "@timestamp": "2026-10-09T12:00:00Z",
+            "source": {
+              "ip": "192.0.2.50"
+            },
+            "host": {
+              "name": "web-01"
+            },
+            "user": {
+              "name": "demo-user"
+            },
+            "tags": [
+              "brute_force"
+            ],
+            "customer_custom": {
+              "decoder_hint": "synthetic",
+              "opaque": [
+                null,
+                true,
+                7
+              ]
+            }
+          },
+          "source_version": "8.19",
+          "ecs_version": "8.x"
+        },
+        {
+          "alert_id": "wazuh-auth-002",
+          "source_system": "wazuh",
+          "raw_alert": {
+            "id": "wazuh-auth-002",
+            "timestamp": "2026-10-09T07:02:00-05:00",
+            "data": {
+              "srcip": "192.0.2.50",
+              "dstuser": "demo-user"
+            },
+            "agent": {
+              "name": "web-01",
+              "id": "001"
+            },
+            "rule": {
+              "level": 8,
+              "description": "Repeated authentication failures",
+              "groups": [
+                "authentication_failures"
+              ]
+            }
+          },
+          "source_version": "4.14"
+        },
+        {
+          "alert_id": "ecs-noise-003",
+          "source_system": "elastic",
+          "raw_alert": {
+            "event": {
+              "id": "ecs-noise-003",
+              "category": [
+                "network"
+              ]
+            },
+            "@timestamp": "2026-10-09T12:01:00Z",
+            "source": {
+              "ip": "198.51.100.10"
+            },
+            "host": {
+              "name": "dns-02"
+            },
+            "user": {
+              "name": "backup"
+            },
+            "dns": {
+              "question": {
+                "name": "updates.example.test"
+              }
+            }
+          }
+        },
+        {
+          "alert_id": "ecs-uncertain-004",
+          "source_system": "elastic",
+          "raw_alert": {
+            "event": {
+              "id": "ecs-uncertain-004",
+              "action": "logon"
+            },
+            "@timestamp": "2026-10-09T12:03:00Z",
+            "source": {
+              "ip": "203.0.113.80"
+            },
+            "host": {
+              "name": "web-01"
+            },
+            "user": {
+              "name": "other-user"
+            }
+          }
+        }
+      ],
+      "title": "Synthetic mixed-source correlation demo",
+      "description": "Simulated data, not customer exports.",
+      "enrichments": [
+        {
+          "provider": "synthetic_feed",
+          "observable": {
+            "type": "ip",
+            "value": "192.0.2.50"
+          },
+          "related_alert_ids": [
+            "ecs-auth-001"
+          ],
+          "raw_result": {
+            "verdict": "suspicious",
+            "reference": "https://example.test/synthetic-ioc",
+            "custom": {
+              "score": 42
+            }
+          }
+        },
+        {
+          "provider": "synthetic_declared_link",
+          "observable": {
+            "type": "domain",
+            "value": "unseen.example.test"
+          },
+          "related_alert_ids": [
+            "wazuh-auth-002"
+          ],
+          "raw_result": {
+            "note": "Explicit association supplied; observable not present in alert fields"
+          }
+        },
+        {
+          "provider": "synthetic_unmatched",
+          "observable": {
+            "type": "ip",
+            "value": "203.0.113.200"
+          }
+        }
+      ]
+    },
+    "events": [
+      {
+        "alert_id": "ecs-auth-001",
+        "source_system": "elastic",
+        "attributes": [
+          {
+            "kind": "ip",
+            "family": "network",
+            "value": "192.0.2.50",
+            "evidence": {
+              "alert_id": "ecs-auth-001",
+              "path": "/alerts/0/raw_alert/source/ip",
+              "value": "192.0.2.50"
+            }
+          },
+          {
+            "kind": "user_name",
+            "family": "user",
+            "value": "demo-user",
+            "evidence": {
+              "alert_id": "ecs-auth-001",
+              "path": "/alerts/0/raw_alert/user/name",
+              "value": "demo-user"
+            }
+          },
+          {
+            "kind": "host_name",
+            "family": "host",
+            "value": "web-01",
+            "evidence": {
+              "alert_id": "ecs-auth-001",
+              "path": "/alerts/0/raw_alert/host/name",
+              "value": "web-01"
+            }
+          }
+        ],
+        "timestamp_utc": "2026-10-09T12:00:00+00:00",
+        "timestamp_evidence": {
+          "alert_id": "ecs-auth-001",
+          "path": "/alerts/0/raw_alert/@timestamp",
+          "value": "2026-10-09T12:00:00Z"
+        },
+        "warnings": []
+      },
+      {
+        "alert_id": "wazuh-auth-002",
+        "source_system": "wazuh",
+        "attributes": [
+          {
+            "kind": "ip",
+            "family": "network",
+            "value": "192.0.2.50",
+            "evidence": {
+              "alert_id": "wazuh-auth-002",
+              "path": "/alerts/1/raw_alert/data/srcip",
+              "value": "192.0.2.50"
+            }
+          },
+          {
+            "kind": "user_name",
+            "family": "user",
+            "value": "demo-user",
+            "evidence": {
+              "alert_id": "wazuh-auth-002",
+              "path": "/alerts/1/raw_alert/data/dstuser",
+              "value": "demo-user"
+            }
+          },
+          {
+            "kind": "host_name",
+            "family": "host",
+            "value": "web-01",
+            "evidence": {
+              "alert_id": "wazuh-auth-002",
+              "path": "/alerts/1/raw_alert/agent/name",
+              "value": "web-01"
+            }
+          },
+          {
+            "kind": "wazuh_agent_id",
+            "family": "host",
+            "value": "001",
+            "evidence": {
+              "alert_id": "wazuh-auth-002",
+              "path": "/alerts/1/raw_alert/agent/id",
+              "value": "001"
+            }
+          }
+        ],
+        "timestamp_utc": "2026-10-09T12:02:00+00:00",
+        "timestamp_evidence": {
+          "alert_id": "wazuh-auth-002",
+          "path": "/alerts/1/raw_alert/timestamp",
+          "value": "2026-10-09T07:02:00-05:00"
+        },
+        "warnings": []
+      },
+      {
+        "alert_id": "ecs-noise-003",
+        "source_system": "elastic",
+        "attributes": [
+          {
+            "kind": "ip",
+            "family": "network",
+            "value": "198.51.100.10",
+            "evidence": {
+              "alert_id": "ecs-noise-003",
+              "path": "/alerts/2/raw_alert/source/ip",
+              "value": "198.51.100.10"
+            }
+          },
+          {
+            "kind": "user_name",
+            "family": "user",
+            "value": "backup",
+            "evidence": {
+              "alert_id": "ecs-noise-003",
+              "path": "/alerts/2/raw_alert/user/name",
+              "value": "backup"
+            }
+          },
+          {
+            "kind": "host_name",
+            "family": "host",
+            "value": "dns-02",
+            "evidence": {
+              "alert_id": "ecs-noise-003",
+              "path": "/alerts/2/raw_alert/host/name",
+              "value": "dns-02"
+            }
+          },
+          {
+            "kind": "domain",
+            "family": "observable",
+            "value": "updates.example.test",
+            "evidence": {
+              "alert_id": "ecs-noise-003",
+              "path": "/alerts/2/raw_alert/dns/question/name",
+              "value": "updates.example.test"
+            }
+          }
+        ],
+        "timestamp_utc": "2026-10-09T12:01:00+00:00",
+        "timestamp_evidence": {
+          "alert_id": "ecs-noise-003",
+          "path": "/alerts/2/raw_alert/@timestamp",
+          "value": "2026-10-09T12:01:00Z"
+        },
+        "warnings": []
+      },
+      {
+        "alert_id": "ecs-uncertain-004",
+        "source_system": "elastic",
+        "attributes": [
+          {
+            "kind": "ip",
+            "family": "network",
+            "value": "203.0.113.80",
+            "evidence": {
+              "alert_id": "ecs-uncertain-004",
+              "path": "/alerts/3/raw_alert/source/ip",
+              "value": "203.0.113.80"
+            }
+          },
+          {
+            "kind": "user_name",
+            "family": "user",
+            "value": "other-user",
+            "evidence": {
+              "alert_id": "ecs-uncertain-004",
+              "path": "/alerts/3/raw_alert/user/name",
+              "value": "other-user"
+            }
+          },
+          {
+            "kind": "host_name",
+            "family": "host",
+            "value": "web-01",
+            "evidence": {
+              "alert_id": "ecs-uncertain-004",
+              "path": "/alerts/3/raw_alert/host/name",
+              "value": "web-01"
+            }
+          }
+        ],
+        "timestamp_utc": "2026-10-09T12:03:00+00:00",
+        "timestamp_evidence": {
+          "alert_id": "ecs-uncertain-004",
+          "path": "/alerts/3/raw_alert/@timestamp",
+          "value": "2026-10-09T12:03:00Z"
+        },
+        "warnings": []
+      }
+    ],
+    "signal_evidence": {
+      "ecs-auth-001": [
+        {
+          "alert_id": "ecs-auth-001",
+          "path": "/alerts/0/raw_alert/event/action",
+          "value": "failed_login"
+        },
+        {
+          "alert_id": "ecs-auth-001",
+          "path": "/alerts/0/raw_alert/tags",
+          "value": [
+            "brute_force"
+          ]
+        },
+        {
+          "alert_id": "ecs-auth-001",
+          "path": "/alerts/0/raw_alert/event/category",
+          "value": [
+            "authentication"
+          ]
+        },
+        {
+          "alert_id": "ecs-auth-001",
+          "path": "/alerts/0/raw_alert/host/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "ecs-auth-001",
+          "path": "/alerts/0/raw_alert/user/name",
+          "value": "demo-user"
+        }
+      ],
+      "wazuh-auth-002": [
+        {
+          "alert_id": "wazuh-auth-002",
+          "path": "/alerts/1/raw_alert/rule/description",
+          "value": "Repeated authentication failures"
+        },
+        {
+          "alert_id": "wazuh-auth-002",
+          "path": "/alerts/1/raw_alert/rule/groups",
+          "value": [
+            "authentication_failures"
+          ]
+        },
+        {
+          "alert_id": "wazuh-auth-002",
+          "path": "/alerts/1/raw_alert/agent/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "wazuh-auth-002",
+          "path": "/alerts/1/raw_alert/data/dstuser",
+          "value": "demo-user"
+        }
+      ],
+      "ecs-noise-003": [
+        {
+          "alert_id": "ecs-noise-003",
+          "path": "/alerts/2/raw_alert/event/category",
+          "value": [
+            "network"
+          ]
+        },
+        {
+          "alert_id": "ecs-noise-003",
+          "path": "/alerts/2/raw_alert/host/name",
+          "value": "dns-02"
+        },
+        {
+          "alert_id": "ecs-noise-003",
+          "path": "/alerts/2/raw_alert/user/name",
+          "value": "backup"
+        }
+      ],
+      "ecs-uncertain-004": [
+        {
+          "alert_id": "ecs-uncertain-004",
+          "path": "/alerts/3/raw_alert/event/action",
+          "value": "logon"
+        },
+        {
+          "alert_id": "ecs-uncertain-004",
+          "path": "/alerts/3/raw_alert/host/name",
+          "value": "web-01"
+        },
+        {
+          "alert_id": "ecs-uncertain-004",
+          "path": "/alerts/3/raw_alert/user/name",
+          "value": "other-user"
+        }
+      ]
+    },
+    "correlation": {
+      "algorithm": "entity-time-v1",
+      "window_seconds": 300,
+      "relationships": [
+        {
+          "relationship_id": "rel-0001",
+          "alert_ids": [
+            "ecs-auth-001",
+            "wazuh-auth-002"
+          ],
+          "classification": "related",
+          "rule": "R1",
+          "explanation": "At least two entity families match within the time window",
+          "time_delta_seconds": 120.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "shared",
+              "observation": "Shared host_name: web-01",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/host/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/agent/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "shared",
+              "observation": "Shared ip: 192.0.2.50",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/source/ip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/srcip",
+                  "value": "192.0.2.50"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "shared",
+              "observation": "Shared user_name: demo-user",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/user/name",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/dstuser",
+                  "value": "demo-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 120 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:00:00Z"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/timestamp",
+                  "value": "2026-10-09T07:02:00-05:00"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0002",
+          "alert_ids": [
+            "ecs-auth-001",
+            "ecs-noise-003"
+          ],
+          "classification": "unrelated",
+          "rule": "R3",
+          "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+          "time_delta_seconds": 60.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available host_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/host/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/host/name",
+                  "value": "dns-02"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/source/ip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/source/ip",
+                  "value": "198.51.100.10"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/user/name",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/user/name",
+                  "value": "backup"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 60 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:00:00Z"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:01:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0003",
+          "alert_ids": [
+            "ecs-auth-001",
+            "ecs-uncertain-004"
+          ],
+          "classification": "uncertain",
+          "rule": "R2",
+          "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+          "time_delta_seconds": 180.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "shared",
+              "observation": "Shared host_name: web-01",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/host/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/host/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/source/ip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/source/ip",
+                  "value": "203.0.113.80"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/user/name",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/user/name",
+                  "value": "other-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 180 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:00:00Z"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:03:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0004",
+          "alert_ids": [
+            "wazuh-auth-002",
+            "ecs-noise-003"
+          ],
+          "classification": "unrelated",
+          "rule": "R3",
+          "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+          "time_delta_seconds": 60.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available host_name fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/agent/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/host/name",
+                  "value": "dns-02"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/srcip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/source/ip",
+                  "value": "198.51.100.10"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/dstuser",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/user/name",
+                  "value": "backup"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 60 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/timestamp",
+                  "value": "2026-10-09T07:02:00-05:00"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:01:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0005",
+          "alert_ids": [
+            "wazuh-auth-002",
+            "ecs-uncertain-004"
+          ],
+          "classification": "uncertain",
+          "rule": "R2",
+          "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+          "time_delta_seconds": 60.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "shared",
+              "observation": "Shared host_name: web-01",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/agent/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/host/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/srcip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/source/ip",
+                  "value": "203.0.113.80"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/dstuser",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/user/name",
+                  "value": "other-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 60 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/timestamp",
+                  "value": "2026-10-09T07:02:00-05:00"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:03:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0006",
+          "alert_ids": [
+            "ecs-noise-003",
+            "ecs-uncertain-004"
+          ],
+          "classification": "unrelated",
+          "rule": "R3",
+          "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+          "time_delta_seconds": 120.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available host_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/host/name",
+                  "value": "dns-02"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/host/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/source/ip",
+                  "value": "198.51.100.10"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/source/ip",
+                  "value": "203.0.113.80"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/user/name",
+                  "value": "backup"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/user/name",
+                  "value": "other-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 120 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:01:00Z"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:03:00Z"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "alerts": [
+        {
+          "alert_id": "ecs-auth-001",
+          "classification": "related",
+          "relationship_ids": [
+            "rel-0001",
+            "rel-0002",
+            "rel-0003"
+          ],
+          "explanation": "At least one related pair exists"
+        },
+        {
+          "alert_id": "wazuh-auth-002",
+          "classification": "related",
+          "relationship_ids": [
+            "rel-0001",
+            "rel-0004",
+            "rel-0005"
+          ],
+          "explanation": "At least one related pair exists"
+        },
+        {
+          "alert_id": "ecs-noise-003",
+          "classification": "unrelated",
+          "relationship_ids": [
+            "rel-0002",
+            "rel-0004",
+            "rel-0006"
+          ],
+          "explanation": "Every other alert is unrelated under this profile"
+        },
+        {
+          "alert_id": "ecs-uncertain-004",
+          "classification": "uncertain",
+          "relationship_ids": [
+            "rel-0003",
+            "rel-0005",
+            "rel-0006"
+          ],
+          "explanation": "No related pair; evidence remains uncertain"
+        }
+      ],
+      "related_groups": [
+        [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ]
+      ],
+      "noise_alert_ids": [
+        "ecs-noise-003"
+      ],
+      "limitations": [
+        "Related means shared observed entities, not a confirmed attack or causation.",
+        "Noise is relative to this case and rule profile; alerts are never discarded.",
+        "Groups are connected components, not proof that every pair is related.",
+        "Unknown custom fields are retained but require verified mappings to correlate.",
+        "Names are compared exactly; tenant/domain scoping requires customer validation."
+      ]
+    },
+    "ioc_evidence": [
+      {
+        "provider": "synthetic_feed",
+        "observable": {
+          "type": "ip",
+          "value": "192.0.2.50"
+        },
+        "related_alert_ids": [
+          "ecs-auth-001"
+        ],
+        "raw_result": {
+          "verdict": "suspicious",
+          "reference": "https://example.test/synthetic-ioc",
+          "custom": {
+            "score": 42
+          }
+        },
+        "evidence_id": "ioc-0001",
+        "source_path": "/enrichments/0",
+        "indicator": "192.0.2.50",
+        "type": "ip",
+        "source": "synthetic_feed",
+        "associations": [
+          {
+            "alert_id": "ecs-auth-001",
+            "methods": [
+              "explicit_reference",
+              "observable_match"
+            ],
+            "fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/source/ip",
+                "value": "192.0.2.50"
+              }
+            ],
+            "reference_path": "/enrichments/0/related_alert_ids/0"
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "methods": [
+              "observable_match"
+            ],
+            "fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/srcip",
+                "value": "192.0.2.50"
+              }
+            ],
+            "reference_path": null
+          }
+        ],
+        "associated_alert_ids": [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ],
+        "matched_alert_ids": [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ],
+        "matched_fields": [
+          {
+            "alert_id": "ecs-auth-001",
+            "field": "/alerts/0/raw_alert/source/ip"
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "field": "/alerts/1/raw_alert/data/srcip"
+          }
+        ]
+      },
+      {
+        "provider": "synthetic_declared_link",
+        "observable": {
+          "type": "domain",
+          "value": "unseen.example.test"
+        },
+        "related_alert_ids": [
+          "wazuh-auth-002"
+        ],
+        "raw_result": {
+          "note": "Explicit association supplied; observable not present in alert fields"
+        },
+        "evidence_id": "ioc-0002",
+        "source_path": "/enrichments/1",
+        "indicator": "unseen.example.test",
+        "type": "domain",
+        "source": "synthetic_declared_link",
+        "associations": [
+          {
+            "alert_id": "wazuh-auth-002",
+            "methods": [
+              "explicit_reference"
+            ],
+            "fields": [],
+            "reference_path": "/enrichments/1/related_alert_ids/0"
+          }
+        ],
+        "associated_alert_ids": [
+          "wazuh-auth-002"
+        ],
+        "matched_alert_ids": [],
+        "matched_fields": []
+      },
+      {
+        "provider": "synthetic_unmatched",
+        "observable": {
+          "type": "ip",
+          "value": "203.0.113.200"
+        },
+        "evidence_id": "ioc-0003",
+        "source_path": "/enrichments/2",
+        "indicator": "203.0.113.200",
+        "type": "ip",
+        "source": "synthetic_unmatched",
+        "associations": [],
+        "associated_alert_ids": [],
+        "matched_alert_ids": [],
+        "matched_fields": []
+      }
+    ]
+  },
+  "report": {
+    "case_id": "0c14bb82-623e-4f64-8450-63157759a8b5",
+    "generated_at": "2026-10-26T14:36:22.566163Z",
+    "methodology": {
+      "skill": "soc-case-investigator",
+      "report_schema": "urn:soc-investigation-report:schema:1.1",
+      "engine": "LangGraph + MCP servers (reglas deterministas)",
+      "attack_catalog": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+    },
+    "input": {
+      "source_format": "mixed",
+      "schema_version": "1.0",
+      "alert_count": 4,
+      "processed_alert_count": 4,
+      "time_window_utc": {
+        "start": "2026-10-09T12:00:00+00:00",
+        "end": "2026-10-09T12:03:00+00:00"
+      },
+      "missing_fields": [
+        "ecs-noise-003: rule_name"
+      ],
+      "warnings": []
+    },
+    "executive_summary": "Caso 0c14bb82-623e-4f64-8450-63157759a8b5: 4 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+    "attack_mapping": [
+      {
+        "tactic": "Credential Access",
+        "technique_id": "T1110",
+        "technique_name": "Brute Force",
+        "status": "candidate",
+        "evidence": [
+          {
+            "alert_id": "ecs-auth-001",
+            "role": "supporting",
+            "fields": [
+              "rule_name",
+              "tags",
+              "host",
+              "user"
+            ],
+            "observation": "failed_login en web-01 (usuario demo-user)",
+            "relevance": "Señal que coincide con el patrón de Brute Force.",
+            "source_fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/event/action",
+                "value": "failed_login"
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/tags",
+                "value": [
+                  "brute_force"
+                ]
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/event/category",
+                "value": [
+                  "authentication"
+                ]
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/host/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/user/name",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/@timestamp",
+                "value": "2026-10-09T12:00:00Z"
+              }
+            ]
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "role": "supporting",
+            "fields": [
+              "rule_name",
+              "tags",
+              "host",
+              "user"
+            ],
+            "observation": "Repeated authentication failures en web-01 (usuario demo-user)",
+            "relevance": "Señal que coincide con el patrón de Brute Force.",
+            "source_fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/rule/description",
+                "value": "Repeated authentication failures"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/rule/groups",
+                "value": [
+                  "authentication_failures"
+                ]
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/dstuser",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/timestamp",
+                "value": "2026-10-09T07:02:00-05:00"
+              }
+            ]
+          }
+        ],
+        "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+        "correlation_group_alert_ids": [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ]
+      }
+    ],
+    "hypotheses": [
+      {
+        "statement": "Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01.",
+        "confidence": "media",
+        "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
+        "evidence_for": [
+          {
+            "alert_id": "ecs-auth-001",
+            "role": "supporting",
+            "fields": [
+              "rule_name",
+              "tags",
+              "host",
+              "user"
+            ],
+            "observation": "failed_login en web-01 (usuario demo-user)",
+            "relevance": "Alerta que coincide con el patrón de la técnica.",
+            "source_fields": [
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/event/action",
+                "value": "failed_login"
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/tags",
+                "value": [
+                  "brute_force"
+                ]
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/event/category",
+                "value": [
+                  "authentication"
+                ]
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/host/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/user/name",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "ecs-auth-001",
+                "path": "/alerts/0/raw_alert/@timestamp",
+                "value": "2026-10-09T12:00:00Z"
+              }
+            ]
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "role": "supporting",
+            "fields": [
+              "rule_name",
+              "tags",
+              "host",
+              "user"
+            ],
+            "observation": "Repeated authentication failures en web-01 (usuario demo-user)",
+            "relevance": "Alerta que coincide con el patrón de la técnica.",
+            "source_fields": [
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/rule/description",
+                "value": "Repeated authentication failures"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/rule/groups",
+                "value": [
+                  "authentication_failures"
+                ]
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/agent/name",
+                "value": "web-01"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/data/dstuser",
+                "value": "demo-user"
+              },
+              {
+                "alert_id": "wazuh-auth-002",
+                "path": "/alerts/1/raw_alert/timestamp",
+                "value": "2026-10-09T07:02:00-05:00"
+              }
+            ]
+          }
+        ],
+        "evidence_against": [],
+        "alternatives": [
+          "Usuario legítimo que olvidó su contraseña o script con credenciales vencidas."
+        ],
+        "unknowns": [
+          "No hay telemetría de EDR que confirme ejecución posterior al acceso."
+        ],
+        "rank": 1,
+        "correlation_group_alert_ids": [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ],
+        "ioc_evidence": [
+          {
+            "evidence_id": "ioc-0001",
+            "source_path": "/enrichments/0",
+            "alert_id": "ecs-auth-001",
+            "provider": "synthetic_feed",
+            "observable": {
+              "type": "ip",
+              "value": "192.0.2.50"
+            },
+            "association_methods": [
+              "explicit_reference",
+              "observable_match"
+            ],
+            "role": "context",
+            "relevance": "Enriquecimiento aportado para un observable asociado a esta evidencia. No confirma compromiso ni aumenta la confianza automáticamente."
+          },
+          {
+            "evidence_id": "ioc-0001",
+            "source_path": "/enrichments/0",
+            "alert_id": "wazuh-auth-002",
+            "provider": "synthetic_feed",
+            "observable": {
+              "type": "ip",
+              "value": "192.0.2.50"
+            },
+            "association_methods": [
+              "observable_match"
+            ],
+            "role": "context",
+            "relevance": "Enriquecimiento aportado para un observable asociado a esta evidencia. No confirma compromiso ni aumenta la confianza automáticamente."
+          },
+          {
+            "evidence_id": "ioc-0002",
+            "source_path": "/enrichments/1",
+            "alert_id": "wazuh-auth-002",
+            "provider": "synthetic_declared_link",
+            "observable": {
+              "type": "domain",
+              "value": "unseen.example.test"
+            },
+            "association_methods": [
+              "explicit_reference"
+            ],
+            "role": "context",
+            "relevance": "Enriquecimiento aportado para un observable asociado a esta evidencia. No confirma compromiso ni aumenta la confianza automáticamente."
+          }
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "timestamp_original": "2026-10-09T12:00:00Z",
+        "timestamp_utc": "2026-10-09T12:00:00+00:00",
+        "timezone_unknown": false,
+        "description": "failed_login en host web-01 (usuario: demo-user)",
+        "stage": "initial_access",
+        "alert_ids": [
+          "ecs-auth-001"
+        ],
+        "certainty": "observed",
+        "source_fields": [
+          {
+            "alert_id": "ecs-auth-001",
+            "path": "/alerts/0/raw_alert/event/action",
+            "value": "failed_login"
+          },
+          {
+            "alert_id": "ecs-auth-001",
+            "path": "/alerts/0/raw_alert/tags",
+            "value": [
+              "brute_force"
+            ]
+          },
+          {
+            "alert_id": "ecs-auth-001",
+            "path": "/alerts/0/raw_alert/event/category",
+            "value": [
+              "authentication"
+            ]
+          },
+          {
+            "alert_id": "ecs-auth-001",
+            "path": "/alerts/0/raw_alert/host/name",
+            "value": "web-01"
+          },
+          {
+            "alert_id": "ecs-auth-001",
+            "path": "/alerts/0/raw_alert/user/name",
+            "value": "demo-user"
+          },
+          {
+            "alert_id": "ecs-auth-001",
+            "path": "/alerts/0/raw_alert/@timestamp",
+            "value": "2026-10-09T12:00:00Z"
+          }
+        ]
+      },
+      {
+        "timestamp_original": "2026-10-09T12:01:00Z",
+        "timestamp_utc": "2026-10-09T12:01:00+00:00",
+        "timezone_unknown": false,
+        "description": " en host dns-02 (usuario: backup)",
+        "stage": "progression",
+        "alert_ids": [
+          "ecs-noise-003"
+        ],
+        "certainty": "observed",
+        "source_fields": [
+          {
+            "alert_id": "ecs-noise-003",
+            "path": "/alerts/2/raw_alert/event/category",
+            "value": [
+              "network"
+            ]
+          },
+          {
+            "alert_id": "ecs-noise-003",
+            "path": "/alerts/2/raw_alert/host/name",
+            "value": "dns-02"
+          },
+          {
+            "alert_id": "ecs-noise-003",
+            "path": "/alerts/2/raw_alert/user/name",
+            "value": "backup"
+          },
+          {
+            "alert_id": "ecs-noise-003",
+            "path": "/alerts/2/raw_alert/@timestamp",
+            "value": "2026-10-09T12:01:00Z"
+          }
+        ]
+      },
+      {
+        "timestamp_original": "2026-10-09T07:02:00-05:00",
+        "timestamp_utc": "2026-10-09T12:02:00+00:00",
+        "timezone_unknown": false,
+        "description": "Repeated authentication failures en host web-01 (usuario: demo-user)",
+        "stage": "initial_access",
+        "alert_ids": [
+          "wazuh-auth-002"
+        ],
+        "certainty": "observed",
+        "source_fields": [
+          {
+            "alert_id": "wazuh-auth-002",
+            "path": "/alerts/1/raw_alert/rule/description",
+            "value": "Repeated authentication failures"
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "path": "/alerts/1/raw_alert/rule/groups",
+            "value": [
+              "authentication_failures"
+            ]
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "path": "/alerts/1/raw_alert/agent/name",
+            "value": "web-01"
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "path": "/alerts/1/raw_alert/data/dstuser",
+            "value": "demo-user"
+          },
+          {
+            "alert_id": "wazuh-auth-002",
+            "path": "/alerts/1/raw_alert/timestamp",
+            "value": "2026-10-09T07:02:00-05:00"
+          }
+        ]
+      },
+      {
+        "timestamp_original": "2026-10-09T12:03:00Z",
+        "timestamp_utc": "2026-10-09T12:03:00+00:00",
+        "timezone_unknown": false,
+        "description": "logon en host web-01 (usuario: other-user)",
+        "stage": "progression",
+        "alert_ids": [
+          "ecs-uncertain-004"
+        ],
+        "certainty": "observed",
+        "source_fields": [
+          {
+            "alert_id": "ecs-uncertain-004",
+            "path": "/alerts/3/raw_alert/event/action",
+            "value": "logon"
+          },
+          {
+            "alert_id": "ecs-uncertain-004",
+            "path": "/alerts/3/raw_alert/host/name",
+            "value": "web-01"
+          },
+          {
+            "alert_id": "ecs-uncertain-004",
+            "path": "/alerts/3/raw_alert/user/name",
+            "value": "other-user"
+          },
+          {
+            "alert_id": "ecs-uncertain-004",
+            "path": "/alerts/3/raw_alert/@timestamp",
+            "value": "2026-10-09T12:03:00Z"
+          }
+        ]
+      }
+    ],
+    "blast_radius": {
+      "observed_assets": [
+        {
+          "asset": "web-01",
+          "basis_alert_ids": [
+            "ecs-auth-001",
+            "wazuh-auth-002",
+            "ecs-uncertain-004"
+          ],
+          "observed_activity": "failed_login; Repeated authentication failures; logon"
+        },
+        {
+          "asset": "dns-02",
+          "basis_alert_ids": [
+            "ecs-noise-003"
+          ],
+          "observed_activity": "actividad sin regla nombrada"
+        }
+      ],
+      "confirmed_assets": [],
+      "suspected_assets": [
+        {
+          "asset": "web-01",
+          "basis_alert_ids": [
+            "ecs-auth-001",
+            "wazuh-auth-002"
+          ]
+        }
+      ],
+      "confirmed_identities": [],
+      "suspected_identities": [
+        {
+          "identity": "demo-user",
+          "basis_alert_ids": [
+            "ecs-auth-001",
+            "wazuh-auth-002"
+          ]
+        }
+      ],
+      "unknowns": [
+        "Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR)."
+      ]
+    },
+    "enrichment": {
+      "status": "provided",
+      "items": [
+        {
+          "provider": "synthetic_feed",
+          "observable": {
+            "type": "ip",
+            "value": "192.0.2.50"
+          },
+          "related_alert_ids": [
+            "ecs-auth-001"
+          ],
+          "raw_result": {
+            "verdict": "suspicious",
+            "reference": "https://example.test/synthetic-ioc",
+            "custom": {
+              "score": 42
+            }
+          },
+          "evidence_id": "ioc-0001",
+          "source_path": "/enrichments/0",
+          "indicator": "192.0.2.50",
+          "type": "ip",
+          "source": "synthetic_feed",
+          "associations": [
+            {
+              "alert_id": "ecs-auth-001",
+              "methods": [
+                "explicit_reference",
+                "observable_match"
+              ],
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/source/ip",
+                  "value": "192.0.2.50"
+                }
+              ],
+              "reference_path": "/enrichments/0/related_alert_ids/0"
+            },
+            {
+              "alert_id": "wazuh-auth-002",
+              "methods": [
+                "observable_match"
+              ],
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/srcip",
+                  "value": "192.0.2.50"
+                }
+              ],
+              "reference_path": null
+            }
+          ],
+          "associated_alert_ids": [
+            "ecs-auth-001",
+            "wazuh-auth-002"
+          ],
+          "matched_alert_ids": [
+            "ecs-auth-001",
+            "wazuh-auth-002"
+          ],
+          "matched_fields": [
+            {
+              "alert_id": "ecs-auth-001",
+              "field": "/alerts/0/raw_alert/source/ip"
+            },
+            {
+              "alert_id": "wazuh-auth-002",
+              "field": "/alerts/1/raw_alert/data/srcip"
+            }
+          ]
+        },
+        {
+          "provider": "synthetic_declared_link",
+          "observable": {
+            "type": "domain",
+            "value": "unseen.example.test"
+          },
+          "related_alert_ids": [
+            "wazuh-auth-002"
+          ],
+          "raw_result": {
+            "note": "Explicit association supplied; observable not present in alert fields"
+          },
+          "evidence_id": "ioc-0002",
+          "source_path": "/enrichments/1",
+          "indicator": "unseen.example.test",
+          "type": "domain",
+          "source": "synthetic_declared_link",
+          "associations": [
+            {
+              "alert_id": "wazuh-auth-002",
+              "methods": [
+                "explicit_reference"
+              ],
+              "fields": [],
+              "reference_path": "/enrichments/1/related_alert_ids/0"
+            }
+          ],
+          "associated_alert_ids": [
+            "wazuh-auth-002"
+          ],
+          "matched_alert_ids": [],
+          "matched_fields": []
+        },
+        {
+          "provider": "synthetic_unmatched",
+          "observable": {
+            "type": "ip",
+            "value": "203.0.113.200"
+          },
+          "evidence_id": "ioc-0003",
+          "source_path": "/enrichments/2",
+          "indicator": "203.0.113.200",
+          "type": "ip",
+          "source": "synthetic_unmatched",
+          "associations": [],
+          "associated_alert_ids": [],
+          "matched_alert_ids": [],
+          "matched_fields": []
+        }
+      ],
+      "note": "IoC suministrados por el caso. Enlaces declarados y coincidencias observadas se registran por separado. Sin consultas externas."
+    },
+    "recommended_actions": [
+      {
+        "priority": "high",
+        "action": "Forzar rotación de credenciales de las cuentas involucradas",
+        "rationale": "Derivada de la hipótesis 1 (confianza media).",
+        "evidence_ids": [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ],
+        "requires_human_approval": true
+      },
+      {
+        "priority": "high",
+        "action": "Habilitar/reforzar MFA en los hosts afectados",
+        "rationale": "Derivada de la hipótesis 1 (confianza media).",
+        "evidence_ids": [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ],
+        "requires_human_approval": true
+      }
+    ],
+    "limitations": [
+      "Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.",
+      "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
+      "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ],
+    "audit_trail": [
+      {
+        "phase": 1,
+        "node": "recibir_validar",
+        "finished_at": "2026-10-26T14:36:18.085545Z",
+        "duration_ms": 1,
+        "detail": "4 alertas, formato mixed"
+      },
+      {
+        "phase": 2,
+        "node": "investigar_hipotesis",
+        "finished_at": "2026-10-26T14:36:21.039973Z",
+        "duration_ms": 2953,
+        "detail": "1 técnicas candidatas, 1 hipótesis"
+      },
+      {
+        "phase": 3,
+        "node": "cronologia_alcance",
+        "finished_at": "2026-10-26T14:36:22.563695Z",
+        "duration_ms": 1522,
+        "detail": "4 eventos, 2 activos observados"
+      },
+      {
+        "phase": 4,
+        "node": "consumir_ioc",
+        "finished_at": "2026-10-26T14:36:22.564958Z",
+        "duration_ms": 0,
+        "detail": "estado provided, 3 IoC"
+      }
+    ],
+    "review": {
+      "status": "pending",
+      "analyst": null,
+      "notes": null,
+      "reviewed_at": null
+    },
+    "submitted_case_id": "SPRINT2-DEMO-3088c6f8ad2c",
+    "correlation": {
+      "algorithm": "entity-time-v1",
+      "window_seconds": 300,
+      "relationships": [
+        {
+          "relationship_id": "rel-0001",
+          "alert_ids": [
+            "ecs-auth-001",
+            "wazuh-auth-002"
+          ],
+          "classification": "related",
+          "rule": "R1",
+          "explanation": "At least two entity families match within the time window",
+          "time_delta_seconds": 120.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "shared",
+              "observation": "Shared host_name: web-01",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/host/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/agent/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "shared",
+              "observation": "Shared ip: 192.0.2.50",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/source/ip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/srcip",
+                  "value": "192.0.2.50"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "shared",
+              "observation": "Shared user_name: demo-user",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/user/name",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/dstuser",
+                  "value": "demo-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 120 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:00:00Z"
+                },
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/timestamp",
+                  "value": "2026-10-09T07:02:00-05:00"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0002",
+          "alert_ids": [
+            "ecs-auth-001",
+            "ecs-noise-003"
+          ],
+          "classification": "unrelated",
+          "rule": "R3",
+          "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+          "time_delta_seconds": 60.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available host_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/host/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/host/name",
+                  "value": "dns-02"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/source/ip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/source/ip",
+                  "value": "198.51.100.10"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/user/name",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/user/name",
+                  "value": "backup"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 60 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:00:00Z"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:01:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0003",
+          "alert_ids": [
+            "ecs-auth-001",
+            "ecs-uncertain-004"
+          ],
+          "classification": "uncertain",
+          "rule": "R2",
+          "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+          "time_delta_seconds": 180.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "shared",
+              "observation": "Shared host_name: web-01",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/host/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/host/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/source/ip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/source/ip",
+                  "value": "203.0.113.80"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/user/name",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/user/name",
+                  "value": "other-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 180 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-auth-001",
+                  "path": "/alerts/0/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:00:00Z"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:03:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0004",
+          "alert_ids": [
+            "wazuh-auth-002",
+            "ecs-noise-003"
+          ],
+          "classification": "unrelated",
+          "rule": "R3",
+          "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+          "time_delta_seconds": 60.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available host_name fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/agent/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/host/name",
+                  "value": "dns-02"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/srcip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/source/ip",
+                  "value": "198.51.100.10"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/dstuser",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/user/name",
+                  "value": "backup"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 60 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/timestamp",
+                  "value": "2026-10-09T07:02:00-05:00"
+                },
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:01:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0005",
+          "alert_ids": [
+            "wazuh-auth-002",
+            "ecs-uncertain-004"
+          ],
+          "classification": "uncertain",
+          "rule": "R2",
+          "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+          "time_delta_seconds": 60.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "shared",
+              "observation": "Shared host_name: web-01",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/agent/name",
+                  "value": "web-01"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/host/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/srcip",
+                  "value": "192.0.2.50"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/source/ip",
+                  "value": "203.0.113.80"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/data/dstuser",
+                  "value": "demo-user"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/user/name",
+                  "value": "other-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 60 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "wazuh-auth-002",
+                  "path": "/alerts/1/raw_alert/timestamp",
+                  "value": "2026-10-09T07:02:00-05:00"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:03:00Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "relationship_id": "rel-0006",
+          "alert_ids": [
+            "ecs-noise-003",
+            "ecs-uncertain-004"
+          ],
+          "classification": "unrelated",
+          "rule": "R3",
+          "explanation": "No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity",
+          "time_delta_seconds": 120.0,
+          "evidence": [
+            {
+              "kind": "host_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available host_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/host/name",
+                  "value": "dns-02"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/host/name",
+                  "value": "web-01"
+                }
+              ]
+            },
+            {
+              "kind": "ip",
+              "assessment": "distinct",
+              "observation": "No shared value among the available ip fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/source/ip",
+                  "value": "198.51.100.10"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/source/ip",
+                  "value": "203.0.113.80"
+                }
+              ]
+            },
+            {
+              "kind": "user_name",
+              "assessment": "distinct",
+              "observation": "No shared value among the available user_name fields",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/user/name",
+                  "value": "backup"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/user/name",
+                  "value": "other-user"
+                }
+              ]
+            },
+            {
+              "kind": "time",
+              "assessment": "temporal",
+              "observation": "Events are 120 seconds apart; window 300s",
+              "fields": [
+                {
+                  "alert_id": "ecs-noise-003",
+                  "path": "/alerts/2/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:01:00Z"
+                },
+                {
+                  "alert_id": "ecs-uncertain-004",
+                  "path": "/alerts/3/raw_alert/@timestamp",
+                  "value": "2026-10-09T12:03:00Z"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "alerts": [
+        {
+          "alert_id": "ecs-auth-001",
+          "classification": "related",
+          "relationship_ids": [
+            "rel-0001",
+            "rel-0002",
+            "rel-0003"
+          ],
+          "explanation": "At least one related pair exists"
+        },
+        {
+          "alert_id": "wazuh-auth-002",
+          "classification": "related",
+          "relationship_ids": [
+            "rel-0001",
+            "rel-0004",
+            "rel-0005"
+          ],
+          "explanation": "At least one related pair exists"
+        },
+        {
+          "alert_id": "ecs-noise-003",
+          "classification": "unrelated",
+          "relationship_ids": [
+            "rel-0002",
+            "rel-0004",
+            "rel-0006"
+          ],
+          "explanation": "Every other alert is unrelated under this profile"
+        },
+        {
+          "alert_id": "ecs-uncertain-004",
+          "classification": "uncertain",
+          "relationship_ids": [
+            "rel-0003",
+            "rel-0005",
+            "rel-0006"
+          ],
+          "explanation": "No related pair; evidence remains uncertain"
+        }
+      ],
+      "related_groups": [
+        [
+          "ecs-auth-001",
+          "wazuh-auth-002"
+        ]
+      ],
+      "noise_alert_ids": [
+        "ecs-noise-003"
+      ],
+      "limitations": [
+        "Related means shared observed entities, not a confirmed attack or causation.",
+        "Noise is relative to this case and rule profile; alerts are never discarded.",
+        "Groups are connected components, not proof that every pair is related.",
+        "Unknown custom fields are retained but require verified mappings to correlate.",
+        "Names are compared exactly; tenant/domain scoping requires customer validation."
+      ]
+    }
+  },
+  "report_markdown": "# Reporte de investigación SOC — borrador\n\n## Caso y alcance\n- ID del caso: 0c14bb82-623e-4f64-8450-63157759a8b5\n- Fuente/esquema y versión: mixed / 1.0\n- Alertas recibidas / procesadas: 4 / 4\n- Ventana temporal: 2026-10-09T12:00:00+00:00 → 2026-10-09T12:03:00+00:00\n- Limitaciones de entrada: ecs-noise-003: rule_name\n\n## Resumen\nCaso 0c14bb82-623e-4f64-8450-63157759a8b5: 4 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.\n\n## Hipótesis ordenadas\n### 1. Actividad compatible con Brute Force (T1110, táctica Credential Access) en web-01. — confianza: media\n- Base de confianza: 2 alertas coherentes, sin corroboración de otra fuente.\n- Evidencia a favor: ecs-auth-001, wazuh-auth-002\n- Evidencia en contra: —\n- Alternativas plausibles: Usuario legítimo que olvidó su contraseña o script con credenciales vencidas.\n- Información que falta: No hay telemetría de EDR que confirme ejecución posterior al acceso.\n\n- IoC: ioc-0001 (synthetic_feed), alerta ecs-auth-001, origen /enrichments/0.\n- IoC: ioc-0001 (synthetic_feed), alerta wazuh-auth-002, origen /enrichments/0.\n- IoC: ioc-0002 (synthetic_declared_link), alerta wazuh-auth-002, origen /enrichments/1.\n\n## Correlación de alertas\n- rel-0001: ecs-auth-001, wazuh-auth-002 — related (R1). At least two entity families match within the time window.\n- rel-0002: ecs-auth-001, ecs-noise-003 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.\n- rel-0003: ecs-auth-001, ecs-uncertain-004 — uncertain (R2). Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient.\n- rel-0004: wazuh-auth-002, ecs-noise-003 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.\n- rel-0005: wazuh-auth-002, ecs-uncertain-004 — uncertain (R2). Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient.\n- rel-0006: ecs-noise-003, ecs-uncertain-004 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.\n## Mapeo MITRE ATT&CK\n| Táctica | Técnica (ID y nombre) | Estado | Evidencia referenciada |\n|---|---|---|---|\n| Credential Access | T1110 Brute Force | candidate | ecs-auth-001, wazuh-auth-002 |\n\n## Línea de tiempo\n| Hora original | Hora UTC / estado de zona | Evento observado o inferido | Alertas fuente |\n|---|---|---|---|\n| 2026-10-09T12:00:00Z | 2026-10-09T12:00:00+00:00 | failed_login en host web-01 (usuario: demo-user) (observed) | ecs-auth-001 |\n| 2026-10-09T12:01:00Z | 2026-10-09T12:01:00+00:00 |  en host dns-02 (usuario: backup) (observed) | ecs-noise-003 |\n| 2026-10-09T07:02:00-05:00 | 2026-10-09T12:02:00+00:00 | Repeated authentication failures en host web-01 (usuario: demo-user) (observed) | wazuh-auth-002 |\n| 2026-10-09T12:03:00Z | 2026-10-09T12:03:00+00:00 | logon en host web-01 (usuario: other-user) (observed) | ecs-uncertain-004 |\n\n## Blast radius\n- Activos observados (no equivale a compromiso): web-01 [ecs-auth-001, wazuh-auth-002, ecs-uncertain-004]; dns-02 [ecs-noise-003]\n- Activos con impacto confirmado: ninguno\n- Sospechosos: web-01 [ecs-auth-001, wazuh-auth-002]\n- Identidades afectadas (sospechosas): demo-user [ecs-auth-001, wazuh-auth-002]\n- Desconocidos / brechas de telemetría: Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR).\n\n## IoC enriquecidos provistos\nEstado: provided. IoC suministrados por el caso. Enlaces declarados y coincidencias observadas se registran por separado. Sin consultas externas.\n- 192.0.2.50 (ip, veredicto no interpretado, fuente synthetic_feed) → alertas: ecs-auth-001, wazuh-auth-002\n  Asociaciones: ecs-auth-001 (explicit_reference, observable_match); wazuh-auth-002 (observable_match)\n- unseen.example.test (domain, veredicto no interpretado, fuente synthetic_declared_link) → alertas: —\n  Asociaciones: wazuh-auth-002 (explicit_reference)\n- 203.0.113.200 (ip, veredicto no interpretado, fuente synthetic_unmatched) → alertas: —\n\n## Acciones recomendadas\n1. [high] Forzar rotación de credenciales de las cuentas involucradas — Derivada de la hipótesis 1 (confianza media). Evidencia: ecs-auth-001, wazuh-auth-002. Requiere aprobación humana.\n2. [high] Habilitar/reforzar MFA en los hosts afectados — Derivada de la hipótesis 1 (confianza media). Evidencia: ecs-auth-001, wazuh-auth-002. Requiere aprobación humana.\n\n## Limitaciones\n- Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.\n- Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.\n- El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.\n- Related means shared observed entities, not a confirmed attack or causation.\n- Noise is relative to this case and rule profile; alerts are never discarded.\n- Groups are connected components, not proof that every pair is related.\n- Unknown custom fields are retained but require verified mappings to correlate.\n- Names are compared exactly; tenant/domain scoping requires customer validation.\n\n## Revisión humana\n- Estado: pending\n- Analista: —\n- Correcciones/notas: —\n",
+  "validation": {
+    "ok": true,
+    "returncode": 0,
+    "output": "REPORT STRUCTURE OK — 4 input alert(s); referenced IDs resolve.\nNOTE: This validates structure and references, not the truth of the findings.",
+    "traceability_ok": true
+  },
+  "audit_log": [
+    {
+      "phase": 1,
+      "node": "recibir_validar",
+      "finished_at": "2026-10-26T14:36:18.085545Z",
+      "duration_ms": 1,
+      "detail": "4 alertas, formato mixed"
+    },
+    {
+      "phase": 2,
+      "node": "investigar_hipotesis",
+      "finished_at": "2026-10-26T14:36:21.039973Z",
+      "duration_ms": 2953,
+      "detail": "1 técnicas candidatas, 1 hipótesis"
+    },
+    {
+      "phase": 3,
+      "node": "cronologia_alcance",
+      "finished_at": "2026-10-26T14:36:22.563695Z",
+      "duration_ms": 1522,
+      "detail": "4 eventos, 2 activos observados"
+    },
+    {
+      "phase": 4,
+      "node": "consumir_ioc",
+      "finished_at": "2026-10-26T14:36:22.564958Z",
+      "duration_ms": 0,
+      "detail": "estado provided, 3 IoC"
+    },
+    {
+      "phase": 5,
+      "node": "generar_validar_reporte",
+      "finished_at": "2026-10-26T14:36:22.837605Z",
+      "duration_ms": 271,
+      "detail": "validador OK"
+    }
+  ]
+}

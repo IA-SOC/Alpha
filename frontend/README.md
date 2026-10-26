@@ -71,6 +71,18 @@ npm run build
 
 `npm run test:watch` keeps Vitest running while you work.
 
+## Types from the backend
+
+Everything in `src/api/generated/` comes from the backend: the OpenAPI document of the intake API, the investigation report schema in `skills/soc-case-investigator/references/report-schema.json` and the correlation models. Don't edit those files by hand. When any of that changes in the backend, regenerate them and commit the result:
+
+```bash
+npm run gen:types
+```
+
+The script runs Python inside `../soc-ai-analyst-sprint2/.venv`, so set up the backend first. Point `SOC_PYTHON` at another interpreter if you keep the venv elsewhere.
+
+`src/test/fixtures/` holds a real investigation from `python demo/verify_local.py`, frozen so tests and screens have a stable sample. The comment in `src/test/fixtures/index.ts` says how to refresh it.
+
 ## Troubleshooting
 
 - **Port 5173 or 8000 is busy.** Stop the other process or start Vite with `npm run dev -- --port 5174`. For another backend port, see `SOC_API_URL` above.
