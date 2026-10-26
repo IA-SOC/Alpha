@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-BENIGN-005",
-  "generated_at": "2026-09-30T03:08:44.261626Z",
+  "generated_at": "2026-10-20T01:53:24.243520Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -29,15 +29,44 @@
   "hypotheses": [],
   "timeline": [
     {
-      "timestamp_original": null,
-      "timestamp_utc": null,
+      "timestamp_original": "2026-09-18T09:00:00Z",
+      "timestamp_utc": "2026-09-18T09:00:00Z",
       "timezone_unknown": false,
-      "description": "service_restarted en host WKS-40",
+      "description": "software_update_installed en host WKS-40 (usuario: sccm_svc)",
       "stage": "progression",
       "alert_ids": [
-        "bn-3"
+        "bn-1"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "bn-1",
+          "path": "/alerts/0/rule_name",
+          "value": "software_update_installed"
+        },
+        {
+          "alert_id": "bn-1",
+          "path": "/alerts/0/tags",
+          "value": [
+            "maintenance"
+          ]
+        },
+        {
+          "alert_id": "bn-1",
+          "path": "/alerts/0/host",
+          "value": "WKS-40"
+        },
+        {
+          "alert_id": "bn-1",
+          "path": "/alerts/0/user",
+          "value": "sccm_svc"
+        },
+        {
+          "alert_id": "bn-1",
+          "path": "/alerts/0/timestamp",
+          "value": "2026-09-18T09:00:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-18 09:30:00",
@@ -48,18 +77,62 @@
       "alert_ids": [
         "bn-2"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "bn-2",
+          "path": "/alerts/1/rule_name",
+          "value": "authorized_vulnerability_scan"
+        },
+        {
+          "alert_id": "bn-2",
+          "path": "/alerts/1/tags",
+          "value": [
+            "scan",
+            "change_approved"
+          ]
+        },
+        {
+          "alert_id": "bn-2",
+          "path": "/alerts/1/host",
+          "value": "SCANNER-01"
+        },
+        {
+          "alert_id": "bn-2",
+          "path": "/alerts/1/timestamp",
+          "value": "2026-09-18 09:30:00"
+        }
+      ]
     },
     {
-      "timestamp_original": "2026-09-18T09:00:00Z",
-      "timestamp_utc": "2026-09-18T09:00:00Z",
+      "timestamp_original": null,
+      "timestamp_utc": null,
       "timezone_unknown": false,
-      "description": "software_update_installed en host WKS-40 (usuario: sccm_svc)",
+      "description": "service_restarted en host WKS-40",
       "stage": "progression",
       "alert_ids": [
-        "bn-1"
+        "bn-3"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "bn-3",
+          "path": "/alerts/2/rule_name",
+          "value": "service_restarted"
+        },
+        {
+          "alert_id": "bn-3",
+          "path": "/alerts/2/tags",
+          "value": [
+            "maintenance"
+          ]
+        },
+        {
+          "alert_id": "bn-3",
+          "path": "/alerts/2/host",
+          "value": "WKS-40"
+        }
+      ]
     }
   ],
   "blast_radius": {
@@ -100,34 +173,39 @@
     "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
     "Caso sintético: la confianza se limita a 'media' como máximo.",
     "bn-2: timestamp sin zona horaria (2026-09-18 09:30:00); no se asume UTC.",
-    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo).",
+    "Related means shared observed entities, not a confirmed attack or causation.",
+    "Noise is relative to this case and rule profile; alerts are never discarded.",
+    "Groups are connected components, not proof that every pair is related.",
+    "Unknown custom fields are retained but require verified mappings to correlate.",
+    "Names are compared exactly; tenant/domain scoping requires customer validation."
   ],
   "audit_trail": [
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-09-30T03:08:38.017055Z",
+      "finished_at": "2026-10-20T01:53:20.846555Z",
       "duration_ms": 0,
       "detail": "3 alertas, formato unknown"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-09-30T03:08:42.128695Z",
-      "duration_ms": 4111,
+      "finished_at": "2026-10-20T01:53:23.111584Z",
+      "duration_ms": 2264,
       "detail": "0 técnicas candidatas, 0 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-09-30T03:08:44.260135Z",
-      "duration_ms": 2130,
+      "finished_at": "2026-10-20T01:53:24.241902Z",
+      "duration_ms": 1129,
       "detail": "3 eventos, 2 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-09-30T03:08:44.260925Z",
+      "finished_at": "2026-10-20T01:53:24.242717Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }
@@ -137,5 +215,192 @@
     "analyst": null,
     "notes": null,
     "reviewed_at": null
+  },
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "bn-1",
+          "bn-2"
+        ],
+        "classification": "uncertain",
+        "rule": "R4",
+        "explanation": "Insufficient comparable entity evidence; absence is not disproof",
+        "time_delta_seconds": null,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "bn-1",
+                "path": "/alerts/0/host",
+                "value": "WKS-40"
+              },
+              {
+                "alert_id": "bn-2",
+                "path": "/alerts/1/host",
+                "value": "SCANNER-01"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "missing",
+            "observation": "Comparable timezone-aware event times are unavailable. Unusable event timestamp at /alerts/1/raw_alert/timestamp",
+            "fields": [
+              {
+                "alert_id": "bn-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-18T09:00:00Z"
+              },
+              {
+                "alert_id": "bn-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-18 09:30:00"
+              }
+            ]
+          },
+          {
+            "kind": "coverage",
+            "assessment": "missing",
+            "observation": "Fewer than two entity families are comparable",
+            "fields": []
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "bn-1",
+          "bn-3"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": null,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: WKS-40",
+            "fields": [
+              {
+                "alert_id": "bn-1",
+                "path": "/alerts/0/host",
+                "value": "WKS-40"
+              },
+              {
+                "alert_id": "bn-3",
+                "path": "/alerts/2/host",
+                "value": "WKS-40"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "missing",
+            "observation": "Comparable timezone-aware event times are unavailable. Event timestamp absent; submitted_at is not substituted",
+            "fields": [
+              {
+                "alert_id": "bn-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-18T09:00:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "bn-2",
+          "bn-3"
+        ],
+        "classification": "uncertain",
+        "rule": "R4",
+        "explanation": "Insufficient comparable entity evidence; absence is not disproof",
+        "time_delta_seconds": null,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "distinct",
+            "observation": "No shared value among the available host_name fields",
+            "fields": [
+              {
+                "alert_id": "bn-2",
+                "path": "/alerts/1/host",
+                "value": "SCANNER-01"
+              },
+              {
+                "alert_id": "bn-3",
+                "path": "/alerts/2/host",
+                "value": "WKS-40"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "missing",
+            "observation": "Comparable timezone-aware event times are unavailable. Unusable event timestamp at /alerts/1/raw_alert/timestamp; Event timestamp absent; submitted_at is not substituted",
+            "fields": [
+              {
+                "alert_id": "bn-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-18 09:30:00"
+              }
+            ]
+          },
+          {
+            "kind": "coverage",
+            "assessment": "missing",
+            "observation": "Fewer than two entity families are comparable",
+            "fields": []
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "bn-1",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "bn-2",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0003"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "bn-3",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0003"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      }
+    ],
+    "related_groups": [],
+    "noise_alert_ids": [],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
   }
 }

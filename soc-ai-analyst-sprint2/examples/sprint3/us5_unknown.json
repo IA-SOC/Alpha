@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S3-US5_UNKNOWN",
+  "submitted_at": "2026-10-19T20:00:00Z",
+  "description": "Synthetic lab case; no customer data.",
+  "alerts": [
+    {
+      "alert_id": "kerb",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "kerb"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "host": {
+          "name": "lab-web"
+        },
+        "user": {
+          "name": "lab-user"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "kerberoasting"
+        ]
+      }
+    },
+    {
+      "alert_id": "rclone",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "rclone",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "rclone_transfer"
+        ]
+      }
+    }
+  ]
+}

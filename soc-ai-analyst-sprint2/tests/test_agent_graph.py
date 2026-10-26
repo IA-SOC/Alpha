@@ -32,7 +32,7 @@ EXPECTED_TECHNIQUES = {
     "phishing_ecs": {"T1566"},
     "bruteforce_wazuh": {"T1110", "T1021"},
     "exfiltration": {"T1041"},
-    "pre_ransomware": {"T1021", "T1486"},
+    "pre_ransomware": {"T1021", "T1569.002", "T1490", "T1486"},
     "benign_noise": set(),
 }
 
@@ -171,3 +171,24 @@ def test_validador_rechaza_referencia_rota_y_el_grafo_no_pasa_a_revision(runs):
     result = run_skill_validator(state["case"], report)
     assert not result["ok"] and "not-an-alert" in result["output"]
     assert ruta_tras_validacion({"validation": result}) == END
+
+
+def _pointer(case, path):
+    value = case
+    for part in path.lstrip("/").split("/"):
+        part = part.replace("~1", "/").replace("~0", "~")
+        value = value[int(part)] if isinstance(value, list) else value[part]
+    return value
+
+
+@pytest.mark.parametrize("name", CASES)
+def test_evidencia_cita_campos_originales_en_ruta_directa(runs, name):
+    """#43: timeline, mapeo MITRE e hipótesis citan el campo crudo por JSON Pointer."""
+    case, report = load(name), runs[name][1].values["report"]
+    evidence = [*report["timeline"]]
+    evidence += [e for m in report["attack_mapping"] for e in m["evidence"]]
+    evidence += [e for h in report["hypotheses"] for e in h["evidence_for"] + h["evidence_against"]]
+    for item in evidence:
+        assert item["source_fields"]
+        for field in item["source_fields"]:
+            assert _pointer(case, field["path"]) == field["value"]

@@ -1,0 +1,9 @@
+........................................................................ [ 29%]
+........................................................................ [ 58%]
+.................................................x...................... [ 87%]
+........x..................x..                                           [100%]
+=========================== short test summary info ============================
+XFAIL tests/test_hypotheses.py::test_direct_agent_summary_asserts_no_sequence_across_unrelated_alerts - #38: the direct agent path chains techniques from unrelated alerts
+XFAIL tests/test_mitre_mapping.py::test_shadow_copy_deletion_maps_to_inhibit_system_recovery - #33: shadow-copy deletion is still mapped to T1486 with file encryption
+XFAIL tests/test_timeline_order.py::test_undated_and_zone_less_events_come_after_the_dated_sequence - #28: undated and zone-less events are sorted to the top of the timeline
+243 passed, 3 xfailed in 60.46s (0:01:00)

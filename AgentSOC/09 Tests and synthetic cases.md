@@ -1,7 +1,7 @@
 ---
 tags: [agentsoc, testing]
 aliases: [Tests, Test cases, Synthetic cases]
-updated: 2026-10-11
+updated: 2026-10-19
 ---
 
 # Tests and synthetic cases
@@ -12,13 +12,13 @@ updated: 2026-10-11
 
 | File | Scenario | Format | Alerts | Agent result |
 | --- | --- | --- | --- | --- |
-| `data/synthetic/phishing_ecs.json` | Phishing with credential theft; hostile text in the email subject; 3 IoC | ECS | 4 | T1566 · `media` |
+| `data/synthetic/phishing_ecs.json` | Phishing with credential theft; hostile text in the email subject; 3 IoC | ECS | 4 | T1566 · `baja` ×2 (the two phishing alerts are not correlated) |
 | `data/synthetic/bruteforce_wazuh.json` | SSH brute force, successful login, sudo; internal SSH that matches a backup | Wazuh | 8 | T1110 · `media`; T1021 · `insuficiente` |
-| `data/synthetic/exfiltration.json` | Compression and outbound transfer with DNS tunneling | Internal | 4 | T1041 · `media` |
-| `data/synthetic/pre_ransomware.json` | SMB, PsExec, shadow copy deletion, encryption | Internal | 5 | T1021 · `media`; T1486 · `media` |
+| `data/synthetic/exfiltration.json` | Compression and outbound transfer with DNS tunneling | Internal | 4 | T1041 · `media`; T1041 · `baja` |
+| `data/synthetic/pre_ransomware.json` | SMB, PsExec, shadow copy deletion, encryption | Internal | 5 | T1021 · `media`; T1486 · `media`; T1569.002 · `baja`; T1490 · `baja` |
 | `data/synthetic/benign_noise.json` | Update and authorized scan; broken times | Internal | 3 | No hypotheses |
-| `data/sample_case_bruteforce.json` | Original scaffold case | Internal | 4 | T1021 · `media`; T1110 · `baja` |
-| `data/holdout/kerberoast_rdp_rclone_ecs.json` | **Holdout:** Office macro, Kerberoasting, RDP, rclone to the cloud | ECS | 5 | **No hypotheses** |
+| `data/sample_case_bruteforce.json` | Original scaffold case | Internal | 4 | T1110 · `baja`; T1021 · `baja` ×2 |
+| `data/holdout/kerberoast_rdp_rclone_ecs.json` | **Holdout:** Office macro, Kerberoasting, RDP, rclone to the cloud | ECS | 5 | T1021 · `baja` |
 
 ### API cases (contract v1.0)
 
@@ -46,11 +46,11 @@ Count against reference techniques we wrote when designing each case. It is not 
 | Phishing | T1566, T1078, T1114.003 | T1566 |
 | Wazuh brute force | T1110, T1078, T1548.003, T1021 | T1110, T1021 |
 | Exfiltration | T1560, T1041 | T1041 |
-| Pre-ransomware | T1021, T1490, T1486 | T1021, T1486 |
+| Pre-ransomware | T1021, T1490, T1486 | T1021, T1569.002, T1490, T1486 |
 | Benign noise | none | none (correct) |
 | Scaffold | T1110, T1078, T1021 | T1110, T1021 |
-| **Holdout** | T1059.001, T1558.003, T1021.001, T1567.002 | **none** |
-| **Total** | **19** | **8** |
+| **Holdout** | T1059.001, T1558.003, T1021.001, T1567.002 | T1021 (parent of T1021.001) |
+| **Total** | **19** | **10** |
 
 ## The test suite
 

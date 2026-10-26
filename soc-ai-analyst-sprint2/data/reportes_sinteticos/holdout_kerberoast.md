@@ -8,13 +8,32 @@
 - Limitaciones de entrada: ninguna detectada
 
 ## Resumen
-Caso HOLDOUT-KRB-006: 5 alertas procesadas. Ninguna coincide con el catálogo de técnicas; no se sostiene una hipótesis de ataque con estos datos.
+Caso HOLDOUT-KRB-006: 5 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-ERP-02. Confianza baja. Ningún compromiso se da por confirmado hasta la revisión del analista.
 
 ## Hipótesis ordenadas
-_Sin hipótesis sostenidas por los datos._
+### 1. Actividad compatible con Remote Services (T1021, táctica Lateral Movement) en SRV-ERP-02. — confianza: baja
+- Base de confianza: Una única alerta sostiene la hipótesis.
+- Evidencia a favor: ho-003
+- Evidencia en contra: —
+- Alternativas plausibles: Tarea administrativa o de respaldo legítima entre servidores.
+- Información que falta: Falta confirmar si la sesión remota tenía un cambio aprobado.
+
+
+## Correlación de alertas
+- rel-0001: ho-001, ho-002 — uncertain (R2). Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient.
+- rel-0002: ho-001, ho-003 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0003: ho-001, ho-004 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0004: ho-001, ho-005 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0005: ho-002, ho-003 — uncertain (R2). Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient.
+- rel-0006: ho-002, ho-004 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0007: ho-002, ho-005 — unrelated (R3). No shared values across at least two comparable entity families; unrelated under this rule profile, not proof of benign activity.
+- rel-0008: ho-003, ho-004 — uncertain (R2). Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient.
+- rel-0009: ho-003, ho-005 — uncertain (R2). Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient.
+- rel-0010: ho-004, ho-005 — related (R1). At least two entity families match within the time window.
 ## Mapeo MITRE ATT&CK
 | Táctica | Técnica (ID y nombre) | Estado | Evidencia referenciada |
 |---|---|---|---|
+| Lateral Movement | T1021 Remote Services | candidate | ho-003 |
 
 ## Línea de tiempo
 | Hora original | Hora UTC / estado de zona | Evento observado o inferido | Alertas fuente |
@@ -30,19 +49,25 @@ _Sin hipótesis sostenidas por los datos._
 - Activos con impacto confirmado: ninguno
 - Sospechosos: —
 - Identidades afectadas (sospechosas): —
-- Desconocidos / brechas de telemetría: Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR).
+- Desconocidos / brechas de telemetría: Ningún activo se marca como confirmado: requiere validación del analista o telemetría adicional (EDR).; Actividad ambigua en SRV-ERP-02 (alertas ho-003): hipótesis de confianza baja o insuficiente.
 
 ## IoC enriquecidos provistos
 Estado: no_disponible. El caso no trae enriquecimiento de IoC; no se hicieron consultas externas.
 
 ## Acciones recomendadas
-_Sin acciones propuestas._
+1. [medium] Aislar los hosts involucrados de la red — Derivada de la hipótesis 1 (confianza baja). Evidencia: ho-003. Requiere aprobación humana.
+2. [medium] Revisar reglas de segmentación entre los hosts afectados — Derivada de la hipótesis 1 (confianza baja). Evidencia: ho-003. Requiere aprobación humana.
 
 ## Limitaciones
 - Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.
 - Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.
 - El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.
 - Caso sintético: la confianza se limita a 'media' como máximo.
+- Related means shared observed entities, not a confirmed attack or causation.
+- Noise is relative to this case and rule profile; alerts are never discarded.
+- Groups are connected components, not proof that every pair is related.
+- Unknown custom fields are retained but require verified mappings to correlate.
+- Names are compared exactly; tenant/domain scoping requires customer validation.
 
 ## Revisión humana
 - Estado: pending

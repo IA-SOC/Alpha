@@ -2,11 +2,18 @@ name: tests
 
 on:
   push:
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   pytest:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: soc-ai-analyst-sprint2
     strategy:
       matrix:
         python-version: ["3.12", "3.14"]
@@ -16,4 +23,5 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -r requirements-dev.txt
+      - run: python -m ruff check app tests demo/run_pipeline.py demo/verify_local.py --exclude tests/test_agent_graph.py
       - run: python -m pytest tests -q

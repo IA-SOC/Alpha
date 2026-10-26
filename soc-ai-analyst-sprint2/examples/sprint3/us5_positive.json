@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S3-US5_POSITIVE",
+  "submitted_at": "2026-10-19T20:00:00Z",
+  "description": "Synthetic lab case; no customer data.",
+  "alerts": [
+    {
+      "alert_id": "positive-0",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "positive-0"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "host": {
+          "name": "lab-web"
+        },
+        "user": {
+          "name": "lab-user"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "brute_force"
+        ]
+      }
+    },
+    {
+      "alert_id": "positive-1",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "positive-1"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "host": {
+          "name": "lab-web"
+        },
+        "user": {
+          "name": "lab-user"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "smb_admin_share"
+        ]
+      }
+    },
+    {
+      "alert_id": "positive-2",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "positive-2"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "host": {
+          "name": "lab-web"
+        },
+        "user": {
+          "name": "lab-user"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "phishing"
+        ]
+      }
+    },
+    {
+      "alert_id": "positive-3",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "positive-3"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "host": {
+          "name": "lab-web"
+        },
+        "user": {
+          "name": "lab-user"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "data_exfiltration"
+        ]
+      }
+    },
+    {
+      "alert_id": "positive-4",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "positive-4"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "host": {
+          "name": "lab-web"
+        },
+        "user": {
+          "name": "lab-user"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "file_encryption"
+        ]
+      }
+    }
+  ]
+}

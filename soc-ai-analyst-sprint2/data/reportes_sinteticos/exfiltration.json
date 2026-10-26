@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-EXFIL-003",
-  "generated_at": "2026-09-30T03:08:59.195706Z",
+  "generated_at": "2026-10-20T01:53:31.649900Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -21,7 +21,7 @@
       "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
     ]
   },
-  "executive_summary": "Caso SYN-EXFIL-003: 4 alertas procesadas. Secuencia de ataque sugerida: Exfiltration Over C2 Channel (T1041, táctica: Exfiltration). Hipótesis principal: Actividad compatible con Exfiltration Over C2 Channel (T1041, táctica Exfiltration) en FS-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
+  "executive_summary": "Caso SYN-EXFIL-003: 4 alertas procesadas. Técnicas candidatas evaluadas por grupos de alertas; la correlación no demuestra causalidad ni una secuencia de ataque. Hipótesis principal: Actividad compatible con Exfiltration Over C2 Channel (T1041, táctica Exfiltration) en FS-01. Confianza media. Ningún compromiso se da por confirmado hasta la revisión del analista.",
   "attack_mapping": [
     {
       "tactic": "Exfiltration",
@@ -39,7 +39,37 @@
             "user"
           ],
           "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
-          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel."
+          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel.",
+          "source_fields": [
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/rule_name",
+              "value": "large_outbound_transfer"
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/tags",
+              "value": [
+                "network",
+                "data_exfiltration"
+              ]
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/host",
+              "value": "FS-01"
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/user",
+              "value": "backup_ops"
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-16T22:31:00Z"
+            }
+          ]
         },
         {
           "alert_id": "ex-3",
@@ -51,8 +81,51 @@
             "user"
           ],
           "observation": "dns_tunneling_suspected en FS-01 (usuario backup_ops)",
-          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel."
-        },
+          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel.",
+          "source_fields": [
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/rule_name",
+              "value": "dns_tunneling_suspected"
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/tags",
+              "value": [
+                "dns",
+                "dns_tunneling"
+              ]
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/host",
+              "value": "FS-01"
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/user",
+              "value": "backup_ops"
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-16T22:33:00Z"
+            }
+          ]
+        }
+      ],
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "ex-2",
+        "ex-3"
+      ]
+    },
+    {
+      "tactic": "Exfiltration",
+      "technique_id": "T1041",
+      "technique_name": "Exfiltration Over C2 Channel",
+      "status": "candidate",
+      "evidence": [
         {
           "alert_id": "ex-4",
           "role": "supporting",
@@ -63,17 +136,50 @@
             "user"
           ],
           "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
-          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel."
+          "relevance": "Señal que coincide con el patrón de Exfiltration Over C2 Channel.",
+          "source_fields": [
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/rule_name",
+              "value": "large_outbound_transfer"
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/tags",
+              "value": [
+                "network",
+                "data_exfiltration"
+              ]
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/host",
+              "value": "FS-01"
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/user",
+              "value": "backup_ops"
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/timestamp",
+              "value": "2026-09-16T22:50:00Z"
+            }
+          ]
         }
       ],
-      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+      "source_version": "catálogo local core/logic.RULES (sin versión ATT&CK fijada)",
+      "correlation_group_alert_ids": [
+        "ex-4"
+      ]
     }
   ],
   "hypotheses": [
     {
       "statement": "Actividad compatible con Exfiltration Over C2 Channel (T1041, táctica Exfiltration) en FS-01.",
       "confidence": "media",
-      "confidence_basis": "3 alertas con 2 reglas distintas coinciden. Se ajusta a la baja: el caso es sintético.",
+      "confidence_basis": "2 alertas coherentes, sin corroboración de otra fuente.",
       "evidence_for": [
         {
           "alert_id": "ex-2",
@@ -85,7 +191,37 @@
             "user"
           ],
           "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/rule_name",
+              "value": "large_outbound_transfer"
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/tags",
+              "value": [
+                "network",
+                "data_exfiltration"
+              ]
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/host",
+              "value": "FS-01"
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/user",
+              "value": "backup_ops"
+            },
+            {
+              "alert_id": "ex-2",
+              "path": "/alerts/1/timestamp",
+              "value": "2026-09-16T22:31:00Z"
+            }
+          ]
         },
         {
           "alert_id": "ex-3",
@@ -97,8 +233,58 @@
             "user"
           ],
           "observation": "dns_tunneling_suspected en FS-01 (usuario backup_ops)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
-        },
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/rule_name",
+              "value": "dns_tunneling_suspected"
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/tags",
+              "value": [
+                "dns",
+                "dns_tunneling"
+              ]
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/host",
+              "value": "FS-01"
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/user",
+              "value": "backup_ops"
+            },
+            {
+              "alert_id": "ex-3",
+              "path": "/alerts/2/timestamp",
+              "value": "2026-09-16T22:33:00Z"
+            }
+          ]
+        }
+      ],
+      "evidence_against": [],
+      "alternatives": [
+        "Replicación o respaldo externo autorizado."
+      ],
+      "unknowns": [
+        "Se desconoce el contenido y el volumen exacto transferido."
+      ],
+      "rank": 1,
+      "correlation_group_alert_ids": [
+        "ex-2",
+        "ex-3"
+      ],
+      "ioc_evidence": []
+    },
+    {
+      "statement": "Actividad compatible con Exfiltration Over C2 Channel (T1041, táctica Exfiltration) en FS-01.",
+      "confidence": "baja",
+      "confidence_basis": "Una única alerta sostiene la hipótesis.",
+      "evidence_for": [
         {
           "alert_id": "ex-4",
           "role": "supporting",
@@ -109,7 +295,37 @@
             "user"
           ],
           "observation": "large_outbound_transfer en FS-01 (usuario backup_ops)",
-          "relevance": "Alerta que coincide con el patrón de la técnica."
+          "relevance": "Alerta que coincide con el patrón de la técnica.",
+          "source_fields": [
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/rule_name",
+              "value": "large_outbound_transfer"
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/tags",
+              "value": [
+                "network",
+                "data_exfiltration"
+              ]
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/host",
+              "value": "FS-01"
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/user",
+              "value": "backup_ops"
+            },
+            {
+              "alert_id": "ex-4",
+              "path": "/alerts/3/timestamp",
+              "value": "2026-09-16T22:50:00Z"
+            }
+          ]
         }
       ],
       "evidence_against": [],
@@ -119,7 +335,11 @@
       "unknowns": [
         "Se desconoce el contenido y el volumen exacto transferido."
       ],
-      "rank": 1
+      "rank": 2,
+      "correlation_group_alert_ids": [
+        "ex-4"
+      ],
+      "ioc_evidence": []
     }
   ],
   "timeline": [
@@ -132,7 +352,36 @@
       "alert_ids": [
         "ex-1"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ex-1",
+          "path": "/alerts/0/rule_name",
+          "value": "archive_of_sensitive_share"
+        },
+        {
+          "alert_id": "ex-1",
+          "path": "/alerts/0/tags",
+          "value": [
+            "collection"
+          ]
+        },
+        {
+          "alert_id": "ex-1",
+          "path": "/alerts/0/host",
+          "value": "FS-01"
+        },
+        {
+          "alert_id": "ex-1",
+          "path": "/alerts/0/user",
+          "value": "backup_ops"
+        },
+        {
+          "alert_id": "ex-1",
+          "path": "/alerts/0/timestamp",
+          "value": "2026-09-16T22:10:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-16T22:31:00Z",
@@ -143,7 +392,37 @@
       "alert_ids": [
         "ex-2"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ex-2",
+          "path": "/alerts/1/rule_name",
+          "value": "large_outbound_transfer"
+        },
+        {
+          "alert_id": "ex-2",
+          "path": "/alerts/1/tags",
+          "value": [
+            "network",
+            "data_exfiltration"
+          ]
+        },
+        {
+          "alert_id": "ex-2",
+          "path": "/alerts/1/host",
+          "value": "FS-01"
+        },
+        {
+          "alert_id": "ex-2",
+          "path": "/alerts/1/user",
+          "value": "backup_ops"
+        },
+        {
+          "alert_id": "ex-2",
+          "path": "/alerts/1/timestamp",
+          "value": "2026-09-16T22:31:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-16T22:33:00Z",
@@ -154,7 +433,37 @@
       "alert_ids": [
         "ex-3"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ex-3",
+          "path": "/alerts/2/rule_name",
+          "value": "dns_tunneling_suspected"
+        },
+        {
+          "alert_id": "ex-3",
+          "path": "/alerts/2/tags",
+          "value": [
+            "dns",
+            "dns_tunneling"
+          ]
+        },
+        {
+          "alert_id": "ex-3",
+          "path": "/alerts/2/host",
+          "value": "FS-01"
+        },
+        {
+          "alert_id": "ex-3",
+          "path": "/alerts/2/user",
+          "value": "backup_ops"
+        },
+        {
+          "alert_id": "ex-3",
+          "path": "/alerts/2/timestamp",
+          "value": "2026-09-16T22:33:00Z"
+        }
+      ]
     },
     {
       "timestamp_original": "2026-09-16T22:50:00Z",
@@ -165,7 +474,37 @@
       "alert_ids": [
         "ex-4"
       ],
-      "certainty": "observed"
+      "certainty": "observed",
+      "source_fields": [
+        {
+          "alert_id": "ex-4",
+          "path": "/alerts/3/rule_name",
+          "value": "large_outbound_transfer"
+        },
+        {
+          "alert_id": "ex-4",
+          "path": "/alerts/3/tags",
+          "value": [
+            "network",
+            "data_exfiltration"
+          ]
+        },
+        {
+          "alert_id": "ex-4",
+          "path": "/alerts/3/host",
+          "value": "FS-01"
+        },
+        {
+          "alert_id": "ex-4",
+          "path": "/alerts/3/user",
+          "value": "backup_ops"
+        },
+        {
+          "alert_id": "ex-4",
+          "path": "/alerts/3/timestamp",
+          "value": "2026-09-16T22:50:00Z"
+        }
+      ]
     }
   ],
   "blast_radius": {
@@ -187,8 +526,7 @@
         "asset": "FS-01",
         "basis_alert_ids": [
           "ex-2",
-          "ex-3",
-          "ex-4"
+          "ex-3"
         ]
       }
     ],
@@ -198,8 +536,7 @@
         "identity": "backup_ops",
         "basis_alert_ids": [
           "ex-2",
-          "ex-3",
-          "ex-4"
+          "ex-3"
         ]
       }
     ],
@@ -219,8 +556,7 @@
       "rationale": "Derivada de la hipótesis 1 (confianza media).",
       "evidence_ids": [
         "ex-2",
-        "ex-3",
-        "ex-4"
+        "ex-3"
       ],
       "requires_human_approval": true
     },
@@ -230,8 +566,7 @@
       "rationale": "Derivada de la hipótesis 1 (confianza media).",
       "evidence_ids": [
         "ex-2",
-        "ex-3",
-        "ex-4"
+        "ex-3"
       ],
       "requires_human_approval": true
     }
@@ -241,34 +576,39 @@
     "Los IDs ATT&CK provienen del catálogo local core/logic.RULES (sin versión ATT&CK fijada); se reportan como candidatos.",
     "El validador de la skill comprueba estructura y referencias, no la veracidad de las inferencias.",
     "Caso sintético: la confianza se limita a 'media' como máximo.",
-    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo)."
+    "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo).",
+    "Related means shared observed entities, not a confirmed attack or causation.",
+    "Noise is relative to this case and rule profile; alerts are never discarded.",
+    "Groups are connected components, not proof that every pair is related.",
+    "Unknown custom fields are retained but require verified mappings to correlate.",
+    "Names are compared exactly; tenant/domain scoping requires customer validation."
   ],
   "audit_trail": [
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-09-30T03:08:53.055557Z",
+      "finished_at": "2026-10-20T01:53:28.034005Z",
       "duration_ms": 0,
       "detail": "4 alertas, formato unknown"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-09-30T03:08:57.182719Z",
-      "duration_ms": 4126,
-      "detail": "1 técnicas candidatas, 1 hipótesis"
+      "finished_at": "2026-10-20T01:53:30.497681Z",
+      "duration_ms": 2463,
+      "detail": "1 técnicas candidatas, 2 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-09-30T03:08:59.194290Z",
-      "duration_ms": 2011,
+      "finished_at": "2026-10-20T01:53:31.647948Z",
+      "duration_ms": 1149,
       "detail": "4 eventos, 1 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-09-30T03:08:59.195106Z",
+      "finished_at": "2026-10-20T01:53:31.649074Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }
@@ -278,5 +618,563 @@
     "analyst": null,
     "notes": null,
     "reviewed_at": null
+  },
+  "correlation": {
+    "algorithm": "entity-time-v1",
+    "window_seconds": 300,
+    "relationships": [
+      {
+        "relationship_id": "rel-0001",
+        "alert_ids": [
+          "ex-1",
+          "ex-2"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1260.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: FS-01",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/host",
+                "value": "FS-01"
+              },
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/host",
+                "value": "FS-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.2.5",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/source_ip",
+                "value": "10.0.2.5"
+              },
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/source_ip",
+                "value": "10.0.2.5"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: backup_ops",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/user",
+                "value": "backup_ops"
+              },
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/user",
+                "value": "backup_ops"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1260 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-16T22:10:00Z"
+              },
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-16T22:31:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0002",
+        "alert_ids": [
+          "ex-1",
+          "ex-3"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1380.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: FS-01",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/host",
+                "value": "FS-01"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/host",
+                "value": "FS-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.2.5",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/source_ip",
+                "value": "10.0.2.5"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/source_ip",
+                "value": "10.0.2.5"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: backup_ops",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/user",
+                "value": "backup_ops"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/user",
+                "value": "backup_ops"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1380 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-16T22:10:00Z"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-16T22:33:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0003",
+        "alert_ids": [
+          "ex-1",
+          "ex-4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 2400.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: FS-01",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/host",
+                "value": "FS-01"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/host",
+                "value": "FS-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.2.5",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/source_ip",
+                "value": "10.0.2.5"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/source_ip",
+                "value": "10.0.2.5"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: backup_ops",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/user",
+                "value": "backup_ops"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/user",
+                "value": "backup_ops"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 2400 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ex-1",
+                "path": "/alerts/0/timestamp",
+                "value": "2026-09-16T22:10:00Z"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-16T22:50:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0004",
+        "alert_ids": [
+          "ex-2",
+          "ex-3"
+        ],
+        "classification": "related",
+        "rule": "R1",
+        "explanation": "At least two entity families match within the time window",
+        "time_delta_seconds": 120.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: FS-01",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/host",
+                "value": "FS-01"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/host",
+                "value": "FS-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.2.5",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/source_ip",
+                "value": "10.0.2.5"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/source_ip",
+                "value": "10.0.2.5"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: backup_ops",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/user",
+                "value": "backup_ops"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/user",
+                "value": "backup_ops"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 120 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-16T22:31:00Z"
+              },
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-16T22:33:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0005",
+        "alert_ids": [
+          "ex-2",
+          "ex-4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1140.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: FS-01",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/host",
+                "value": "FS-01"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/host",
+                "value": "FS-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.2.5, 192.0.2.140",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/source_ip",
+                "value": "10.0.2.5"
+              },
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/dest_ip",
+                "value": "192.0.2.140"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/source_ip",
+                "value": "10.0.2.5"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/dest_ip",
+                "value": "192.0.2.140"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: backup_ops",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/user",
+                "value": "backup_ops"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/user",
+                "value": "backup_ops"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1140 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ex-2",
+                "path": "/alerts/1/timestamp",
+                "value": "2026-09-16T22:31:00Z"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-16T22:50:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "relationship_id": "rel-0006",
+        "alert_ids": [
+          "ex-3",
+          "ex-4"
+        ],
+        "classification": "uncertain",
+        "rule": "R2",
+        "explanation": "Shared attributes exist, but independent corroboration or reliable temporal proximity is insufficient",
+        "time_delta_seconds": 1020.0,
+        "evidence": [
+          {
+            "kind": "host_name",
+            "assessment": "shared",
+            "observation": "Shared host_name: FS-01",
+            "fields": [
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/host",
+                "value": "FS-01"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/host",
+                "value": "FS-01"
+              }
+            ]
+          },
+          {
+            "kind": "ip",
+            "assessment": "shared",
+            "observation": "Shared ip: 10.0.2.5",
+            "fields": [
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/source_ip",
+                "value": "10.0.2.5"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/source_ip",
+                "value": "10.0.2.5"
+              }
+            ]
+          },
+          {
+            "kind": "user_name",
+            "assessment": "shared",
+            "observation": "Shared user_name: backup_ops",
+            "fields": [
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/user",
+                "value": "backup_ops"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/user",
+                "value": "backup_ops"
+              }
+            ]
+          },
+          {
+            "kind": "time",
+            "assessment": "temporal",
+            "observation": "Events are 1020 seconds apart; window 300s",
+            "fields": [
+              {
+                "alert_id": "ex-3",
+                "path": "/alerts/2/timestamp",
+                "value": "2026-09-16T22:33:00Z"
+              },
+              {
+                "alert_id": "ex-4",
+                "path": "/alerts/3/timestamp",
+                "value": "2026-09-16T22:50:00Z"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "alerts": [
+      {
+        "alert_id": "ex-1",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0002",
+          "rel-0003"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      },
+      {
+        "alert_id": "ex-2",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0001",
+          "rel-0004",
+          "rel-0005"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "ex-3",
+        "classification": "related",
+        "relationship_ids": [
+          "rel-0002",
+          "rel-0004",
+          "rel-0006"
+        ],
+        "explanation": "At least one related pair exists"
+      },
+      {
+        "alert_id": "ex-4",
+        "classification": "uncertain",
+        "relationship_ids": [
+          "rel-0003",
+          "rel-0005",
+          "rel-0006"
+        ],
+        "explanation": "No related pair; evidence remains uncertain"
+      }
+    ],
+    "related_groups": [
+      [
+        "ex-2",
+        "ex-3"
+      ]
+    ],
+    "noise_alert_ids": [],
+    "limitations": [
+      "Related means shared observed entities, not a confirmed attack or causation.",
+      "Noise is relative to this case and rule profile; alerts are never discarded.",
+      "Groups are connected components, not proof that every pair is related.",
+      "Unknown custom fields are retained but require verified mappings to correlate.",
+      "Names are compared exactly; tenant/domain scoping requires customer validation."
+    ]
   }
 }

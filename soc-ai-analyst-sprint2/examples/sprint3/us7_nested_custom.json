@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S3-US7_NESTED_CUSTOM",
+  "submitted_at": "2026-10-19T20:00:00Z",
+  "description": "Synthetic lab case; no customer data.",
+  "alerts": [
+    {
+      "alert_id": "nested-a",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "nested-a"
+        },
+        "_index": "synthetic-lab",
+        "alert_id": "custom-value-not-the-canonical-id",
+        "_source": {
+          "event": {
+            "id": "nested-a"
+          },
+          "source": {
+            "ip": "192.0.2.10"
+          },
+          "host": {
+            "name": "lab-web",
+            "ip": [
+              "192.0.2.10",
+              "not-an-ip"
+            ]
+          },
+          "user": {
+            "name": "lab-user"
+          },
+          "@timestamp": "2026-10-09T12:00:00Z",
+          "tags": [
+            "brute_force"
+          ],
+          "customer/field~": [
+            null,
+            {
+              "ticket": "LAB-42",
+              "enabled": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "alert_id": "nested-b",
+      "source_system": "wazuh",
+      "raw_alert": {
+        "id": "nested-b",
+        "agent": {
+          "name": "lab-web"
+        },
+        "data": {
+          "srcip": "192.0.2.10",
+          "dstuser": "lab-user"
+        },
+        "rule": {
+          "level": 5
+        },
+        "timestamp": "2026-10-09T12:00:00Z",
+        "tags": [
+          "failed_login"
+        ]
+      }
+    }
+  ]
+}

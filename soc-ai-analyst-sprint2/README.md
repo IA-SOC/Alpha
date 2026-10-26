@@ -61,7 +61,7 @@ submitted external ID.
 | `GET /api/v1/cases/{case_id}` | Original accepted input |
 | `GET /api/v1/cases/{case_id}/context` | Correlation and IoC evidence; no agent subprocess |
 | `POST /api/v1/cases/{case_id}/investigate` | Run the existing agent and save its result |
-| `GET /api/v1/cases/{case_id}/investigation` | Last saved investigation, including after restart |
+| `GET /api/v1/cases/{case_id}/investigation` | Last saved investigation, including its timeline, ATT&CK metadata/evidence, hypotheses and IoC context after restart |
 | `POST /api/v1/cases/{case_id}/review` | Resume the live human-review checkpoint |
 
 ```bash
@@ -83,6 +83,11 @@ Use `curl.exe` on Windows if PowerShell maps `curl` to another command.
 Review also accepts `corrected` and `rejected`. As in the supplied agent,
 `corrected` records status and notes; it does not rewrite individual findings.
 No case closure or response action is executed.
+
+Investigation failures do not remove an accepted case; the submitted input
+remains available and the investigation can be retried. Before saving a report,
+the backend checks alert references and evidence pointers against the original
+accepted case.
 
 ## Documentation
 
