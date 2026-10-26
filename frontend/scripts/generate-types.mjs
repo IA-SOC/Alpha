@@ -52,12 +52,17 @@ function withoutFieldTitles(schema, isRoot = true) {
   return Object.fromEntries(
     Object.entries(schema)
       .filter(([key]) => isRoot || key !== 'title')
-      .map(([key, value]) => [key, key === '$defs' ? keepDefinitionTitles(value) : withoutFieldTitles(value, false)]),
+      .map(([key, value]) => {
+        // Keys of these maps are field or model names, so a field called `title` must survive.
+        if (key === '$defs') return [key, mapValues(value, (definition) => withoutFieldTitles(definition))]
+        if (key === 'properties') return [key, mapValues(value, (field) => withoutFieldTitles(field, false))]
+        return [key, withoutFieldTitles(value, false)]
+      }),
   )
 }
 
-function keepDefinitionTitles(definitions) {
-  return Object.fromEntries(Object.entries(definitions).map(([name, value]) => [name, withoutFieldTitles(value)]))
+function mapValues(object, fn) {
+  return Object.fromEntries(Object.entries(object).map(([name, value]) => [name, fn(value)]))
 }
 
 writeFileSync(

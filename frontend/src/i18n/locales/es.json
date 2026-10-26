@@ -45,7 +45,8 @@
       "title_other": "{{count}} problemas por corregir",
       "body": "No se guardó nada. Corrige esto y envía de nuevo.",
       "wholeCase": "caso completo",
-      "show": "Ver en el JSON"
+      "show": "Ver en el JSON",
+      "stale": "Cambiaste el caso después de esta comprobación. Envíalo de nuevo para volver a comprobarlo."
     },
     "duplicate": {
       "title": "Este caso ya se envió",
@@ -56,7 +57,12 @@
       "body": "Comprueba que el backend está arrancado en el puerto 8000 y vuelve a intentarlo."
     },
     "failed": {
-      "title": "El backend respondió {{status}}"
+      "title": "El backend respondió {{status}}",
+      "noDetail": "No envió detalles. El log del terminal del backend debería decir más."
+    },
+    "unexpected": {
+      "title": "Algo falló al leer la respuesta",
+      "body": "El navegador no pudo leer lo que llegó: {{message}}"
     }
   },
   "entry": {

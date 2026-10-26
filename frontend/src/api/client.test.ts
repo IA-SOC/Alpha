@@ -21,18 +21,28 @@ describe('api client', () => {
     const accepted = { case_id: 'b0b5f3a8-0000-4000-8000-000000000001', submitted_case_id: 'X-1', status: 'accepted' }
     const fetch = respond(201, accepted)
 
-    await expect(createApi(fetch).submitCase(sampleCase)).resolves.toEqual(accepted)
+    await expect(createApi(fetch).submitCase(JSON.stringify(sampleCase))).resolves.toEqual(accepted)
 
     const request = fetch.mock.calls[0][0] as Request
     expect(request.method).toBe('POST')
     expect(new URL(request.url).pathname).toBe('/api/v1/cases')
+    expect(request.headers.get('Content-Type')).toBe('application/json')
     expect(await request.json()).toEqual(sampleCase)
+  })
+
+  it('sends the text exactly as written, so big integers keep every digit', async () => {
+    const fetch = respond(201, {})
+    const text = '{"alerts": [{"raw_alert": {"id": 1234567890123456789}}]}'
+
+    await createApi(fetch).submitCase(text)
+
+    expect(await (fetch.mock.calls[0][0] as Request).text()).toBe(text)
   })
 
   it('turns a 422 into an ApiError with every validation issue', async () => {
     const issues = [{ rule: 'VR-01', loc: ['body', 'schema_version'], msg: 'Field required', type: 'missing' }]
 
-    const error = await rejection(createApi(respond(422, { detail: issues })).submitCase({}))
+    const error = await rejection(createApi(respond(422, { detail: issues })).submitCase('{}'))
 
     expect(error).toBeInstanceOf(ApiError)
     expect(error.status).toBe(422)
@@ -55,6 +65,34 @@ describe('api client', () => {
     const error = await rejection(createApi(offline).getInvestigation('abc'))
 
     expect(error.status).toBe(0)
+  })
+
+  it('reports status 0 when the dev proxy answers 502 with no body', async () => {
+    const proxy = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 502 }))
+
+    const error = await rejection(createApi(proxy).submitCase('{}'))
+
+    expect(error.status).toBe(0)
+  })
+
+  it('keeps the backend 502 when it explains itself', async () => {
+    const detail = 'Investigation failed; accepted evidence is retained'
+
+    const error = await rejection(createApi(respond(502, { detail })).investigate('abc'))
+
+    expect(error.status).toBe(502)
+    expect(error.detail).toBe(detail)
+  })
+
+  it('does not call a 200 that is not JSON a network failure', async () => {
+    const html = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response('<!doctype html>', { status: 200, headers: { 'Content-Type': 'application/json' } }),
+    )
+
+    const error = await createApi(html).getInvestigation('abc').catch((caught: unknown) => caught)
+
+    expect(error).not.toBeInstanceOf(ApiError)
+    expect(error).toBeInstanceOf(SyntaxError)
   })
 
   it('reads an investigation by the application UUID', async () => {

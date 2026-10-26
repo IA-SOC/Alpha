@@ -45,7 +45,8 @@
       "title_other": "{{count}} problems to fix",
       "body": "Nothing was stored. Fix these and submit again.",
       "wholeCase": "whole case",
-      "show": "Show in JSON"
+      "show": "Show in JSON",
+      "stale": "You changed the case after this check. Submit again to recheck it."
     },
     "duplicate": {
       "title": "This case was already submitted",
@@ -56,7 +57,12 @@
       "body": "Check that the backend is running on port 8000, then try again."
     },
     "failed": {
-      "title": "The backend answered {{status}}"
+      "title": "The backend answered {{status}}",
+      "noDetail": "It sent no details. The backend terminal log should say more."
+    },
+    "unexpected": {
+      "title": "Something went wrong reading the answer",
+      "body": "The browser could not read what came back: {{message}}"
     }
   },
   "entry": {

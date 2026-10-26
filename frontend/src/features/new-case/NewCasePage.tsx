@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { type DragEvent, useEffect, useRef, useState } from 'react'
+import { type ButtonHTMLAttributes, type DragEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { api, ApiError } from '../../api/client'
@@ -17,7 +17,11 @@ export function NewCasePage() {
   const [problem, setProblem] = useState<LocalProblem>()
   const editor = useRef<HTMLTextAreaElement>(null)
   const resultHeading = useRef<HTMLHeadingElement>(null)
-  const submit = useMutation<AcceptedCase, Error, unknown>({ mutationFn: (body) => api.submitCase(body) })
+  const submit = useMutation<AcceptedCase, Error, string>({ mutationFn: (json) => api.submitCase(json) })
+  const summary = useMemo(() => summarize(text), [text])
+  // A 422 list stays while the analyst fixes it, flagged as older than the text. Any other
+  // result is dropped on the first edit, since it no longer describes what is in the editor.
+  const stale = submit.variables !== undefined && submit.variables !== text
 
   useEffect(() => {
     if (submit.isSuccess || submit.isError) resultHeading.current?.focus()
@@ -31,7 +35,7 @@ export function NewCasePage() {
       return
     }
     setProblem(undefined)
-    submit.mutate(parsed.value)
+    submit.mutate(text)
   }
 
   async function load(file: File) {
@@ -57,8 +61,6 @@ export function NewCasePage() {
     const lineHeight = parseFloat(getComputedStyle(area).lineHeight) || 20
     area.scrollTop = Math.max(0, (range.line - 3) * lineHeight)
   }
-
-  const summary = summarize(text)
 
   return (
     <div>
@@ -95,6 +97,7 @@ export function NewCasePage() {
               setText(event.target.value)
               setFileName(undefined)
               setProblem(undefined)
+              if (!isFixList(submit.error)) submit.reset()
             }}
             onDragOver={(event) => event.preventDefault()}
             onDrop={onDrop}
@@ -129,12 +132,27 @@ export function NewCasePage() {
           <Result
             headingRef={resultHeading}
             state={submit}
+            stale={stale}
             onRetry={onSubmit}
             onShow={showInEditor}
           />
         </section>
       </div>
     </div>
+  )
+}
+
+function isFixList(error: Error | null) {
+  return error instanceof ApiError && error.status === 422 && error.issues.length > 0
+}
+
+function TextButton({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type="button"
+      className={`text-sm font-medium underline decoration-aligo-rojo decoration-2 underline-offset-4 hover:decoration-aligo-blanco ${className}`}
+      {...props}
+    />
   )
 }
 
@@ -148,12 +166,13 @@ function summarize(text: string) {
 
 interface ResultProps {
   headingRef: React.RefObject<HTMLHeadingElement | null>
-  state: { isIdle: boolean; isPending: boolean; data?: AcceptedCase; error: Error | null }
+  state: { isPending: boolean; data?: AcceptedCase; error: Error | null }
+  stale: boolean
   onRetry: () => void
   onShow: (path: (string | number)[]) => void
 }
 
-function Result({ headingRef, state, onRetry, onShow }: ResultProps) {
+function Result({ headingRef, state, stale, onRetry, onShow }: ResultProps) {
   const { t } = useTranslation()
   const heading = (text: string) => (
     <h2 ref={headingRef} tabIndex={-1} className="text-base">
@@ -173,12 +192,23 @@ function Result({ headingRef, state, onRetry, onShow }: ResultProps) {
   }
 
   if (state.error) {
-    const error = state.error instanceof ApiError ? state.error : new ApiError(0, 'network')
-    if (error.status === 422 && error.issues.length) {
+    if (!(state.error instanceof ApiError)) {
+      return (
+        <div className="border-l-4 border-state-error pl-4">
+          {heading(t('newCase.unexpected.title'))}
+          <p className="mt-1 text-sm text-muted">{t('newCase.unexpected.body', { message: state.error.message })}</p>
+          <TextButton onClick={onRetry} className="mt-3">
+            {t('newCase.retry')}
+          </TextButton>
+        </div>
+      )
+    }
+    const error = state.error
+    if (isFixList(error)) {
       return (
         <div className="border-l-4 border-state-error pl-4">
           {heading(t('newCase.invalid.title', { count: error.issues.length }))}
-          <p className="mt-1 text-sm text-muted">{t('newCase.invalid.body')}</p>
+          <p className="mt-1 text-sm text-muted">{stale ? t('newCase.invalid.stale') : t('newCase.invalid.body')}</p>
           <ul className="mt-4 divide-y divide-control">
             {error.issues.map((issue, index) => {
               const path = fieldPath(issue.loc)
@@ -189,13 +219,9 @@ function Result({ headingRef, state, onRetry, onShow }: ResultProps) {
                     <code className="font-mono text-[13px] break-all">{formatPath(path) || t('newCase.invalid.wholeCase')}</code>
                   </div>
                   <p className="mt-1 text-sm">{issue.msg}</p>
-                  <button
-                    type="button"
-                    onClick={() => onShow(path)}
-                    className="mt-1 text-sm font-medium underline decoration-aligo-rojo decoration-2 underline-offset-4 hover:decoration-aligo-blanco"
-                  >
+                  <TextButton onClick={() => onShow(path)} className="mt-1">
                     {t('newCase.invalid.show')}
-                  </button>
+                  </TextButton>
                 </li>
               )
             })}
@@ -214,10 +240,16 @@ function Result({ headingRef, state, onRetry, onShow }: ResultProps) {
     return (
       <div className="border-l-4 border-state-error pl-4">
         {heading(error.status === 0 ? t('newCase.offline.title') : t('newCase.failed.title', { status: error.status }))}
-        <p className="mt-1 text-sm text-muted">{error.status === 0 ? t('newCase.offline.body') : String(error.detail)}</p>
-        <button type="button" onClick={onRetry} className="mt-3 text-sm font-medium underline decoration-aligo-rojo decoration-2 underline-offset-4 hover:decoration-aligo-blanco">
+        <p className="mt-1 text-sm text-muted">
+          {error.status === 0
+            ? t('newCase.offline.body')
+            : typeof error.detail === 'string' && error.detail
+              ? error.detail
+              : t('newCase.failed.noDetail')}
+        </p>
+        <TextButton onClick={onRetry} className="mt-3">
           {t('newCase.retry')}
-        </button>
+        </TextButton>
       </div>
     )
   }
@@ -264,13 +296,9 @@ function CopyValue({ value }: { value: string }) {
     <div className="mt-1 flex items-center gap-3">
       <code className="min-w-0 font-mono text-[13px] break-all">{value}</code>
       {navigator.clipboard && (
-        <button
-          type="button"
-          onClick={() => void navigator.clipboard.writeText(value).then(() => setCopied(true))}
-          className="flex-none text-sm font-medium underline decoration-aligo-rojo decoration-2 underline-offset-4 hover:decoration-aligo-blanco"
-        >
+        <TextButton onClick={() => void navigator.clipboard.writeText(value).then(() => setCopied(true))} className="flex-none">
           {copied ? t('newCase.accepted.copied') : t('newCase.accepted.copy')}
-        </button>
+        </TextButton>
       )}
     </div>
   )

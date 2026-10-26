@@ -88,5 +88,5 @@ The script runs Python inside `../soc-ai-analyst-sprint2/.venv`, so set up the b
 ## Troubleshooting
 
 - **Port 5173 or 8000 is busy.** Stop the other process or start Vite with `npm run dev -- --port 5174`. For another backend port, see `SOC_API_URL` above.
-- **The UI says it can't reach the server.** The backend terminal is probably stopped. Start it again with the uvicorn command.
+- **The UI says it can't reach the backend.** The backend terminal is probably stopped. Start it again with the uvicorn command and press Try again.
 - **`npm ci` fails on Node version.** Install Node 22.22 or newer, then run it again.

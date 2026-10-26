@@ -125,4 +125,35 @@ describe('New case', () => {
     expect(screen.getByLabelText<HTMLTextAreaElement>('Case JSON').value).toBe(JSON.stringify(sampleCase))
     expect(screen.getByText('Loaded case.json')).toBeInTheDocument()
   })
+
+  it('clears an accepted result as soon as the text changes', async () => {
+    backendAnswers(201, accepted)
+    const user = await pasteAndSubmit(JSON.stringify(sampleCase))
+    await screen.findByRole('heading', { name: 'Case accepted' })
+
+    await user.type(screen.getByLabelText('Case JSON'), ' ')
+
+    expect(screen.queryByRole('heading', { name: 'Case accepted' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'What the backend checks' })).toBeInTheDocument()
+  })
+
+  it('keeps the 422 list while fixing, marked as older than the text', async () => {
+    backendAnswers(422, { detail: [{ rule: 'VR-05', loc: ['body', 'submitted_at'], msg: 'Field required', type: 'missing' }] })
+    const user = await pasteAndSubmit('{"case_id": "X-1"}')
+    await screen.findByRole('heading', { name: '1 problem to fix' })
+
+    await user.type(screen.getByLabelText('Case JSON'), ' ')
+
+    expect(screen.getByRole('heading', { name: '1 problem to fix' })).toBeInTheDocument()
+    expect(screen.getByText('You changed the case after this check. Submit again to recheck it.')).toBeInTheDocument()
+  })
+
+  it('still explains a 422 that lists no issues', async () => {
+    backendAnswers(422, { detail: [] })
+
+    await pasteAndSubmit(JSON.stringify(sampleCase))
+
+    expect(await screen.findByRole('heading', { name: 'The backend answered 422' })).toBeInTheDocument()
+    expect(screen.getByText('It sent no details. The backend terminal log should say more.')).toBeInTheDocument()
+  })
 })
