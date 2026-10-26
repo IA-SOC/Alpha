@@ -121,7 +121,9 @@
       "summary": "Resumen",
       "mitre": "MITRE ATT&CK",
       "review": "Revisión",
-      "evidence": "Evidencia"
+      "evidence": "Evidencia",
+      "timeline": "Cronología",
+      "assets": "Activos afectados"
     },
     "facts": {
       "sources": "Fuentes",
@@ -276,6 +278,69 @@
       "noResult": "El proveedor no envió ningún resultado.",
       "result": "Lo que devolvió el proveedor",
       "full": "Ver el resultado completo"
+    },
+    "stage": {
+      "initial_access": "Acceso inicial",
+      "progression": "Progresión",
+      "impact": "Impacto"
+    },
+    "certainty": {
+      "observed": "Observado",
+      "inferred": "Inferido",
+      "unknown": "Certeza desconocida"
+    },
+    "timeline": {
+      "title_one": "{{count}} evento en orden",
+      "title_other": "{{count}} eventos en orden",
+      "intro": "Horas en UTC. El orden dice cuándo ocurrió cada alerta, no que una causara la siguiente.",
+      "none": "No hay eventos con hora fuera de las alertas no relacionadas.",
+      "noiseTitle_one": "{{count}} evento no relacionado",
+      "noiseTitle_other": "{{count}} eventos no relacionados",
+      "noiseIntro": "De alertas que la correlación no relacionó con el resto del caso. Se conservan aquí, no se descartan.",
+      "noNoise": "Todas las alertas se relacionan con el resto del caso.",
+      "undatedTitle_one": "{{count}} evento sin hora utilizable",
+      "undatedTitle_other": "{{count}} eventos sin hora utilizable",
+      "undatedIntro": "No se pueden colocar en el orden, así que van aparte.",
+      "noUndated": "Todos los eventos tienen una hora utilizable.",
+      "noTime": "Sin hora utilizable",
+      "asSent": "Enviada como {{value}}",
+      "timezoneUnknown": "Zona horaria desconocida",
+      "uncertainLink": "Relación incierta"
+    },
+    "correlationPanel": {
+      "title": "Cómo se relacionan las alertas",
+      "intro": "Las alertas se relacionan cuando comparten entidades en menos de {{seconds}} segundos. Relacionadas no prueba un ataque.",
+      "groups_one": "{{count}} grupo relacionado",
+      "groups_other": "{{count}} grupos relacionados",
+      "noGroups": "Ninguna alerta se relacionó con otra.",
+      "group": "Grupo {{number}}",
+      "uncertain_one": "{{count}} alerta incierta",
+      "uncertain_other": "{{count}} alertas inciertas",
+      "unrelated_one": "{{count}} alerta no relacionada",
+      "unrelated_other": "{{count}} alertas no relacionadas",
+      "noneOfKind": "Ninguna.",
+      "pairs_one": "Ver el {{count}} par comparado",
+      "pairs_other": "Ver los {{count}} pares comparados",
+      "apart": "Separadas {{seconds}} s."
+    },
+    "assets": {
+      "observed_one": "{{count}} activo observado",
+      "observed_other": "{{count}} activos observados",
+      "observedIntro": "Hosts que aparecen en las alertas, con lo que se vio en cada uno.",
+      "asset": "Activo",
+      "activity": "Actividad observada",
+      "basis": "De las alertas",
+      "suspectedAssets_one": "{{count}} activo sospechoso",
+      "suspectedAssets_other": "{{count}} activos sospechosos",
+      "confirmedAssets_one": "{{count}} activo confirmado",
+      "confirmedAssets_other": "{{count}} activos confirmados",
+      "suspectedIdentities_one": "{{count}} identidad sospechosa",
+      "suspectedIdentities_other": "{{count}} identidades sospechosas",
+      "confirmedIdentities_one": "{{count}} identidad confirmada",
+      "confirmedIdentities_other": "{{count}} identidades confirmadas",
+      "none": "Ninguno.",
+      "unknowns": "Lo que aún no se sabe del alcance",
+      "noUnknowns": "Nada indicado."
     }
   }
 }

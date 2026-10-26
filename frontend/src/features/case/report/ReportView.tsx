@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router'
 
 import type { Investigation, Report } from '../../../api/types'
 import { type Tab, Tabs } from '../../../ui/Tabs'
+import { AssetsTab } from './AssetsTab'
 import { EvidenceTab } from './EvidenceTab'
 import { timeWindow } from './extras'
 import { formatUtc, formatUtcRange } from './format'
@@ -11,6 +12,7 @@ import { MitreTab } from './MitreTab'
 import { ReviewTab } from './ReviewTab'
 import { type SubmittedCaseState, SubmittedCaseContext } from './submittedCase'
 import { SummaryTab } from './SummaryTab'
+import { TimelineTab } from './TimelineTab'
 
 export function ReportView({ investigation, caseState }: { investigation: Investigation; caseState: SubmittedCaseState }) {
   const { t } = useTranslation()
@@ -19,8 +21,10 @@ export function ReportView({ investigation, caseState }: { investigation: Invest
 
   const tabs: Tab[] = [
     { id: 'summary', label: t('report.tabs.summary'), content: <SummaryTab report={report} /> },
+    { id: 'timeline', label: t('report.tabs.timeline'), content: <TimelineTab investigation={investigation} /> },
     { id: 'evidence', label: t('report.tabs.evidence'), content: <EvidenceTab investigation={investigation} /> },
     { id: 'mitre', label: t('report.tabs.mitre'), content: <MitreTab report={report} /> },
+    { id: 'assets', label: t('report.tabs.assets'), content: <AssetsTab report={report} /> },
     { id: 'review', label: t('report.tabs.review'), content: <ReviewTab report={report} /> },
   ]
 

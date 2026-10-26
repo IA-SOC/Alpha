@@ -82,7 +82,7 @@ describe('Case report', () => {
     const { router } = openReport()
     await user.click(await screen.findByRole('tab', { name: 'Summary' }))
 
-    await user.keyboard('{End}{ArrowLeft}')
+    await user.keyboard('{Home}{ArrowRight}{ArrowRight}{ArrowRight}')
 
     expect(screen.getByRole('tab', { name: 'MITRE ATT&CK' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('tab', { name: 'MITRE ATT&CK' })).toHaveFocus()

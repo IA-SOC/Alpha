@@ -121,7 +121,9 @@
       "summary": "Summary",
       "mitre": "MITRE ATT&CK",
       "review": "Review",
-      "evidence": "Evidence"
+      "evidence": "Evidence",
+      "timeline": "Timeline",
+      "assets": "Affected assets"
     },
     "facts": {
       "sources": "Sources",
@@ -276,6 +278,69 @@
       "noResult": "The provider sent no result.",
       "result": "What the provider returned",
       "full": "Show the full result"
+    },
+    "stage": {
+      "initial_access": "Initial access",
+      "progression": "Progression",
+      "impact": "Impact"
+    },
+    "certainty": {
+      "observed": "Observed",
+      "inferred": "Inferred",
+      "unknown": "Certainty unknown"
+    },
+    "timeline": {
+      "title_one": "{{count}} event in order",
+      "title_other": "{{count}} events in order",
+      "intro": "Times in UTC. Order shows when alerts happened, not that one caused the next.",
+      "none": "No dated events outside the unrelated alerts.",
+      "noiseTitle_one": "{{count}} unrelated event",
+      "noiseTitle_other": "{{count}} unrelated events",
+      "noiseIntro": "From alerts the correlation found unrelated to the rest of the case. Kept here, not discarded.",
+      "noNoise": "Every alert relates to the rest of the case.",
+      "undatedTitle_one": "{{count}} event without a usable time",
+      "undatedTitle_other": "{{count}} events without a usable time",
+      "undatedIntro": "These can't be placed in the order, so they are kept apart.",
+      "noUndated": "Every event has a usable time.",
+      "noTime": "No usable time",
+      "asSent": "Sent as {{value}}",
+      "timezoneUnknown": "Time zone unknown",
+      "uncertainLink": "Uncertain link"
+    },
+    "correlationPanel": {
+      "title": "How the alerts relate",
+      "intro": "Alerts are related when they share entities within {{seconds}} seconds. Related is not proof of an attack.",
+      "groups_one": "{{count}} related group",
+      "groups_other": "{{count}} related groups",
+      "noGroups": "No alerts were related to each other.",
+      "group": "Group {{number}}",
+      "uncertain_one": "{{count}} uncertain alert",
+      "uncertain_other": "{{count}} uncertain alerts",
+      "unrelated_one": "{{count}} unrelated alert",
+      "unrelated_other": "{{count}} unrelated alerts",
+      "noneOfKind": "None.",
+      "pairs_one": "Show the {{count}} compared pair",
+      "pairs_other": "Show the {{count}} compared pairs",
+      "apart": "{{seconds}} s apart."
+    },
+    "assets": {
+      "observed_one": "{{count}} observed asset",
+      "observed_other": "{{count}} observed assets",
+      "observedIntro": "Hosts that appear in the alerts, with what was seen on each.",
+      "asset": "Asset",
+      "activity": "Observed activity",
+      "basis": "From alerts",
+      "suspectedAssets_one": "{{count}} suspected asset",
+      "suspectedAssets_other": "{{count}} suspected assets",
+      "confirmedAssets_one": "{{count}} confirmed asset",
+      "confirmedAssets_other": "{{count}} confirmed assets",
+      "suspectedIdentities_one": "{{count}} suspected identity",
+      "suspectedIdentities_other": "{{count}} suspected identities",
+      "confirmedIdentities_one": "{{count}} confirmed identity",
+      "confirmedIdentities_other": "{{count}} confirmed identities",
+      "none": "None.",
+      "unknowns": "What the scope still doesn't know",
+      "noUnknowns": "None listed."
     }
   }
 }
