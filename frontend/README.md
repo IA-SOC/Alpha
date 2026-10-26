@@ -56,6 +56,8 @@ Open http://localhost:5173. Requests to `/api` go to the backend on port 8000. I
 
 ### 3. Try it
 
+The first screen asks for your name. That's a fake login for the Alpha: no password, and the name only lives in your browser so it can go on your reviews. `src/session/session.ts` is the one place a real login plugs in later.
+
 Paste or upload `soc-ai-analyst-sprint2/examples/sprint2_demo.json` on the New Case page. Each case ID can only be accepted once, so change `case_id` in the JSON to submit it again.
 
 ## Checks

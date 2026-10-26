@@ -58,5 +58,17 @@
     "failed": {
       "title": "El backend respondió {{status}}"
     }
+  },
+  "entry": {
+    "title": "¿Quién investiga?",
+    "body": "Tu nombre aparece en cada revisión que registres. Esta Alpha aún no tiene contraseñas, así que el nombre solo se guarda en este navegador.",
+    "nameLabel": "Tu nombre",
+    "help": "Usa el nombre con el que te conoce tu equipo.",
+    "missing": "Escribe tu nombre para continuar.",
+    "submit": "Continuar"
+  },
+  "session": {
+    "signedInAs": "Sesión iniciada como",
+    "signOut": "Cerrar sesión"
   }
 }

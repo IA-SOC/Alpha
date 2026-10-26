@@ -58,5 +58,17 @@
     "failed": {
       "title": "The backend answered {{status}}"
     }
+  },
+  "entry": {
+    "title": "Who is investigating?",
+    "body": "Your name goes on every review you record. This Alpha has no passwords yet, so the name stays in this browser only.",
+    "nameLabel": "Your name",
+    "help": "Use the name your team knows you by.",
+    "missing": "Enter your name to continue.",
+    "submit": "Continue"
+  },
+  "session": {
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out"
   }
 }
