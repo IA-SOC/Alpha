@@ -8,12 +8,55 @@
     "en": "English",
     "es": "Español"
   },
-  "home": {
-    "title": "Investiga un caso de seguridad",
-    "intro": "Envía un caso de Elastic o Wazuh, deja que el agente lo investigue y revisa lo que encontró."
-  },
   "notFound": {
     "title": "Página no encontrada",
     "back": "Volver al inicio"
+  },
+  "newCase": {
+    "title": "Nuevo caso",
+    "subtitle": "Un caso de Elastic o Wazuh en el formato Incident Case Input v1.0. El backend comprueba cada regla antes de aceptarlo.",
+    "editorLabel": "JSON del caso",
+    "upload": "Subir archivo JSON",
+    "placeholder": "Pega aquí el caso o suelta un archivo .json",
+    "empty": "Primero pega o sube un caso.",
+    "syntax": "No es un JSON válido. Revisa la línea {{line}}, columna {{column}}.",
+    "loadedFile": "Cargado {{name}}",
+    "summary_one": "Caso {{caseId}} con {{count}} alerta",
+    "summary_other": "Caso {{caseId}} con {{count}} alertas",
+    "submit": "Enviar caso",
+    "submitting": "Enviando",
+    "retry": "Reintentar",
+    "contract": {
+      "title": "Qué comprueba el backend",
+      "checking": "Comprobando el caso",
+      "alerts": "Entre {{min}} y {{max}} alertas por caso, cada una de {{sources}}. Los campos desconocidos dentro de raw_alert se guardan tal cual.",
+      "caseFields": "Obligatorio en el caso",
+      "alertFields": "Obligatorio en cada alerta"
+    },
+    "accepted": {
+      "title": "Caso aceptado",
+      "body": "El caso {{id}} está guardado y listo para investigar.",
+      "uuid": "ID de la aplicación",
+      "copy": "Copiar",
+      "copied": "Copiado"
+    },
+    "invalid": {
+      "title_one": "{{count}} problema por corregir",
+      "title_other": "{{count}} problemas por corregir",
+      "body": "No se guardó nada. Corrige esto y envía de nuevo.",
+      "wholeCase": "caso completo",
+      "show": "Ver en el JSON"
+    },
+    "duplicate": {
+      "title": "Este caso ya se envió",
+      "body": "Su case_id ya fue aceptado. Ponle un case_id nuevo para enviarlo otra vez."
+    },
+    "offline": {
+      "title": "No se puede conectar con el backend",
+      "body": "Comprueba que el backend está arrancado en el puerto 8000 y vuelve a intentarlo."
+    },
+    "failed": {
+      "title": "El backend respondió {{status}}"
+    }
   }
 }

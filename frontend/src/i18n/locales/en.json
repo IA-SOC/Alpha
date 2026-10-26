@@ -8,12 +8,55 @@
     "en": "English",
     "es": "Español"
   },
-  "home": {
-    "title": "Investigate a security case",
-    "intro": "Submit an Elastic or Wazuh case, let the agent investigate it and review what it found."
-  },
   "notFound": {
     "title": "Page not found",
     "back": "Back to start"
+  },
+  "newCase": {
+    "title": "New case",
+    "subtitle": "An Elastic or Wazuh case in the Incident Case Input v1.0 format. The backend checks every rule before it accepts it.",
+    "editorLabel": "Case JSON",
+    "upload": "Upload JSON file",
+    "placeholder": "Paste the case here or drop a .json file",
+    "empty": "Paste or upload a case first.",
+    "syntax": "This is not valid JSON. Check line {{line}}, column {{column}}.",
+    "loadedFile": "Loaded {{name}}",
+    "summary_one": "Case {{caseId}} with {{count}} alert",
+    "summary_other": "Case {{caseId}} with {{count}} alerts",
+    "submit": "Submit case",
+    "submitting": "Submitting",
+    "retry": "Try again",
+    "contract": {
+      "title": "What the backend checks",
+      "checking": "Checking the case",
+      "alerts": "Between {{min}} and {{max}} alerts per case, each from {{sources}}. Unknown fields inside raw_alert are kept as they are.",
+      "caseFields": "Required in the case",
+      "alertFields": "Required in every alert"
+    },
+    "accepted": {
+      "title": "Case accepted",
+      "body": "Case {{id}} is stored and ready to investigate.",
+      "uuid": "Application ID",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "invalid": {
+      "title_one": "{{count}} problem to fix",
+      "title_other": "{{count}} problems to fix",
+      "body": "Nothing was stored. Fix these and submit again.",
+      "wholeCase": "whole case",
+      "show": "Show in JSON"
+    },
+    "duplicate": {
+      "title": "This case was already submitted",
+      "body": "Its case_id has been accepted before. Give it a new case_id to submit it again."
+    },
+    "offline": {
+      "title": "Can't reach the backend",
+      "body": "Check that the backend is running on port 8000, then try again."
+    },
+    "failed": {
+      "title": "The backend answered {{status}}"
+    }
   }
 }

@@ -22,7 +22,16 @@
   --color-state-warn: #b9770e;
   --color-state-warn-bg: #fce9ce;
 
+  /* Screen roles mapped onto the brand. Surfaces step up in lightness, never with shadows. */
+  --color-ground: #000000;
+  --color-surface: #313535;
+  --color-rule: #313535;
+  --color-control: #4c5356;
+  --color-muted: #acadad;
+  --color-faint: #787979; /* 4.5:1 on the ground only, never on a surface */
+
   --font-sans: 'Poppins', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
 }
 
 @layer base {
