@@ -5,9 +5,11 @@ It accepts the unchanged Incident Case Input Specification v1.0, stores original
 cases, correlates alerts, associates supplied IoC intelligence and runs the
 existing investigation agent through report validation and human review.
 
-**18 of 19 Sprint 2 tasks are verified.** The N8N-specific input task remains
-IN PROGRESS because actual customer output samples were not supplied. No
-production N8N compatibility or live Elastic/Wazuh integration is claimed.
+The historical Sprint 2 record verified 18 of 19 tasks. For Sprint 4, Aligo has
+supplied SIEM samples and confirmed that their format is the reference for
+enrichment. The explicit [US3 Wazuh VT/MISP adapter](docs/sprint4/US3-SIEM-enrichment.md)
+maps selected records to input v1.0; it does not establish n8n provenance or live
+Elastic/Wazuh connectivity. See its separate verification record for current results.
 
 ## Install and run
 
