@@ -1,0 +1,19 @@
+{
+  "app": {
+    "name": "SOC AI Analyst",
+    "skipToContent": "Saltar al contenido"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "English",
+    "es": "Español"
+  },
+  "home": {
+    "title": "Investiga un caso de seguridad",
+    "intro": "Envía un caso de Elastic o Wazuh, deja que el agente lo investigue y revisa lo que encontró."
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "back": "Volver al inicio"
+  }
+}

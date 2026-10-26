@@ -1,0 +1,19 @@
+{
+  "app": {
+    "name": "SOC AI Analyst",
+    "skipToContent": "Skip to content"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "es": "Español"
+  },
+  "home": {
+    "title": "Investigate a security case",
+    "intro": "Submit an Elastic or Wazuh case, let the agent investigate it and review what it found."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to start"
+  }
+}
