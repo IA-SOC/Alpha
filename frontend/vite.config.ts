@@ -8,6 +8,14 @@ const apiTarget = process.env.SOC_API_URL ?? 'http://127.0.0.1:8000'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    rolldownOptions: {
+      output: {
+        // Libraries in their own file: it changes less often than the app, so the browser keeps it cached.
+        codeSplitting: { groups: [{ name: 'vendor', test: /node_modules/ }] },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': { target: apiTarget, changeOrigin: true },
@@ -17,5 +25,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // e2e/ holds the Playwright tests, run with npm run e2e.
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 })

@@ -23,5 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Playwright results
+test-results
+playwright-report
+
 # Working files of the design-taste skill
 .taste-skill

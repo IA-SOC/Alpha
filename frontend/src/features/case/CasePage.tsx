@@ -70,7 +70,13 @@ function CasePage({ caseId }: { caseId: string }) {
   if (latest?.status === 'pending') body = <RunProgress startedAt={latest.submittedAt} />
   else if (latest?.status === 'error' && latest.error) body = <RunFailed error={latest.error as Error} onRetry={() => run.mutate()} />
   else if (investigation.data)
-    body = <ReportView investigation={investigation.data} caseState={{ submitted: stored.data?.submitted_case, failed: stored.isError }} />
+    body = (
+      <ReportView
+        investigation={investigation.data}
+        caseState={{ submitted: stored.data?.submitted_case, failed: stored.isError }}
+        onRerun={() => run.mutate()}
+      />
+    )
   else if (investigation.isPending) body = <p className="text-sm text-muted">{t('case.loading')}</p>
   else if (isMissing(investigation.error)) body = <NotInvestigated onStart={() => run.mutate()} />
   else body = <LoadFailed error={investigation.error} onRetry={() => void investigation.refetch()} />
