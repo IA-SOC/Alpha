@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-PHISH-001",
-  "generated_at": "2026-10-20T01:53:35.229980Z",
+  "generated_at": "2026-10-27T00:43:55.804840Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -561,11 +561,17 @@
     {
       "priority": "low",
       "action": "Bloquear el vector de entrada identificado (IP, dominio o archivo)",
-      "rationale": "Derivada de la hipótesis 1 (confianza baja).",
+      "rationale": "Derivada de las hipótesis 1, 2 (confianza baja, baja).",
       "evidence_ids": [
-        "ecs-ph-001"
+        "ecs-ph-001",
+        "ecs-ph-002"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1,
+        2
+      ],
+      "approval_status": "pending"
     }
   ],
   "limitations": [
@@ -584,28 +590,28 @@
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-10-20T01:53:31.811613Z",
-      "duration_ms": 0,
+      "finished_at": "2026-10-27T00:43:48.931990Z",
+      "duration_ms": 1,
       "detail": "4 alertas, formato elastic_ecs"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-10-20T01:53:34.055581Z",
-      "duration_ms": 2243,
+      "finished_at": "2026-10-27T00:43:53.515666Z",
+      "duration_ms": 4582,
       "detail": "1 técnicas candidatas, 2 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-10-20T01:53:35.228207Z",
-      "duration_ms": 1172,
+      "finished_at": "2026-10-27T00:43:55.802499Z",
+      "duration_ms": 2286,
       "detail": "4 eventos, 3 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-10-20T01:53:35.229173Z",
+      "finished_at": "2026-10-27T00:43:55.803785Z",
       "duration_ms": 0,
       "detail": "estado provided, 3 IoC"
     }

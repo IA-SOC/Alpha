@@ -58,8 +58,8 @@ Caso SYN-EXFIL-003: 4 alertas procesadas. Técnicas candidatas evaluadas por gru
 Estado: no_disponible. El caso no trae enriquecimiento de IoC; no se hicieron consultas externas.
 
 ## Acciones recomendadas
-1. [urgent] Bloquear las conexiones salientes hacia los destinos identificados — Derivada de la hipótesis 1 (confianza media). Evidencia: ex-2, ex-3. Requiere aprobación humana.
-2. [urgent] Notificar al equipo de respuesta a incidentes de exfiltración — Derivada de la hipótesis 1 (confianza media). Evidencia: ex-2, ex-3. Requiere aprobación humana.
+1. [urgent] Bloquear las conexiones salientes hacia los destinos identificados — Derivada de las hipótesis 1, 2 (confianza media, baja). Hipótesis: 1, 2. Evidencia: ex-2, ex-3, ex-4. Pendiente de aprobación del analista.
+2. [urgent] Notificar al equipo de respuesta a incidentes de exfiltración — Derivada de las hipótesis 1, 2 (confianza media, baja). Hipótesis: 1, 2. Evidencia: ex-2, ex-3, ex-4. Pendiente de aprobación del analista.
 
 ## Limitaciones
 - Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.
