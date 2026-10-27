@@ -165,3 +165,34 @@ def test_rendered_text_stays_readable_and_cannot_start_new_blocks(report):
     assert "&#46;" not in rendered and "(T1110)." in rendered
     assert "\n- Approved" not in rendered and "\n---" not in rendered
     assert "Pending analyst approval" in rendered
+
+
+def test_brief_states_uncertainty_and_never_confirms(report):
+    brief = format_report(report)["non_technical"]["brief"]
+    assert len(brief) == 1
+    text = brief[0]["text"]
+    assert "not a probability" in text and "Nothing has been confirmed" in text
+    top = report["hypotheses"][0]
+    assert f"{len(top['evidence_for'])} supporting" in text
+
+
+def test_technical_findings_quote_each_hypothesis_with_its_evidence(report):
+    findings = format_report(report)["technical"]["findings"]
+    assert len(findings) == len(report["hypotheses"])
+    for finding, hypothesis in zip(findings, report["hypotheses"]):
+        assert hypothesis["statement"] in finding["text"]
+        for evidence in hypothesis["evidence_for"] + hypothesis["evidence_against"]:
+            assert evidence["alert_id"] in finding["text"]
+        for pointer in finding["report_paths"]:
+            assert _resolve_pointer(report, pointer)[0], pointer
+    report["audience_sections"] = format_report(report)
+    assert "### Findings by hypothesis" in render_audience_markdown(report)
+
+
+def test_no_hypotheses_brief_does_not_claim_safety(report):
+    report["hypotheses"] = []
+    sections = format_report(report)
+    assert "does not establish that the activity is safe" in (
+        sections["non_technical"]["brief"][0]["text"]
+    )
+    assert sections["technical"]["findings"] == []
