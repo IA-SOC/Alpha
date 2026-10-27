@@ -1,12 +1,16 @@
 """Reporte legible según skills/soc-case-investigator/templates/reporte.md."""
 from typing import Any, Dict, List
 
+from app.services.report_formatter import render_audience_markdown
+
 
 def _ids(ids: List[str]) -> str:
     return ", ".join(ids) if ids else "—"
 
 
 def render_markdown(report: Dict[str, Any]) -> str:
+    if "audience_sections" in report:
+        return render_audience_markdown(report)
     inp = report["input"]
     window = inp.get("time_window_utc") or {}
     blast = report["blast_radius"]

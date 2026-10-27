@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from jsonschema import Draft202012Validator, FormatChecker
 
 from app.main import create_app
+from app.services.report_formatter import format_report
 from app.services.traceability import verify_traceability
 from tests.test_correlation_engine import case_for, event
 from tests.test_ioc_integration import ioc
@@ -56,6 +57,10 @@ def test_full_api_pipeline_reaches_real_langgraph_and_mcp(real_run):
     assert result["report"]["review"]["status"] == "pending"
     assert result["report"]["input"]["source_format"] == "mixed"
     assert result["report"]["input"]["schema_version"] == "1.0"
+    assert result["report"]["audience_sections"] == format_report(result["report"])
+    assert result["report"]["audience_sections"]["language"] == "en"
+    assert "## Non-technical summary" in result["report_markdown"]
+    assert "## Technical findings" in result["report_markdown"]
     assert client.get(f"{URL}/{cid}").json()["submitted_case"] == payload.model_dump(
         exclude_unset=True
     )
@@ -138,6 +143,9 @@ def test_evidence_survives_restart_but_live_review_checkpoint_is_explicitly_temp
     _, _, path, cid, payload, result = real_run
     with TestClient(create_app(database_path=path)) as restarted:
         saved = restarted.get(f"{URL}/{cid}/investigation").json()
+        assert saved["report"]["audience_sections"] == (
+            result["report"]["audience_sections"]
+        )
         assert saved == result
         assert saved["report"]["timeline"] == result["report"]["timeline"]
         assert saved["report"]["attack_mapping"] == result["report"]["attack_mapping"]
@@ -247,6 +255,8 @@ def test_review_resumes_existing_graph_and_persists_decision(real_run):
     assert response.status_code == 200, response.text
     result = response.json()
     assert result["report"]["review"]["status"] == "corrected"
+    assert result["report"]["audience_sections"] == format_report(result["report"])
+    assert "Human review status: corrected" in result["report_markdown"]
     assert len(result["audit_log"]) == 6
     assert client.get(f"{URL}/{cid}/investigation").json() == result
     assert client.post(f"{URL}/{cid}/review", json=decision).status_code == 409
