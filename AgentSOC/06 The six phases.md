@@ -123,7 +123,8 @@ If the case has `synthetic: true`, it never goes above `media`.
    - priority by tactic: impact and exfiltration are `urgent`; lateral movement and credentials, `high`; initial access, `medium`;
    - drops one level if the hypothesis has low confidence;
    - insufficient-confidence hypotheses produce no actions;
-   - all carry `requires_human_approval: true`.
+   - all carry `requires_human_approval: true` and `approval_status: "pending"`; the agent never executes or approves an action;
+   - each lists its `hypothesis_ranks`; when several hypotheses propose the same action it appears once, with their ranks and evidence merged.
 4. Writes the limitations.
 5. Renders the Markdown draft with the skill template, now including IoC evidence per hypothesis and an "alert correlation" section.
 6. Runs `validate_report.py` as a separate process, **with a 60-second timeout** (new). **If it fails, the graph ends** and the case does not reach review.

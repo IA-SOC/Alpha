@@ -2,8 +2,8 @@
 from typing import Any, Dict, List
 
 
-def _ids(ids: List[str]) -> str:
-    return ", ".join(ids) if ids else "—"
+def _ids(ids: List[Any]) -> str:
+    return ", ".join(map(str, ids)) if ids else "—"
 
 
 def render_markdown(report: Dict[str, Any]) -> str:
@@ -81,8 +81,8 @@ def render_markdown(report: Dict[str, Any]) -> str:
                 f"{a['alert_id']} ({', '.join(a['methods'])})" for a in item["associations"]))
     lines += ["", "## Acciones recomendadas"]
     for i, a in enumerate(report["recommended_actions"], start=1):
-        lines.append(f"{i}. [{a['priority']}] {a['action']} — {a['rationale']} Evidencia: {_ids(a['evidence_ids'])}. "
-                     "Requiere aprobación humana.")
+        lines.append(f"{i}. [{a['priority']}] {a['action']} — {a['rationale']} Hipótesis: {_ids(a['hypothesis_ranks'])}. "
+                     f"Evidencia: {_ids(a['evidence_ids'])}. Pendiente de aprobación del analista.")
     if not report["recommended_actions"]:
         lines.append("_Sin acciones propuestas._")
     lines += ["", "## Limitaciones"] + [f"- {l}" for l in report["limitations"]]

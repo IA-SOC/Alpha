@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-RANSOM-004",
-  "generated_at": "2026-10-20T01:53:38.791383Z",
+  "generated_at": "2026-10-27T00:44:03.077830Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -938,22 +938,34 @@
     {
       "priority": "urgent",
       "action": "Aislar inmediatamente los hosts afectados",
-      "rationale": "Derivada de la hipótesis 2 (confianza media).",
+      "rationale": "Derivada de las hipótesis 2, 4 (confianza media, baja).",
       "evidence_ids": [
         "rw-4",
-        "rw-5"
+        "rw-5",
+        "rw-3"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        2,
+        4
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "urgent",
       "action": "Verificar integridad de backups antes de cualquier restauración",
-      "rationale": "Derivada de la hipótesis 2 (confianza media).",
+      "rationale": "Derivada de las hipótesis 2, 4 (confianza media, baja).",
       "evidence_ids": [
         "rw-4",
-        "rw-5"
+        "rw-5",
+        "rw-3"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        2,
+        4
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "high",
@@ -963,7 +975,11 @@
         "rw-1",
         "rw-2"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "high",
@@ -973,7 +989,11 @@
         "rw-1",
         "rw-2"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "medium",
@@ -982,7 +1002,11 @@
       "evidence_ids": [
         "rw-2"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        3
+      ],
+      "approval_status": "pending"
     }
   ],
   "limitations": [
@@ -1001,28 +1025,28 @@
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-10-20T01:53:35.379841Z",
+      "finished_at": "2026-10-27T00:43:56.064498Z",
       "duration_ms": 0,
       "detail": "5 alertas, formato unknown"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-10-20T01:53:37.661771Z",
-      "duration_ms": 2281,
+      "finished_at": "2026-10-27T00:44:00.697769Z",
+      "duration_ms": 4632,
       "detail": "4 técnicas candidatas, 4 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-10-20T01:53:38.788680Z",
-      "duration_ms": 1126,
+      "finished_at": "2026-10-27T00:44:03.074302Z",
+      "duration_ms": 2375,
       "detail": "5 eventos, 2 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-10-20T01:53:38.790024Z",
+      "finished_at": "2026-10-27T00:44:03.076052Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }

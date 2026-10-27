@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-EXFIL-003",
-  "generated_at": "2026-10-20T01:53:31.649900Z",
+  "generated_at": "2026-10-27T00:43:48.651400Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -553,22 +553,34 @@
     {
       "priority": "urgent",
       "action": "Bloquear las conexiones salientes hacia los destinos identificados",
-      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "rationale": "Derivada de las hipótesis 1, 2 (confianza media, baja).",
       "evidence_ids": [
         "ex-2",
-        "ex-3"
+        "ex-3",
+        "ex-4"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1,
+        2
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "urgent",
       "action": "Notificar al equipo de respuesta a incidentes de exfiltración",
-      "rationale": "Derivada de la hipótesis 1 (confianza media).",
+      "rationale": "Derivada de las hipótesis 1, 2 (confianza media, baja).",
       "evidence_ids": [
         "ex-2",
-        "ex-3"
+        "ex-3",
+        "ex-4"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1,
+        2
+      ],
+      "approval_status": "pending"
     }
   ],
   "limitations": [
@@ -587,28 +599,28 @@
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-10-20T01:53:28.034005Z",
+      "finished_at": "2026-10-27T00:43:41.334795Z",
       "duration_ms": 0,
       "detail": "4 alertas, formato unknown"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-10-20T01:53:30.497681Z",
-      "duration_ms": 2463,
+      "finished_at": "2026-10-27T00:43:46.262095Z",
+      "duration_ms": 4926,
       "detail": "1 técnicas candidatas, 2 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-10-20T01:53:31.647948Z",
-      "duration_ms": 1149,
+      "finished_at": "2026-10-27T00:43:48.645932Z",
+      "duration_ms": 2382,
       "detail": "4 eventos, 1 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-10-20T01:53:31.649074Z",
+      "finished_at": "2026-10-27T00:43:48.647801Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }

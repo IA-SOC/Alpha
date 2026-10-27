@@ -85,8 +85,8 @@ Estado: provided. Enriquecimiento tomado del caso tal como vino; no se hicieron 
 - 203.0.113.88 (ip, veredicto malicious, fuente feed-simulado-n8n) → alertas: 1726387331.1001, 1726387335.1002, 1726387340.1003, 1726387402.1004
 
 ## Acciones recomendadas
-1. [high] Forzar rotación de credenciales de las cuentas involucradas — Derivada de la hipótesis 1 (confianza media). Evidencia: 1726387331.1001, 1726387335.1002, 1726387340.1003. Requiere aprobación humana.
-2. [high] Habilitar/reforzar MFA en los hosts afectados — Derivada de la hipótesis 1 (confianza media). Evidencia: 1726387331.1001, 1726387335.1002, 1726387340.1003. Requiere aprobación humana.
+1. [high] Forzar rotación de credenciales de las cuentas involucradas — Derivada de la hipótesis 1 (confianza media). Hipótesis: 1. Evidencia: 1726387331.1001, 1726387335.1002, 1726387340.1003. Pendiente de aprobación del analista.
+2. [high] Habilitar/reforzar MFA en los hosts afectados — Derivada de la hipótesis 1 (confianza media). Hipótesis: 1. Evidencia: 1726387331.1001, 1726387335.1002, 1726387340.1003. Pendiente de aprobación del analista.
 
 ## Limitaciones
 - Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.

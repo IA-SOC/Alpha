@@ -1,6 +1,6 @@
 {
   "case_id": "SYN-BF-WAZUH-002",
-  "generated_at": "2026-10-20T01:53:27.866391Z",
+  "generated_at": "2026-10-27T00:43:41.051987Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -967,7 +967,11 @@
         "1726387335.1002",
         "1726387340.1003"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "high",
@@ -978,7 +982,11 @@
         "1726387335.1002",
         "1726387340.1003"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1
+      ],
+      "approval_status": "pending"
     }
   ],
   "limitations": [
@@ -996,28 +1004,28 @@
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-10-20T01:53:24.390556Z",
+      "finished_at": "2026-10-27T00:43:34.304121Z",
       "duration_ms": 1,
       "detail": "8 alertas, formato wazuh"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-10-20T01:53:26.665938Z",
-      "duration_ms": 2275,
+      "finished_at": "2026-10-27T00:43:38.743352Z",
+      "duration_ms": 4438,
       "detail": "2 técnicas candidatas, 2 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-10-20T01:53:27.863546Z",
-      "duration_ms": 1196,
+      "finished_at": "2026-10-27T00:43:41.048530Z",
+      "duration_ms": 2304,
       "detail": "8 eventos, 2 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-10-20T01:53:27.865088Z",
+      "finished_at": "2026-10-27T00:43:41.050509Z",
       "duration_ms": 0,
       "detail": "estado provided, 1 IoC"
     }

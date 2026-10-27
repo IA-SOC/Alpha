@@ -1,6 +1,6 @@
 {
   "case_id": "CASE-0001",
-  "generated_at": "2026-10-20T01:53:20.690958Z",
+  "generated_at": "2026-10-27T00:43:27.141319Z",
   "methodology": {
     "skill": "soc-case-investigator",
     "report_schema": "urn:soc-investigation-report:schema:1.1",
@@ -575,7 +575,11 @@
       "evidence_ids": [
         "a1"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "medium",
@@ -584,25 +588,41 @@
       "evidence_ids": [
         "a1"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        1
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "medium",
       "action": "Aislar los hosts involucrados de la red",
-      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "rationale": "Derivada de las hipótesis 2, 3 (confianza baja, baja).",
       "evidence_ids": [
-        "a3"
+        "a3",
+        "a4"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        2,
+        3
+      ],
+      "approval_status": "pending"
     },
     {
       "priority": "medium",
       "action": "Revisar reglas de segmentación entre los hosts afectados",
-      "rationale": "Derivada de la hipótesis 2 (confianza baja).",
+      "rationale": "Derivada de las hipótesis 2, 3 (confianza baja, baja).",
       "evidence_ids": [
-        "a3"
+        "a3",
+        "a4"
       ],
-      "requires_human_approval": true
+      "requires_human_approval": true,
+      "hypothesis_ranks": [
+        2,
+        3
+      ],
+      "approval_status": "pending"
     }
   ],
   "limitations": [
@@ -620,28 +640,28 @@
     {
       "phase": 1,
       "node": "recibir_validar",
-      "finished_at": "2026-10-20T01:53:17.285729Z",
+      "finished_at": "2026-10-27T00:43:20.200581Z",
       "duration_ms": 0,
       "detail": "4 alertas, formato unknown"
     },
     {
       "phase": 2,
       "node": "investigar_hipotesis",
-      "finished_at": "2026-10-20T01:53:19.550957Z",
-      "duration_ms": 2264,
+      "finished_at": "2026-10-27T00:43:24.919876Z",
+      "duration_ms": 4718,
       "detail": "2 técnicas candidatas, 3 hipótesis"
     },
     {
       "phase": 3,
       "node": "cronologia_alcance",
-      "finished_at": "2026-10-20T01:53:20.688952Z",
-      "duration_ms": 1137,
+      "finished_at": "2026-10-27T00:43:27.138503Z",
+      "duration_ms": 2216,
       "detail": "4 eventos, 2 activos observados"
     },
     {
       "phase": 4,
       "node": "consumir_ioc",
-      "finished_at": "2026-10-20T01:53:20.690100Z",
+      "finished_at": "2026-10-27T00:43:27.140028Z",
       "duration_ms": 0,
       "detail": "estado no_disponible, 0 IoC"
     }
