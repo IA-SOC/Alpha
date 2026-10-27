@@ -39,6 +39,10 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
     <SubmittedCaseContext value={caseState}>
       <div className="space-y-6">
         <Facts report={report} />
+        <a className="inline-block rounded-xl border border-control px-4 py-2 text-sm"
+           href={`/api/v1/cases/${encodeURIComponent(investigation.case_id)}/export`}>
+          {t('report.exportJson')}
+        </a>
         <Tabs
           label={t('report.tabs.label')}
           tabs={tabs}

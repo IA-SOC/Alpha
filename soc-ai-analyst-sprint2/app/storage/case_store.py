@@ -108,3 +108,19 @@ class CaseStore:
                 "SELECT result FROM investigations WHERE case_id = ?", (str(case_id),)
             ).fetchone()
         return json.loads(row[0]) if row else None
+
+    def save_review(self, case_id: UUID, run_id: str, result: dict) -> None:
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT result FROM investigations WHERE case_id = ?", (str(case_id),)
+            ).fetchone()
+            current = json.loads(row[0]) if row else None
+            if current is None or current["run_id"] != run_id:
+                raise LookupError("The investigation run has changed; reload")
+            if current["report"]["review"]["status"] != "pending":
+                raise LookupError("The investigation is not awaiting review")
+            connection.execute(
+                "UPDATE investigations SET result = ? WHERE case_id = ?",
+                (json.dumps(result, ensure_ascii=False, allow_nan=False), str(case_id)),
+            )

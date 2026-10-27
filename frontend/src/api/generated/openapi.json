@@ -44,7 +44,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -270,6 +270,47 @@
           }
         }
       }
+    },
+    "/api/v1/cases/{case_id}/export": {
+      "get": {
+        "tags": [
+          "investigations"
+        ],
+        "summary": "Export Investigation",
+        "operationId": "export_investigation_api_v1_cases__case_id__export_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -414,6 +455,38 @@
         ],
         "title": "ErrorResponse"
       },
+      "FindingDecision": {
+        "properties": {
+          "finding_key": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Finding Key"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "validated",
+              "corrected",
+              "rejected"
+            ],
+            "title": "Status"
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "finding_key",
+          "status",
+          "notes"
+        ],
+        "title": "FindingDecision"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -529,6 +602,24 @@
             "minLength": 1,
             "pattern": "\\S",
             "title": "Notes"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/FindingDecision"
+            },
+            "type": "array",
+            "title": "Findings"
           }
         },
         "additionalProperties": false,

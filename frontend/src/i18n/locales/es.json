@@ -256,7 +256,7 @@
       "notes": "Notas",
       "reviewedAt": "Revisado el",
       "intro": "Valida, corrige o rechaza cada hallazgo y explica por qué. El agente propone, tú decides.",
-      "oneReview": "Por ahora todas las decisiones se guardan juntas como una sola revisión del informe completo, escritas en sus notas.",
+      "oneReview": "Cada decisión se guarda por hallazgo y queda vinculada a esta investigación.",
       "problems_one": "Falta {{count}} dato para poder guardar la revisión.",
       "problems_other": "Faltan {{count}} datos para poder guardar la revisión.",
       "findings_one": "{{count}} hallazgo",
@@ -387,6 +387,7 @@
       "none": "Ninguno.",
       "unknowns": "Lo que aún no se sabe del alcance",
       "noUnknowns": "Nada indicado."
-    }
+    },
+    "exportJson": "Exportar JSON"
   }
 }

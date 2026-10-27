@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S4-missing-raw",
+  "submitted_at": "2026-09-29T20:30:00Z",
+  "alerts": [
+    {
+      "alert_id": "wazuh-event-001",
+      "source_system": "wazuh",
+      "source_version": "4.14"
+    }
+  ],
+  "title": "Custom decoder event review"
+}

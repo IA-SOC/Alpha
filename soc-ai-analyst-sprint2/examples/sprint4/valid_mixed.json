@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S4-mixed",
+  "submitted_at": "2026-09-29T20:30:00Z",
+  "alerts": [
+    {
+      "alert_id": "wazuh-event-001",
+      "source_system": "wazuh",
+      "source_version": "4.14",
+      "raw_alert": {
+        "id": "wazuh-event-001",
+        "timestamp": "2026-09-29T20:21:00Z",
+        "rule": {
+          "id": "100001",
+          "description": "Simulated authentication failure"
+        },
+        "decoder": {
+          "name": "example_custom_auth"
+        },
+        "data": {
+          "srcuser": "user-001",
+          "srcip": "192.0.2.10",
+          "example_control_action": "logged"
+        }
+      }
+    },
+    {
+      "alert_id": "elastic-event-001",
+      "source_system": "elastic",
+      "source_version": "8.19",
+      "ecs_version": "8.x",
+      "raw_alert": {
+        "@timestamp": "2026-09-29T20:20:00Z",
+        "event": {
+          "id": "elastic-event-001",
+          "category": [
+            "authentication"
+          ],
+          "action": "logon",
+          "outcome": "failure"
+        },
+        "user": {
+          "name": "user-001"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "customer_example": {
+          "rule_tag": "auth-review"
+        }
+      }
+    }
+  ],
+  "title": "Custom decoder event review"
+}

@@ -66,7 +66,7 @@ describe('Analyst review', () => {
       expect(within(card).getAllByRole('radio').map((radio) => radio.getAttribute('value'))).toEqual(['validated', 'corrected', 'rejected'])
       expect(within(card).getByRole('textbox', { name: 'Note' })).toBeInTheDocument()
     }
-    expect(screen.getByText(/saved together as one review of the whole report/)).toBeInTheDocument()
+    expect(screen.getByText(/Each finding decision is stored separately/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /close/i })).not.toBeInTheDocument()
   })
 
@@ -275,7 +275,7 @@ describe('Analyst review', () => {
     await user.type(screen.getByRole('textbox', { name: 'Note' }), 'Benign admin activity.')
     await user.click(screen.getByRole('button', { name: 'Save review' }))
     await vi.waitFor(async () =>
-      expect((await sentReviews(backend.fetch))[0]).toEqual({ status: 'rejected', analyst: 'Test Analyst', notes: 'General note: Benign admin activity.' }),
+      expect((await sentReviews(backend.fetch))[0]).toEqual({ status: 'rejected', analyst: 'Test Analyst', notes: 'General note: Benign admin activity.', findings: [], run_id: sampleInvestigation.run_id }),
     )
   })
 

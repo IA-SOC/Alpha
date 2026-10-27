@@ -1,0 +1,8 @@
+{
+  "valid_wazuh.json": 201,
+  "valid_elastic.json": 201,
+  "valid_mixed.json": 201,
+  "invalid_duplicate_alert.json": 422,
+  "invalid_missing_raw.json": 422,
+  "invalid_id_mismatch.json": 422
+}

@@ -1,10 +1,11 @@
 """Integrated pipeline endpoints, addressed by the generated application UUID."""
 
+import json
 import logging
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 from app.schemas.investigation import ReviewDecision
 from app.services.investigation_service import InvestigationService
@@ -72,3 +73,22 @@ async def review_case(case_id: UUID, decision: ReviewDecision, service: Service)
         return await service.review(case_id, decision)
     except LookupError as exc:
         raise HTTPException(409, str(exc)) from exc
+
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@router.get("/{case_id}/export")
+def export_investigation(case_id: UUID, service: Service):
+    result = service.store.get_investigation(case_id)
+    if result is None:
+        raise HTTPException(404, "No completed investigation found")
+    return Response(
+        content=json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2),
+        media_type="application/json",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="investigation-{case_id}.json"'
+            )
+        },
+    )

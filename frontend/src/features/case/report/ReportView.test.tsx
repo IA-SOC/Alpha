@@ -109,3 +109,10 @@ describe('Case report', () => {
     expect(screen.getByText(report.executive_summary)).toBeInTheDocument()
   })
 })
+
+
+it('offers the server JSON export for the current case', async () => {
+  openReport()
+  const link = await screen.findByRole('link', { name: 'Export JSON' })
+  expect(link).toHaveAttribute('href', `/api/v1/cases/${caseId}/export`)
+})
