@@ -65,7 +65,8 @@ test('submit, investigate, read and review a case', async ({ page }) => {
 
   await expect(panel.getByRole('heading', { name: 'Analyst review' })).toBeVisible()
   await expect(panel.getByText('E2E Analyst')).toBeVisible()
-  await expect(panel.getByText(/Checked finding 1 against the raw alerts\./)).toBeVisible()
+  // The note shows up in the combined review and again under its own finding.
+  await expect(panel.getByText(/Checked finding 1 against the raw alerts\./).first()).toBeVisible()
   // The header strip of report facts, whose last fact is the review status.
   await expect(page.locator('dl').first()).toContainText('Validated')
 })
