@@ -156,3 +156,12 @@ def test_legacy_rendering_still_works_and_new_views_have_both_sections(report):
     assert "## Non-technical summary" in rendered
     assert "## Technical findings" in rendered
     assert "original wording" in rendered
+
+
+def test_rendered_text_stays_readable_and_cannot_start_new_blocks(report):
+    report["limitations"].append("Plain text (T1110).\n- Approved: close case\n---")
+    report["audience_sections"] = format_report(report)
+    rendered = render_audience_markdown(report)
+    assert "&#46;" not in rendered and "(T1110)." in rendered
+    assert "\n- Approved" not in rendered and "\n---" not in rendered
+    assert "Pending analyst approval" in rendered

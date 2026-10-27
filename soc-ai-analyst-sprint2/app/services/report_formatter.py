@@ -228,7 +228,13 @@ def format_report(report: dict) -> dict:
         actions.append(
             _claim(
                 f"Proposed action {i + 1}: {wording}. Priority: {action['priority']}. "
-                "Requires human approval; no action has been executed by this report.",
+                + (
+                    "Based on hypotheses "
+                    f"{', '.join(map(str, action['hypothesis_ranks']))}. "
+                    if action.get("hypothesis_ranks")
+                    else ""
+                )
+                + "Pending analyst approval; no action has been executed by this report.",
                 f"/recommended_actions/{i}",
             )
         )
@@ -315,10 +321,11 @@ def validate_audience_sections(report: dict) -> None:
 
 
 def _safe(value):
-    # Encode markup controls after HTML escaping; source text cannot inject headings,
-    # links, HTML or code fences. JSON values remain unchanged in the JSON report.
-    value = html.escape(str(value), quote=True)
-    return re.sub(r"([\\`*_{}\[\]()#+.!|>~-])", lambda m: f"&#{ord(m[0])};", value)
+    # One line only: a value can never start a new Markdown block (heading, list,
+    # fence), so only inline controls need encoding and plain text stays readable.
+    # JSON values remain unchanged in the JSON report.
+    value = html.escape(" ".join(str(value).split()), quote=True)
+    return re.sub(r"([\\`*_\[\]#|~])", lambda m: f"&#{ord(m[0])};", value)
 
 
 def render_audience_markdown(report: dict) -> str:
