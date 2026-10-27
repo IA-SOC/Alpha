@@ -1,0 +1,45 @@
+/* US23: base de marca reutilizable. Alcance: .aligo-ui. */
+@font-face { font-family: AligoPoppins; src: url('../assets/fonts/Poppins-regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family: AligoPoppins; src: url('../assets/fonts/Poppins-bold.ttf') format('truetype'); font-weight:700; font-style:normal; font-display:swap; }
+@font-face { font-family: AligoPoppins; src: url('../assets/fonts/Poppins-italic.ttf') format('truetype'); font-weight:400; font-style:italic; font-display:swap; }
+@font-face { font-family: AligoPoppins; src: url('../assets/fonts/PoppinsMedium-regular.ttf') format('truetype'); font-weight:500; font-style:normal; font-display:swap; }
+@font-face { font-family: AligoPoppins; src: url('../assets/fonts/PoppinsMedium-italic.ttf') format('truetype'); font-weight:500; font-style:italic; font-display:swap; }
+.aligo-ui {
+ --aligo-black:#000000; --aligo-red:#E63340; --aligo-red-dark:#C80E28;
+ --aligo-red-medium:#E3032C; --aligo-red-light:#EC6670;
+ --aligo-gray:#4C5356; --aligo-gray-dark:#313535;
+ --aligo-gray-medium:#787979; --aligo-gray-light:#ACADAD; --aligo-white:#FFFFFF;
+ --aligo-bg:var(--aligo-black); --aligo-surface:var(--aligo-gray-dark);
+ --aligo-text:var(--aligo-white); --aligo-muted:var(--aligo-gray-light);
+ --aligo-border:var(--aligo-gray-medium); --aligo-link:var(--aligo-red-light);
+ --aligo-focus:var(--aligo-red-light);
+ color-scheme:dark; background:var(--aligo-bg); color:var(--aligo-text);
+ font-family:AligoPoppins,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+ font-size:16px; font-weight:400; line-height:calc(1em + 5pt);
+}
+.aligo-ui.aligo-light { --aligo-bg:#FFFFFF; --aligo-surface:#FFFFFF; --aligo-text:#000000; --aligo-muted:#4C5356; --aligo-border:#ACADAD; --aligo-link:#C80E28; --aligo-focus:#C80E28; color-scheme:light; }
+.aligo-ui *, .aligo-ui *::before, .aligo-ui *::after { box-sizing:border-box; }
+.aligo-ui :is(h1,h2,h3,p) { margin:0 0 1rem; line-height:calc(1em + 5pt); }
+.aligo-ui h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:700; letter-spacing:-.025em; }
+.aligo-ui h2 { font-size:1.5rem; font-weight:700; }
+.aligo-ui h3 { font-size:1.125rem; font-weight:700; }
+.aligo-ui .aligo-subtitle { font-style:italic; font-weight:500; }
+.aligo-ui .aligo-muted { color:var(--aligo-muted); }
+.aligo-ui a { color:var(--aligo-link); text-underline-offset:4px; }
+.aligo-ui :is(button,input,textarea,select) { font:inherit; line-height:calc(1em + 5pt); }
+.aligo-ui :is(a,button,input,textarea,select):focus-visible { outline:3px solid var(--aligo-focus); outline-offset:4px; }
+.aligo-ui .aligo-logo-space { display:inline-flex; padding:24px; }
+.aligo-ui .aligo-logo { display:block; height:auto; width:192px; max-width:100%; object-fit:contain; }
+/* Conservar proporción y margen. Verificar área de reserva al integrarlo. */
+.aligo-ui .aligo-card { background:var(--aligo-surface); border:1px solid var(--aligo-border); padding:24px; border-radius:12px; }
+.aligo-ui .aligo-button { display:inline-flex; justify-content:center; align-items:center; padding:12px 20px; min-height:48px; border:2px solid var(--aligo-red-dark); border-radius:6px; background:var(--aligo-red-dark); color:#FFFFFF; font-size:18px; font-weight:700; text-decoration:none; cursor:pointer; }
+.aligo-ui .aligo-button:hover { background:var(--aligo-red); border-color:var(--aligo-red); }
+.aligo-ui .aligo-button:active { background:var(--aligo-red-dark); }
+.aligo-ui .aligo-button-secondary { color:var(--aligo-text); background:transparent; border-color:var(--aligo-border); }
+.aligo-ui .aligo-button-secondary:hover { background:var(--aligo-surface); border-color:var(--aligo-focus); }
+.aligo-ui .aligo-button:disabled { background:var(--aligo-surface); color:var(--aligo-muted); border-color:var(--aligo-border); cursor:not-allowed; }
+.aligo-ui .aligo-field { display:grid; gap:8px; font-weight:500; }
+.aligo-ui .aligo-field :is(input,textarea,select) { width:100%; min-height:48px; border:1px solid var(--aligo-border); border-radius:6px; padding:12px; background:var(--aligo-bg); color:var(--aligo-text); font-weight:400; }
+.aligo-ui .aligo-field input::placeholder { color:var(--aligo-muted); opacity:1; }
+.aligo-ui .aligo-notice { padding:16px 20px; border-left:4px solid var(--aligo-red-light); background:var(--aligo-surface); }
+@media (max-width:480px) { .aligo-ui .aligo-card { padding:20px; } }
