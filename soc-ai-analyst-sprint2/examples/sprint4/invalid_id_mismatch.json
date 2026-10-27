@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S4-mismatch",
+  "submitted_at": "2026-09-29T20:30:00Z",
+  "alerts": [
+    {
+      "alert_id": "wazuh-event-001",
+      "source_system": "wazuh",
+      "source_version": "4.14",
+      "raw_alert": {
+        "id": "another-id",
+        "timestamp": "2026-09-29T20:21:00Z",
+        "rule": {
+          "id": "100001",
+          "description": "Simulated authentication failure"
+        },
+        "decoder": {
+          "name": "example_custom_auth"
+        },
+        "data": {
+          "srcuser": "user-001",
+          "srcip": "192.0.2.10",
+          "example_control_action": "logged"
+        }
+      }
+    }
+  ],
+  "title": "Custom decoder event review"
+}

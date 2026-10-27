@@ -143,3 +143,14 @@ describe('Review draft', () => {
     expect(loadDraft('case-a')).toEqual(decided('rejected', 'rejected'))
   })
 })
+
+
+describe('Structured finding decisions', () => {
+  it('sends each finding key, status and trimmed note separately', () => {
+    const result = toDecision(findings, decided('validated', 'rejected'), 'Isabella')
+    expect(result.findings).toEqual([
+      { finding_key: hypothesis.key, status: 'validated', notes: 'note 1' },
+      { finding_key: technique.key, status: 'rejected', notes: 'note 2' },
+    ])
+  })
+})

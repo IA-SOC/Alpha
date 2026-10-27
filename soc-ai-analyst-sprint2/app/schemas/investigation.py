@@ -61,8 +61,17 @@ class CorrelationResult(BaseModel):
     limitations: list[str]
 
 
+class FindingDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    finding_key: str = Field(min_length=1)
+    status: Literal["validated", "corrected", "rejected"]
+    notes: str = Field(min_length=1, pattern=r"\S")
+
+
 class ReviewDecision(BaseModel):
     model_config = ConfigDict(extra="forbid")
     status: Literal["validated", "corrected", "rejected"]
     analyst: str = Field(min_length=1, pattern=r"\S")
     notes: str = Field(min_length=1, pattern=r"\S")
+    run_id: str | None = None
+    findings: list[FindingDecision] = Field(default_factory=list)

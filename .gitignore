@@ -6,3 +6,9 @@
 service-account*.json
 *.pem
 *.key
+
+# Client dataset and derived cases stay local (confidential project material).
+private-data/
+**/private-data/
+wazuh-alerts-*.zip
+ossec-alerts-*.json.gz

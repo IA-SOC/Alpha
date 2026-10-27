@@ -163,7 +163,21 @@
         "status": {"enum": ["pending", "validated", "corrected", "rejected"]},
         "analyst": {"type": ["string", "null"]},
         "notes": {"type": ["string", "null"]},
-        "reviewed_at": {"type": ["string", "null"], "format": "date-time"}
+        "reviewed_at": {"type": ["string", "null"], "format": "date-time"},
+        "run_id": {"type": ["string", "null"]},
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["finding_key", "status", "notes"],
+            "properties": {
+              "finding_key": {"type": "string"},
+              "status": {"enum": ["validated", "corrected", "rejected"]},
+              "notes": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          }
+        }
       },
       "additionalProperties": true
     }

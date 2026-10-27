@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "case_id": "S4-valid_elastic",
+  "submitted_at": "2026-09-29T20:30:00Z",
+  "alerts": [
+    {
+      "alert_id": "elastic-event-001",
+      "source_system": "elastic",
+      "source_version": "8.19",
+      "ecs_version": "8.x",
+      "raw_alert": {
+        "@timestamp": "2026-09-29T20:20:00Z",
+        "event": {
+          "id": "elastic-event-001",
+          "category": [
+            "authentication"
+          ],
+          "action": "logon",
+          "outcome": "failure"
+        },
+        "user": {
+          "name": "user-001"
+        },
+        "source": {
+          "ip": "192.0.2.10"
+        },
+        "customer_example": {
+          "rule_tag": "auth-review"
+        }
+      }
+    }
+  ],
+  "title": "Authentication failure review"
+}

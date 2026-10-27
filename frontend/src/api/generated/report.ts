@@ -99,14 +99,30 @@ export interface SOCInvestigationReport {
     rationale: string;
     evidence_ids: string[];
     requires_human_approval: boolean;
+    approval_status: "pending";
+    /**
+     * @minItems 1
+     */
+    hypothesis_ranks: [number, ...number[]];
     [k: string]: unknown;
   }[];
   limitations: string[];
+  model_review?: {
+    status?: "ok" | "error" | "unavailable";
+    items?: {}[];
+    [k: string]: unknown;
+  };
   review: {
     status: "pending" | "validated" | "corrected" | "rejected";
     analyst?: string | null;
     notes?: string | null;
     reviewed_at?: string | null;
+    run_id?: string | null;
+    findings?: {
+      finding_key: string;
+      status: "validated" | "corrected" | "rejected";
+      notes: string;
+    }[];
     [k: string]: unknown;
   };
   [k: string]: unknown;

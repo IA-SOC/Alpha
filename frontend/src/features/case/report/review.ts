@@ -1,7 +1,5 @@
 import type { AttackTechnique, Hypothesis, Report, ReviewDecision } from '../../../api/types'
 
-// Per finding review for the Alpha. The backend keeps one review per run, so until per finding
-// storage lands in issue #88 the decisions travel together, written out in the review notes.
 export type Decision = ReviewDecision['status']
 export const decisions: Decision[] = ['validated', 'corrected', 'rejected']
 
@@ -122,6 +120,11 @@ export function toDecision(findings: Finding[], draft: ReviewDraft, analyst: str
     status: chosenStatus(findings, draft)!,
     analyst: analyst.trim(),
     notes: composeNotes(findings, draft),
+    findings: findings.map((finding) => ({
+      finding_key: finding.key,
+      status: findingDraft(draft, finding.key).decision!,
+      notes: findingDraft(draft, finding.key).note.trim(),
+    })),
   }
 }
 

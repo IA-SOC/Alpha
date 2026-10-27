@@ -28,16 +28,12 @@ import {
   toDecision,
 } from './review'
 
-// The two 409 details from app/services/investigation_service.py. After a restart only a new run
-// can take a review. A run that already has one just needs reloading, since a new run would
-// replace the stored report and the review saved with it.
 const conflictReasons: Record<string, string> = {
   'No resumable investigation in this process': 'restarted',
   'The investigation is not awaiting review': 'reviewed',
+  'The investigation run has changed; reload': 'reviewed',
 }
 
-// The backend applies a review to the latest run of the case and takes no run ID, so a form built
-// from an older run is stopped here before it records notes about findings the new run lacks.
 class StaleRun extends Error {}
 
 export function ReviewTab({ investigation, onRerun }: { investigation: Investigation; onRerun: () => void }) {
@@ -66,6 +62,17 @@ function RecordedReview({ report }: { report: Report }) {
           </div>
         ))}
       </dl>
+      {review.findings && review.findings.length > 0 && (
+        <ul className="mt-4 space-y-3">
+          {review.findings.map((finding) => (
+            <li key={finding.finding_key} className="rounded-xl border border-control p-3 text-sm">
+              <p className="break-words">{finding.finding_key}</p>
+              <p>{t(`report.reviewStatus.${finding.status}`)}</p>
+              <p className="whitespace-pre-wrap">{finding.notes}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </Panel>
   )
 }
@@ -116,7 +123,7 @@ function ReviewForm({ investigation, onRerun }: { investigation: Investigation; 
       setAttempts((count) => count + 1)
       return
     }
-    send.mutate(toDecision(findings, draft, analyst))
+    send.mutate({ ...toDecision(findings, draft, analyst), run_id: investigation.run_id })
   }
 
   return (

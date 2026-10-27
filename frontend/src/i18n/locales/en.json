@@ -256,7 +256,7 @@
       "notes": "Notes",
       "reviewedAt": "Reviewed at",
       "intro": "Validate, correct or reject each finding and say why. The agent proposes, you decide.",
-      "oneReview": "For now every decision is saved together as one review of the whole report, written out in its notes.",
+      "oneReview": "Each finding decision is stored separately for this investigation.",
       "problems_one": "{{count}} thing is missing before the review can be saved.",
       "problems_other": "{{count}} things are missing before the review can be saved.",
       "findings_one": "{{count}} finding",
@@ -387,6 +387,7 @@
       "none": "None.",
       "unknowns": "What the scope still doesn't know",
       "noUnknowns": "None listed."
-    }
+    },
+    "exportJson": "Export JSON"
   }
 }
