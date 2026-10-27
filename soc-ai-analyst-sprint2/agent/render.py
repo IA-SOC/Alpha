@@ -1,7 +1,25 @@
 """Reporte legible según skills/soc-case-investigator/templates/reporte.md."""
 from typing import Any, Dict, List
 
-from app.services.report_formatter import render_audience_markdown
+from app.services.report_formatter import _safe, render_audience_markdown
+
+
+def _model_review_markdown(report: Dict[str, Any]) -> str:
+    """Model output is untrusted text: escaped and kept apart from the engine's findings."""
+    review = report.get("model_review")
+    if not review:
+        return ""
+    lines = ["", "## Model second opinion", "",
+             "Advisory only: it does not change hypotheses, confidence or actions.", ""]
+    if review["status"] == "ok":
+        lines.append(f"- Provider/model: {_safe(review['provider'])} / {_safe(review['model'])}; "
+                     f"latency {review['latency_ms']} ms.")
+        for item in review["items"]:
+            lines.append(f"- Hypothesis {item['rank']}: {_safe(item['assessment'])}. {_safe(item['explanation'])} "
+                         f"Alerts: {_safe(', '.join(item['cited_alert_ids']))}.")
+    else:
+        lines.append(f"- Status: {_safe(review['status'])}. {_safe(review.get('error', ''))}")
+    return "\n".join(lines) + "\n"
 
 
 def _ids(ids: List[Any]) -> str:
@@ -10,7 +28,7 @@ def _ids(ids: List[Any]) -> str:
 
 def render_markdown(report: Dict[str, Any]) -> str:
     if "audience_sections" in report:
-        return render_audience_markdown(report)
+        return render_audience_markdown(report) + _model_review_markdown(report)
     inp = report["input"]
     window = inp.get("time_window_utc") or {}
     blast = report["blast_radius"]
