@@ -22,13 +22,32 @@ def _model_review_markdown(report: Dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _follow_up_markdown(report: Dict[str, Any]) -> str:
+    follow_up = report.get("follow_up")
+    if not follow_up:
+        return ""
+    instruction = follow_up["instruction"]
+    lines = ["", "## Analyst follow-up", "",
+             f"- Instruction: {_safe(instruction['type'])}.",
+             f"- Analyst: {_safe(instruction['analyst'])}.",
+             f"- Alert IDs: {_safe(', '.join(instruction['alert_ids']))}."]
+    if instruction.get("note"):
+        lines.append(f"- Note: {_safe(instruction['note'])}.")
+    for change in follow_up["changes"]:
+        if change["change"] != "unchanged":
+            lines.append(f"- {_safe(change['technique_id'])}: {_safe(change['change'])} "
+                         f"({change['confidence_before']} -> {change['confidence_after']}).")
+    return "\n".join(lines) + "\n"
+
+
 def _ids(ids: List[Any]) -> str:
     return ", ".join(map(str, ids)) if ids else "—"
 
 
 def render_markdown(report: Dict[str, Any]) -> str:
     if "audience_sections" in report:
-        return render_audience_markdown(report) + _model_review_markdown(report)
+        return (render_audience_markdown(report) + _model_review_markdown(report)
+                + _follow_up_markdown(report))
     inp = report["input"]
     window = inp.get("time_window_utc") or {}
     blast = report["blast_radius"]
@@ -116,4 +135,4 @@ def render_markdown(report: Dict[str, Any]) -> str:
         f"- Analista: {review.get('analyst') or '—'}",
         f"- Correcciones/notas: {review.get('notes') or '—'}",
     ]
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines) + "\n" + _follow_up_markdown(report)

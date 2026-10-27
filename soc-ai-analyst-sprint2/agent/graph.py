@@ -42,6 +42,7 @@ from langgraph.types import Command, interrupt
 
 from agent import investigation as inv
 from agent import llm
+from agent.follow_up import build_follow_up, validate_instruction
 from agent.normalize import normalize_case
 from agent.render import render_markdown
 from app.services.agent_adapter import correlate_direct
@@ -78,6 +79,8 @@ class InvestigationState(TypedDict, total=False):
     report: Dict[str, Any]
     report_markdown: str
     validation: Dict[str, Any]
+    analyst_instruction: Dict[str, Any]
+    previous_report: Dict[str, Any]
     audit_log: Annotated[List[Dict[str, Any]], operator.add]
 
 
@@ -105,11 +108,20 @@ async def call_tool(server: str, tool: str, arguments: Dict[str, Any]) -> Any:
 def recibir_validar(state: InvestigationState) -> Dict[str, Any]:
     started = time.perf_counter()
     alerts, summary = normalize_case(state["case"])
+    instruction = state.get("analyst_instruction")
+    detail = f"{summary['processed_alert_count']} alertas, formato {summary['source_format']}"
+    if instruction is not None:
+        instruction = validate_instruction(instruction, alerts)
+        selected = set(instruction["alert_ids"])
+        for alert in alerts:
+            if alert["id"] in selected:
+                alert["tags"].append(inv.ANALYST_LEGITIMATE_TAG)
+        detail += f"; {len(selected)} alerta(s) marcada(s) como legitimas por el analista"
     return {
         "alerts": alerts,
         "input_summary": summary,
-        "audit_log": [_audit("recibir_validar", started,
-                             f"{summary['processed_alert_count']} alertas, formato {summary['source_format']}")],
+        "analyst_instruction": instruction,
+        "audit_log": [_audit("recibir_validar", started, detail)],
     }
 
 
@@ -226,10 +238,20 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         report["limitations"].append(
             "No se pudo correlacionar las alertas (IDs duplicados o alertas fuera del contrato v1.0); "
             "las hipótesis agrupan por técnica y pueden mezclar actividad no relacionada.")
-    model_review = await llm.build_model_review(
-        state["alerts"], state["hypotheses"],
-        lambda tool, arguments: call_tool("guard", tool, arguments),
-    )
+    if state.get("analyst_instruction"):
+        instruction = state["analyst_instruction"]
+        report["follow_up"] = build_follow_up(state["previous_report"], report, instruction)
+        report["limitations"].append(
+            "Reporte revisado por instruccion del analista: "
+            f"{len(instruction['alert_ids'])} alerta(s) marcadas como legitimas; "
+            "la instruccion no confirma ni descarta el incidente."
+        )
+    model_review = None
+    if not state.get("analyst_instruction"):
+        model_review = await llm.build_model_review(
+            state["alerts"], state["hypotheses"],
+            lambda tool, arguments: call_tool("guard", tool, arguments),
+        )
     if model_review is not None:
         report["model_review"] = model_review
         if model_review["status"] in {"error", "unavailable"}:

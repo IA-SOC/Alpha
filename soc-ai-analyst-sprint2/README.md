@@ -70,6 +70,15 @@ preserves original-language evidence and refreshes both sections after human
 review. Existing report fields and older report rendering remain supported.
 See [issue #66's contract and integration](docs/sprint4/US19-issue-66-report-formatter.md).
 
+## Analyst follow-up interface
+
+```json
+{"type":"mark_legitimate","alert_ids":["alert-id"],"analyst":"name","note":"optional text"}
+```
+
+Use `agent.follow_up.run_follow_up(case, previous_report, instruction, thread_id, app=None)`.
+It runs one bounded deterministic follow-up; the original case and report are never modified.
+
 ## API
 
 
