@@ -61,7 +61,7 @@ It checks:
 - that every cited `alert_id` (in mapping, hypotheses, timeline, actions and scope) exists in the case;
 - that confidence, priority, status and certainty use valid values;
 - that ATT&CK IDs are well formed (`T1234` or `T1234.567`);
-- that every action has `requires_human_approval: true`.
+- that every action has `requires_human_approval: true`, `approval_status: "pending"` and `hypothesis_ranks` that exist in the report's hypotheses.
 
 Correct output:
 

@@ -165,6 +165,10 @@ def main() -> int:
             errors.append(f"{where}.technique_id: invalid ATT&CK ID format")
 
     hypotheses = as_list(report.get("hypotheses"), "hypotheses", errors)
+    hypothesis_ranks = {
+        item["rank"] for item in hypotheses
+        if isinstance(item, dict) and type(item.get("rank")) is int
+    }
     for i, item in enumerate(hypotheses):
         where = f"hypotheses[{i}]"
         if not isinstance(item, dict):
@@ -218,6 +222,14 @@ def main() -> int:
             check_ref(ref, f"{where}.evidence_ids[{j}]")
         if item.get("requires_human_approval") is not True:
             errors.append(f"{where}.requires_human_approval must be true")
+        if item.get("approval_status") != "pending":
+            errors.append(f"{where}.approval_status must be pending")
+        ranks = as_list(item.get("hypothesis_ranks"), f"{where}.hypothesis_ranks", errors)
+        if not ranks:
+            errors.append(f"{where}.hypothesis_ranks: at least one hypothesis rank is required")
+        for j, rank in enumerate(ranks):
+            if type(rank) is not int or rank not in hypothesis_ranks:
+                errors.append(f"{where}.hypothesis_ranks[{j}]: unknown hypothesis rank {rank!r}")
 
     blast = report.get("blast_radius")
     if not isinstance(blast, dict):

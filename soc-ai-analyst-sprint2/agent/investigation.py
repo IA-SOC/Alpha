@@ -300,7 +300,8 @@ def attach_ioc_references(hypotheses, enrichment):
 
 def build_actions(hypotheses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     actions: List[Dict[str, Any]] = []
-    seen = set()
+    by_action = {}
+    confidence_by_rank = {hypothesis["rank"]: hypothesis["confidence"] for hypothesis in hypotheses}
     for hypothesis in hypotheses:
         if hypothesis["confidence"] == "insuficiente":
             continue
@@ -309,16 +310,29 @@ def build_actions(hypotheses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             priority = PRIORITIES[max(PRIORITIES.index(priority) - 1, 0)]
         evidence_ids = [e["alert_id"] for e in hypothesis["evidence_for"]]
         for action in ACTIONS_BY_TACTIC.get(hypothesis["tactic"], []):
-            if action in seen:
+            existing = by_action.get(action)
+            if existing:
+                if hypothesis["rank"] not in existing["hypothesis_ranks"]:
+                    existing["hypothesis_ranks"].append(hypothesis["rank"])
+                    existing["hypothesis_ranks"].sort()
+                for evidence_id in evidence_ids:
+                    if evidence_id not in existing["evidence_ids"]:
+                        existing["evidence_ids"].append(evidence_id)
+                ranks = ", ".join(map(str, existing["hypothesis_ranks"]))
+                confidences = ", ".join(confidence_by_rank[rank] for rank in existing["hypothesis_ranks"])
+                existing["rationale"] = f"Derivada de las hipótesis {ranks} (confianza {confidences})."
                 continue
-            seen.add(action)
-            actions.append({
+            entry = {
                 "priority": priority,
                 "action": action,
                 "rationale": f"Derivada de la hipótesis {hypothesis['rank']} (confianza {hypothesis['confidence']}).",
-                "evidence_ids": evidence_ids,
+                "evidence_ids": list(evidence_ids),  # own copy: merges must not leak into sibling actions
                 "requires_human_approval": True,
-            })
+                "hypothesis_ranks": [hypothesis["rank"]],
+                "approval_status": "pending",
+            }
+            by_action[action] = entry
+            actions.append(entry)
     actions.sort(key=lambda a: -PRIORITIES.index(a["priority"]))
     return actions
 

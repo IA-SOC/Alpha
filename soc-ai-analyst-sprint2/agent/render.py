@@ -1,12 +1,16 @@
 """Reporte legible según skills/soc-case-investigator/templates/reporte.md."""
 from typing import Any, Dict, List
 
+from app.services.report_formatter import render_audience_markdown
 
-def _ids(ids: List[str]) -> str:
-    return ", ".join(ids) if ids else "—"
+
+def _ids(ids: List[Any]) -> str:
+    return ", ".join(map(str, ids)) if ids else "—"
 
 
 def render_markdown(report: Dict[str, Any]) -> str:
+    if "audience_sections" in report:
+        return render_audience_markdown(report)
     inp = report["input"]
     window = inp.get("time_window_utc") or {}
     blast = report["blast_radius"]
@@ -81,8 +85,8 @@ def render_markdown(report: Dict[str, Any]) -> str:
                 f"{a['alert_id']} ({', '.join(a['methods'])})" for a in item["associations"]))
     lines += ["", "## Acciones recomendadas"]
     for i, a in enumerate(report["recommended_actions"], start=1):
-        lines.append(f"{i}. [{a['priority']}] {a['action']} — {a['rationale']} Evidencia: {_ids(a['evidence_ids'])}. "
-                     "Requiere aprobación humana.")
+        lines.append(f"{i}. [{a['priority']}] {a['action']} — {a['rationale']} Hipótesis: {_ids(a['hypothesis_ranks'])}. "
+                     f"Evidencia: {_ids(a['evidence_ids'])}. Pendiente de aprobación del analista.")
     if not report["recommended_actions"]:
         lines.append("_Sin acciones propuestas._")
     lines += ["", "## Limitaciones"] + [f"- {l}" for l in report["limitations"]]

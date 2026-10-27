@@ -134,13 +134,15 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["priority", "action", "rationale", "evidence_ids", "requires_human_approval"],
+        "required": ["priority", "action", "rationale", "evidence_ids", "requires_human_approval", "approval_status", "hypothesis_ranks"],
         "properties": {
           "priority": {"enum": ["urgent", "high", "medium", "low"]},
           "action": {"type": "string"},
           "rationale": {"type": "string"},
           "evidence_ids": {"type": "array", "items": {"type": "string"}},
-          "requires_human_approval": {"type": "boolean"}
+          "requires_human_approval": {"type": "boolean"},
+          "approval_status": {"enum": ["pending"]},
+          "hypothesis_ranks": {"type": "array", "minItems": 1, "items": {"type": "integer"}}
         },
         "additionalProperties": true
       }

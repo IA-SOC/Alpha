@@ -79,11 +79,11 @@ Caso SYN-RANSOM-004: 5 alertas procesadas. Técnicas candidatas evaluadas por gr
 Estado: no_disponible. El caso no trae enriquecimiento de IoC; no se hicieron consultas externas.
 
 ## Acciones recomendadas
-1. [urgent] Aislar inmediatamente los hosts afectados — Derivada de la hipótesis 2 (confianza media). Evidencia: rw-4, rw-5. Requiere aprobación humana.
-2. [urgent] Verificar integridad de backups antes de cualquier restauración — Derivada de la hipótesis 2 (confianza media). Evidencia: rw-4, rw-5. Requiere aprobación humana.
-3. [high] Aislar los hosts involucrados de la red — Derivada de la hipótesis 1 (confianza media). Evidencia: rw-1, rw-2. Requiere aprobación humana.
-4. [high] Revisar reglas de segmentación entre los hosts afectados — Derivada de la hipótesis 1 (confianza media). Evidencia: rw-1, rw-2. Requiere aprobación humana.
-5. [medium] Revisar y deshabilitar los servicios creados recientemente en los hosts afectados — Derivada de la hipótesis 3 (confianza baja). Evidencia: rw-2. Requiere aprobación humana.
+1. [urgent] Aislar inmediatamente los hosts afectados — Derivada de las hipótesis 2, 4 (confianza media, baja). Hipótesis: 2, 4. Evidencia: rw-4, rw-5, rw-3. Pendiente de aprobación del analista.
+2. [urgent] Verificar integridad de backups antes de cualquier restauración — Derivada de las hipótesis 2, 4 (confianza media, baja). Hipótesis: 2, 4. Evidencia: rw-4, rw-5, rw-3. Pendiente de aprobación del analista.
+3. [high] Aislar los hosts involucrados de la red — Derivada de la hipótesis 1 (confianza media). Hipótesis: 1. Evidencia: rw-1, rw-2. Pendiente de aprobación del analista.
+4. [high] Revisar reglas de segmentación entre los hosts afectados — Derivada de la hipótesis 1 (confianza media). Hipótesis: 1. Evidencia: rw-1, rw-2. Pendiente de aprobación del analista.
+5. [medium] Revisar y deshabilitar los servicios creados recientemente en los hosts afectados — Derivada de la hipótesis 3 (confianza baja). Hipótesis: 3. Evidencia: rw-2. Pendiente de aprobación del analista.
 
 ## Limitaciones
 - Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.

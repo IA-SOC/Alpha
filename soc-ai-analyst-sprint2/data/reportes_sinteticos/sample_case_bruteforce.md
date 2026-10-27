@@ -66,10 +66,10 @@ Caso CASE-0001: 4 alertas procesadas. Técnicas candidatas evaluadas por grupos 
 Estado: no_disponible. El caso no trae enriquecimiento de IoC; no se hicieron consultas externas.
 
 ## Acciones recomendadas
-1. [medium] Forzar rotación de credenciales de las cuentas involucradas — Derivada de la hipótesis 1 (confianza baja). Evidencia: a1. Requiere aprobación humana.
-2. [medium] Habilitar/reforzar MFA en los hosts afectados — Derivada de la hipótesis 1 (confianza baja). Evidencia: a1. Requiere aprobación humana.
-3. [medium] Aislar los hosts involucrados de la red — Derivada de la hipótesis 2 (confianza baja). Evidencia: a3. Requiere aprobación humana.
-4. [medium] Revisar reglas de segmentación entre los hosts afectados — Derivada de la hipótesis 2 (confianza baja). Evidencia: a3. Requiere aprobación humana.
+1. [medium] Forzar rotación de credenciales de las cuentas involucradas — Derivada de la hipótesis 1 (confianza baja). Hipótesis: 1. Evidencia: a1. Pendiente de aprobación del analista.
+2. [medium] Habilitar/reforzar MFA en los hosts afectados — Derivada de la hipótesis 1 (confianza baja). Hipótesis: 1. Evidencia: a1. Pendiente de aprobación del analista.
+3. [medium] Aislar los hosts involucrados de la red — Derivada de las hipótesis 2, 3 (confianza baja, baja). Hipótesis: 2, 3. Evidencia: a3, a4. Pendiente de aprobación del analista.
+4. [medium] Revisar reglas de segmentación entre los hosts afectados — Derivada de las hipótesis 2, 3 (confianza baja, baja). Hipótesis: 2, 3. Evidencia: a3, a4. Pendiente de aprobación del analista.
 
 ## Limitaciones
 - Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.

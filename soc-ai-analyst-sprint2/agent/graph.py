@@ -44,6 +44,7 @@ from agent import investigation as inv
 from agent.normalize import normalize_case
 from agent.render import render_markdown
 from app.services.agent_adapter import correlate_direct
+from app.services.report_formatter import format_report, validate_audience_sections
 from orchestrator.client import SERVERS, McpToolClient
 
 SKILL_DIR = ROOT / "skills" / "soc-case-investigator"
@@ -173,6 +174,11 @@ def consumir_ioc(state: InvestigationState) -> Dict[str, Any]:
 
 # --- Fase 5 -----------------------------------------------------------------
 def run_skill_validator(case: Dict[str, Any], report: Dict[str, Any]) -> Dict[str, Any]:
+    audience_error = ""
+    try:
+        validate_audience_sections(report)
+    except (ValueError, KeyError, TypeError) as exc:
+        audience_error = str(exc)
     with tempfile.TemporaryDirectory() as tmp:
         case_path, report_path = Path(tmp) / "case.json", Path(tmp) / "report.json"
         case_path.write_text(json.dumps(case, ensure_ascii=False), encoding="utf-8")
@@ -182,8 +188,9 @@ def run_skill_validator(case: Dict[str, Any], report: Dict[str, Any]) -> Dict[st
             capture_output=True, text=True, encoding="utf-8",
             env={**os.environ, "PYTHONIOENCODING": "utf-8"},
         )
-    return {"ok": proc.returncode == 0, "returncode": proc.returncode,
-            "output": (proc.stdout + proc.stderr).strip()}
+    return {"ok": proc.returncode == 0 and not audience_error,
+            "returncode": proc.returncode or (1 if audience_error else 0),
+            "output": (proc.stdout + proc.stderr + "\n" + audience_error).strip()}
 
 
 def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
@@ -218,6 +225,7 @@ def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         report["limitations"].append(
             "No se pudo correlacionar las alertas (IDs duplicados o alertas fuera del contrato v1.0); "
             "las hipótesis agrupan por técnica y pueden mezclar actividad no relacionada.")
+    report["audience_sections"] = format_report(report)
     validation = run_skill_validator(case, report)
     return {
         "report": report,
@@ -246,6 +254,7 @@ def revision_humana(state: InvestigationState) -> Dict[str, Any]:
     report = dict(state["report"])
     report["review"] = {"status": status, "analyst": decision.get("analyst"),
                         "notes": decision.get("notes"), "reviewed_at": _now()}
+    report["audience_sections"] = format_report(report)
     return {
         "report": report,
         "report_markdown": render_markdown(report),

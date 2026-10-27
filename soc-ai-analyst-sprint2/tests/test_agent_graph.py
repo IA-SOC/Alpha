@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from agent.graph import PHASES, build_graph, ruta_tras_validacion, run_skill_validator, submit_review
+from agent.investigation import build_actions
 from langgraph.graph import END
 
 CASES = {
@@ -148,6 +149,19 @@ def test_ransomware_prioriza_impacto(runs):
     assert actions[0]["priority"] == "urgent"
 
 
+def test_acciones_comparten_tactica_y_unen_evidencia():
+    actions = build_actions([
+        {"rank": 1, "tactic": "Initial Access", "confidence": "media",
+         "evidence_for": [{"alert_id": "a-1"}]},
+        {"rank": 3, "tactic": "Initial Access", "confidence": "baja",
+         "evidence_for": [{"alert_id": "a-2"}, {"alert_id": "a-1"}]},
+    ])
+    assert len(actions) == 1
+    assert actions[0]["hypothesis_ranks"] == [1, 3]
+    assert actions[0]["evidence_ids"] == ["a-1", "a-2"]
+    assert actions[0]["approval_status"] == "pending"
+
+
 def test_retomar_con_decision_del_analista(runs):
     app, _ = runs["bruteforce_simple"]
     state = asyncio.run(submit_review(app, "bruteforce_simple",
@@ -171,6 +185,14 @@ def test_validador_rechaza_referencia_rota_y_el_grafo_no_pasa_a_revision(runs):
     result = run_skill_validator(state["case"], report)
     assert not result["ok"] and "not-an-alert" in result["output"]
     assert ruta_tras_validacion({"validation": result}) == END
+
+
+def test_validador_rechaza_rango_de_hipotesis_inexistente(runs):
+    state = runs["pre_ransomware"][1].values
+    report = json.loads(json.dumps(state["report"]))
+    report["recommended_actions"][0]["hypothesis_ranks"] = [999]
+    result = run_skill_validator(state["case"], report)
+    assert not result["ok"] and "unknown hypothesis rank 999" in result["output"]
 
 
 def _pointer(case, path):

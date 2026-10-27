@@ -61,7 +61,7 @@ Estado: provided. Enriquecimiento tomado del caso tal como vino; no se hicieron 
 - 203.0.113.200 (ip, veredicto suspicious, fuente feed-simulado-n8n) → alertas: —
 
 ## Acciones recomendadas
-1. [low] Bloquear el vector de entrada identificado (IP, dominio o archivo) — Derivada de la hipótesis 1 (confianza baja). Evidencia: ecs-ph-001. Requiere aprobación humana.
+1. [low] Bloquear el vector de entrada identificado (IP, dominio o archivo) — Derivada de las hipótesis 1, 2 (confianza baja, baja). Hipótesis: 1, 2. Evidencia: ecs-ph-001, ecs-ph-002. Pendiente de aprobación del analista.
 
 ## Limitaciones
 - Motor determinista basado en reglas (core/logic.py); no usa un LLM y no cubre patrones fuera del catálogo.
