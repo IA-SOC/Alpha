@@ -148,6 +148,14 @@
       }
     },
     "limitations": {"type": "array", "items": {"type": "string"}},
+    "model_review": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["ok", "error", "unavailable"]},
+        "items": {"type": "array", "items": {"type": "object"}}
+      },
+      "additionalProperties": true
+    },
     "review": {
       "type": "object",
       "required": ["status"],

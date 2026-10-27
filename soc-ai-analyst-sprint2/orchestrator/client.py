@@ -28,6 +28,7 @@ SERVERS = {
     "timeline": ROOT / "servers" / "timeline_server.py",
     "hypothesis": ROOT / "servers" / "hypothesis_server.py",
     "report": ROOT / "servers" / "report_server.py",
+    "guard": ROOT / "servers" / "guard_server.py",
 }
 
 

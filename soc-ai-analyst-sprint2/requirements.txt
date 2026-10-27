@@ -5,3 +5,4 @@ rfc3339-validator==0.1.4
 
 mcp==2.3.0
 langgraph==1.2.16
+google-genai==2.33.0

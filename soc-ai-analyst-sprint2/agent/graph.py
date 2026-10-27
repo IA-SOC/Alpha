@@ -41,6 +41,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
 from agent import investigation as inv
+from agent import llm
 from agent.normalize import normalize_case
 from agent.render import render_markdown
 from app.services.agent_adapter import correlate_direct
@@ -193,7 +194,7 @@ def run_skill_validator(case: Dict[str, Any], report: Dict[str, Any]) -> Dict[st
             "output": (proc.stdout + proc.stderr + "\n" + audience_error).strip()}
 
 
-def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
+async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
     started = time.perf_counter()
     case, summary = state["case"], state["input_summary"]
     report = {
@@ -225,6 +226,15 @@ def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         report["limitations"].append(
             "No se pudo correlacionar las alertas (IDs duplicados o alertas fuera del contrato v1.0); "
             "las hipótesis agrupan por técnica y pueden mezclar actividad no relacionada.")
+    model_review = await llm.build_model_review(
+        state["alerts"], state["hypotheses"],
+        lambda tool, arguments: call_tool("guard", tool, arguments),
+    )
+    if model_review is not None:
+        report["model_review"] = model_review
+        if model_review["status"] in {"error", "unavailable"}:
+            report["limitations"].append(
+                "La segunda opinion del modelo no estuvo disponible; el reporte usa solo el motor determinista.")
     report["audience_sections"] = format_report(report)
     validation = run_skill_validator(case, report)
     return {
@@ -232,7 +242,8 @@ def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         "report_markdown": render_markdown(report),
         "validation": validation,
         "audit_log": [_audit("generar_validar_reporte", started,
-                             "validador OK" if validation["ok"] else "validador FALLÓ")],
+                             ("validador OK" if validation["ok"] else "validador FALLÓ")
+                             + (f"; modelo {model_review['status']}" if model_review else ""))],
     }
 
 
