@@ -289,6 +289,25 @@ def main() -> int:
                 for j, ref in enumerate(refs):
                     check_ref(ref, f"{where}.cited_alert_ids[{j}]")
 
+    follow_up = report.get("follow_up")
+    if follow_up is not None:
+        if not isinstance(follow_up, dict):
+            errors.append("follow_up: expected object")
+        else:
+            instruction = follow_up.get("instruction")
+            if not isinstance(instruction, dict):
+                errors.append("follow_up.instruction: expected object")
+            else:
+                refs = as_list(instruction.get("alert_ids"), "follow_up.instruction.alert_ids", errors)
+                for i, ref in enumerate(refs):
+                    check_ref(ref, f"follow_up.instruction.alert_ids[{i}]")
+            changes = as_list(follow_up.get("changes"), "follow_up.changes", errors)
+            for i, change in enumerate(changes):
+                if not isinstance(change, dict):
+                    errors.append(f"follow_up.changes[{i}]: expected object")
+                elif change.get("change") != "removed" and change.get("confidence_after") not in CONFIDENCE:
+                    errors.append(f"follow_up.changes[{i}].confidence_after: invalid confidence")
+
     review = report.get("review")
     if not isinstance(review, dict):
         errors.append("review: expected object")

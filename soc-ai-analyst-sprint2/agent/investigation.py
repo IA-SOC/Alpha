@@ -17,8 +17,11 @@ from core.logic import ACTIONS_BY_TACTIC, TACTIC_ORDER
 
 LEVELS = ["insuficiente", "baja", "media", "alta"]
 
+ANALYST_LEGITIMATE_TAG = "analyst_legitimate"
 # Etiquetas que describen actividad legítima conocida. Si aparecen en el mismo
 # host que la evidencia de una hipótesis, cuentan como evidencia en contra.
+# The analyst tag only affects hypotheses whose evidence included that alert; it is
+# deliberately not a same-host benign tag, so one mark cannot lower unrelated hypotheses.
 BENIGN_TAGS = {"backup", "scheduled_task", "maintenance", "change_approved"}
 
 ALTERNATIVES = {
@@ -100,22 +103,26 @@ def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str,
     attack_mapping, hypotheses = [], []
 
     for mapping in mappings:
-        support = [by_id[i] for i in mapping["supporting_alert_ids"] if i in by_id]
-        hosts = {a.get("host") for a in support}
+        mapped_support = [by_id[i] for i in mapping["supporting_alert_ids"] if i in by_id]
+        analyst_legitimate = [a for a in mapped_support if ANALYST_LEGITIMATE_TAG in a["tags"]]
+        support = [a for a in mapped_support if a not in analyst_legitimate]
+        hosts = {a.get("host") for a in mapped_support}
         against = [
             a for a in alerts
             if a["id"] not in mapping["supporting_alert_ids"]
             and a.get("host") in hosts and BENIGN_TAGS & set(a["tags"])
         ]
+        against += analyst_legitimate
         tactic = mapping["tactic"]
 
         attack_mapping.append({
             "tactic": tactic,
             "technique_id": mapping["technique_id"],
             "technique_name": mapping["technique_name"],
-            "status": "candidate",
+            # The rule still matched every mapped alert; analyst marks only change the status.
+            "status": "not_supported" if analyst_legitimate and not support else "candidate",
             "evidence": [_evidence(a, "supporting", f"Señal que coincide con el patrón de {mapping['technique_name']}.")
-                         for a in support],
+                         for a in mapped_support],
             "source_version": CATALOG_VERSION,
         })
 
@@ -131,6 +138,9 @@ def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str,
             "alternatives": ALTERNATIVES.get(tactic, []),
             "unknowns": UNKNOWNS.get(tactic, []),
         })
+        for evidence in hypotheses[-1]["evidence_against"]:
+            if evidence["alert_id"] in {alert["id"] for alert in analyst_legitimate}:
+                evidence["relevance"] = "Marcada como legitima por el analista (seguimiento)."
 
     hypotheses.sort(key=lambda h: (
         -LEVELS.index(h["confidence"]),

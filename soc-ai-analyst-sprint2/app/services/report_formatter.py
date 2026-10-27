@@ -69,6 +69,7 @@ TECHNICAL_FIELDS = (
     "recommended_actions",
     "limitations",
     "correlation",
+    "follow_up",
     "review",
 )
 LIMITATION_TEXT = {
