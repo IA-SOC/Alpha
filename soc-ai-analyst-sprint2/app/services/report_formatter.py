@@ -234,7 +234,8 @@ def format_report(report: dict) -> dict:
                     if action.get("hypothesis_ranks")
                     else ""
                 )
-                + "Pending analyst approval; no action has been executed by this report.",
+                + "Pending analyst approval; "
+                "no action has been executed by this report.",
                 f"/recommended_actions/{i}",
             )
         )
