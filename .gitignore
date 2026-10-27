@@ -1,0 +1,8 @@
+# Secrets: API keys and cloud credentials must never be committed.
+.env
+.env.*
+!.env.example
+*credentials*.json
+service-account*.json
+*.pem
+*.key
