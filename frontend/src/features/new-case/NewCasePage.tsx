@@ -1,9 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
-import { type ButtonHTMLAttributes, type DragEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { type DragEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 
 import { api, ApiError } from '../../api/client'
 import type { AcceptedCase } from '../../api/types'
+import { PrimaryButton, TextButton } from '../../ui/buttons'
 import { caseContract } from './caseContract'
 import { fieldPath, formatPath, locate, parseCase } from './jsonText'
 
@@ -116,15 +118,9 @@ export function NewCasePage() {
               )}
               {!problem && (fileName ? t('newCase.loadedFile', { name: fileName }) : summary && t('newCase.summary', summary))}
             </p>
-            <button
-              type="button"
-              onClick={onSubmit}
-              disabled={submit.isPending}
-              // White on the brand red is 4.3:1, so the resting fill is the darker brand red, which passes AA.
-              className="inline-flex h-9 items-center rounded-full bg-aligo-rojo-oscuro px-5 text-sm font-bold text-aligo-blanco hover:bg-aligo-rojo-medio disabled:cursor-wait disabled:opacity-80"
-            >
+            <PrimaryButton onClick={onSubmit} disabled={submit.isPending}>
               {submit.isPending ? t('newCase.submitting') : t('newCase.submit')}
-            </button>
+            </PrimaryButton>
           </div>
         </section>
 
@@ -144,16 +140,6 @@ export function NewCasePage() {
 
 function isFixList(error: Error | null) {
   return error instanceof ApiError && error.status === 422 && error.issues.length > 0
-}
-
-function TextButton({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      type="button"
-      className={`text-sm font-medium underline decoration-aligo-rojo decoration-2 underline-offset-4 hover:decoration-aligo-blanco ${className}`}
-      {...props}
-    />
-  )
 }
 
 function summarize(text: string) {
@@ -187,6 +173,7 @@ function Result({ headingRef, state, stale, onRetry, onShow }: ResultProps) {
         <p className="mt-1 text-sm text-muted">{t('newCase.accepted.body', { id: state.data.submitted_case_id })}</p>
         <p className="mt-4 text-xs text-muted">{t('newCase.accepted.uuid')}</p>
         <CopyValue value={state.data.case_id} />
+        <InvestigateLink caseId={state.data.case_id} />
       </div>
     )
   }
@@ -285,6 +272,18 @@ function Contract({ pending }: { pending: boolean }) {
       <h3 className="mt-4 text-sm font-medium">{t('newCase.contract.alertFields')}</h3>
       {list(caseContract.alertFields)}
     </div>
+  )
+}
+
+// Opens the case page, which starts the run as soon as it mounts.
+function InvestigateLink({ caseId }: { caseId: string }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+
+  return (
+    <PrimaryButton onClick={() => navigate(`/cases/${caseId}`, { state: { investigate: true } })} className="mt-5">
+      {t('newCase.accepted.investigate')}
+    </PrimaryButton>
   )
 }
 

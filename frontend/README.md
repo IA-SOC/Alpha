@@ -73,6 +73,14 @@ npm run build
 
 `npm run test:watch` keeps Vitest running while you work.
 
+## End to end check
+
+`npm run e2e` runs the whole flow in Chrome against the real backend: sign in, submit the demo case, investigate, open every report tab and save a review. A second test checks that a rejected case and a duplicate are explained. It's also the check to run before a demo.
+
+It uses the Chrome installed on your laptop, so there's no browser to download. If the backend and `npm run dev` are already running it uses them. If not, it starts both, with the backend on a throwaway database so test cases never end up in `data/`. Set up the backend venv first, as in step 1. `SOC_PYTHON` works here too.
+
+It runs locally only. CI keeps to lint, typecheck, Vitest and the build.
+
 ## Types from the backend
 
 Everything in `src/api/generated/` comes from the backend: the OpenAPI document of the intake API, the investigation report schema in `skills/soc-case-investigator/references/report-schema.json` and the correlation models. Don't edit those files by hand. When any of that changes in the backend, regenerate them and commit the result:

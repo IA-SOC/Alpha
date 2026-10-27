@@ -38,7 +38,8 @@
       "body": "Case {{id}} is stored and ready to investigate.",
       "uuid": "Application ID",
       "copy": "Copy",
-      "copied": "Copied"
+      "copied": "Copied",
+      "investigate": "Investigate"
     },
     "invalid": {
       "title_one": "{{count}} problem to fix",
@@ -76,5 +77,316 @@
   "session": {
     "signedInAs": "Signed in as",
     "signOut": "Sign out"
+  },
+  "case": {
+    "title": "Case",
+    "applicationId": "Application ID",
+    "loading": "Loading the case report",
+    "missing": {
+      "title": "No case with this ID",
+      "body": "The backend has no case stored under this application ID. It may be a typo, or the backend database was reset.",
+      "newCase": "Submit a new case"
+    },
+    "notRun": {
+      "title": "Not investigated yet",
+      "body": "The case is stored. Run the agent to get its report."
+    },
+    "run": {
+      "title": "Investigating the case",
+      "body": "The agent correlates the alerts, maps ATT&CK techniques, builds the timeline and checks the attached IoCs. The demo case takes a few seconds. Larger cases can take a few minutes.",
+      "limit": "of up to {{limit}}",
+      "timeUsed": "Time used of the limit",
+      "timeUsedValue": "{{elapsed}} of {{limit}}"
+    },
+    "failed": {
+      "timeout": "The investigation ran out of time",
+      "agent": "The investigation failed",
+      "pageTimeout": {
+        "title": "No answer after {{limit}}",
+        "body": "The backend never answered. It may have stopped, or the agent may still finish. Reload this page in a few minutes to check for the report."
+      },
+      "unexpected": {
+        "title": "Something went wrong reading the answer"
+      },
+      "kept": "Your case is still stored, so you can run it again without submitting it twice.",
+      "retry": "Run the investigation again"
+    },
+    "loadFailed": {
+      "title": "Couldn't load the report"
+    }
+  },
+  "report": {
+    "tabs": {
+      "label": "Report sections",
+      "summary": "Summary",
+      "mitre": "MITRE ATT&CK",
+      "review": "Review",
+      "evidence": "Evidence",
+      "timeline": "Timeline",
+      "assets": "Affected assets"
+    },
+    "facts": {
+      "sources": "Sources",
+      "alerts": "Alerts",
+      "alertsValue": "{{processed}} of {{total}} processed",
+      "window": "Time window",
+      "generated": "Report generated",
+      "review": "Review",
+      "to": "to"
+    },
+    "sourceFormat": {
+      "elastic_ecs": "Elastic ECS",
+      "elastic_security": "Elastic Security",
+      "wazuh": "Wazuh",
+      "mixed": "Mixed sources",
+      "unknown": "Unknown"
+    },
+    "reviewStatus": {
+      "pending": "Waiting for review",
+      "validated": "Validated",
+      "corrected": "Corrected",
+      "rejected": "Rejected"
+    },
+    "confidence": {
+      "label": "Confidence",
+      "alta": "High",
+      "media": "Medium",
+      "baja": "Low",
+      "insuficiente": "Insufficient"
+    },
+    "priority": {
+      "urgent": "Urgent",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "summary": {
+      "title": "What the agent found"
+    },
+    "hypotheses": {
+      "title_one": "{{count}} hypothesis",
+      "title_other": "{{count}} hypotheses",
+      "none": "The agent formed no hypothesis for this case.",
+      "group": "From the alert group",
+      "for_one": "{{count}} piece of evidence for",
+      "for_other": "{{count}} pieces of evidence for",
+      "against_one": "{{count}} piece of evidence against",
+      "against_other": "{{count}} pieces of evidence against",
+      "noneFor": "No evidence for was recorded.",
+      "noneAgainst": "No evidence against was recorded.",
+      "alternatives": "Alternative explanations",
+      "noAlternatives": "None given.",
+      "unknowns": "What is still unknown",
+      "noUnknowns": "None listed.",
+      "iocs_one": "{{count}} related IoC",
+      "iocs_other": "{{count}} related IoCs",
+      "iocSource": "From {{provider}}, linked to {{alert}}"
+    },
+    "evidence": {
+      "fields": "Fields read: {{fields}}",
+      "openAlert": "Open alert {{id}} in Evidence",
+      "sourceFields_one": "Show the {{count}} source field",
+      "sourceFields_other": "Show the {{count}} source fields",
+      "path": "Field in the case",
+      "value": "Value",
+      "check": "Check",
+      "matches": "Matches",
+      "differs": "The case holds this value. The report cites {{value}}",
+      "notFound": "Not found in the submitted case",
+      "caseLoading": "Loading the submitted case",
+      "caseFailed": "Couldn't load the submitted case, so the fields can't be checked.",
+      "alertsTitle_one": "{{count}} alert in the case",
+      "alertsTitle_other": "{{count}} alerts in the case",
+      "alertsIntro": "Every alert as it was submitted, with the fields the report read from it.",
+      "system": {
+        "elastic": "Elastic",
+        "wazuh": "Wazuh"
+      },
+      "severity": "Alert severity",
+      "severityField": "from {{field}}",
+      "noSeverity": "The alert carries no severity",
+      "correlation": "Correlation",
+      "citedBy": "Used in",
+      "notCited": "Not used in the report",
+      "cite": {
+        "hypothesis_for": "Hypothesis {{rank}}, for",
+        "hypothesis_against": "Hypothesis {{rank}}, against",
+        "timeline": "Timeline",
+        "action": "Action {{number}}"
+      },
+      "fieldsRead_one": "{{count}} field read by the report",
+      "fieldsRead_other": "{{count}} fields read by the report",
+      "noFields": "The report reads no fields from this alert.",
+      "original": "Show the original alert"
+    },
+    "actions": {
+      "title_one": "{{count}} recommended action",
+      "title_other": "{{count}} recommended actions",
+      "none": "The agent recommended no actions.",
+      "priority": "Priority",
+      "basedOn": "Based on",
+      "approval": "Needs an analyst's approval before anyone acts on it."
+    },
+    "limits": {
+      "title": "Limits of this report",
+      "none": "The report lists no limitations.",
+      "missingFields": "Fields missing from the alerts"
+    },
+    "mitre": {
+      "intro": "Techniques carry a status, not a confidence. A candidate matches the alert pattern and still needs an analyst to confirm it.",
+      "none": "The agent mapped no ATT&CK techniques for this case.",
+      "noTactic": "No tactic given",
+      "status": "Status",
+      "statuses": {
+        "candidate": "Candidate",
+        "supported": "Supported",
+        "not_supported": "Not supported",
+        "unknown": "Unknown"
+      },
+      "evidence_one": "{{count}} piece of evidence",
+      "evidence_other": "{{count}} pieces of evidence",
+      "noEvidence": "No evidence recorded.",
+      "version": "Technique source: {{version}}",
+      "noVersion": "No technique source given"
+    },
+    "review": {
+      "title": "Analyst review",
+      "status": "Status",
+      "analyst": "Analyst",
+      "notes": "Notes",
+      "reviewedAt": "Reviewed at",
+      "intro": "Validate, correct or reject each finding and say why. The agent proposes, you decide.",
+      "oneReview": "For now every decision is saved together as one review of the whole report, written out in its notes.",
+      "problems_one": "{{count}} thing is missing before the review can be saved.",
+      "problems_other": "{{count}} things are missing before the review can be saved.",
+      "findings_one": "{{count}} finding",
+      "findings_other": "{{count}} findings",
+      "decided": "{{decided}} of {{total}} decided",
+      "hypothesis": "Hypothesis {{rank}}",
+      "technique": "MITRE ATT&CK technique",
+      "decisions": {
+        "validated": "Validate",
+        "corrected": "Correct",
+        "rejected": "Reject"
+      },
+      "decisionMissing": "Pick a decision for this finding.",
+      "findingNote": "Note",
+      "findingNoteHint": "Why you decided this. For a correction, write what the right conclusion is.",
+      "noteMissing": "Write a note.",
+      "outcome": "Review outcome",
+      "outcomeSuggested": "Suggested from your decisions: {{status}}. You can pick another one.",
+      "outcomeWaiting": "Decide every finding to get a suggestion.",
+      "outcomeNoFindings": "The agent reached no findings to decide, so pick the outcome for the whole report.",
+      "outcomeMissing": "Pick an outcome.",
+      "suggested": "Suggested",
+      "analystMissing": "Write the analyst's name.",
+      "generalNote": "General note, optional",
+      "generalNoteHint": "Anything about the report as a whole.",
+      "generalNoteRequired": "Note",
+      "generalNoteHintRequired": "Why you chose this outcome.",
+      "save": "Save review",
+      "saving": "Saving the review",
+      "kept": "Your decisions and notes are still here. Try again when the backend answers.",
+      "conflict": {
+        "title": "This investigation can no longer take a review",
+        "restarted": "The backend restarted after this investigation ran, so the paused run that waits for a review is gone.",
+        "reviewed": "This run already has a review, maybe saved from another tab.",
+        "other": "The backend refused the review for this run.",
+        "kept": "Your decisions and notes are saved in this browser. Investigate again and they come back filled in, ready to send.",
+        "rerun": "Investigate again",
+        "showSaved": "Show the saved review"
+      },
+      "stale": {
+        "title": "There is a newer investigation of this case",
+        "body": "Someone ran the agent again after this report loaded, so this review would land on a run with other findings. Nothing was saved.",
+        "kept": "Your decisions and notes are saved in this browser and come back for every finding the new run shares.",
+        "load": "Load the newer investigation"
+      }
+    },
+    "correlation": {
+      "related": "Related",
+      "uncertain": "Uncertain",
+      "unrelated": "Unrelated"
+    },
+    "iocs": {
+      "title_one": "{{count}} IoC",
+      "title_other": "{{count}} IoCs",
+      "status": "Enrichment",
+      "statuses": {
+        "provided": "Provided with the case",
+        "partial": "Partly provided",
+        "no_disponible": "Not available"
+      },
+      "none": "The case brings no IoC enrichment.",
+      "provider": "Provider: {{provider}}",
+      "alerts": "Linked to",
+      "noAlerts": "no alert in this case",
+      "noResult": "The provider sent no result.",
+      "result": "What the provider returned",
+      "full": "Show the full result"
+    },
+    "stage": {
+      "initial_access": "Initial access",
+      "progression": "Progression",
+      "impact": "Impact"
+    },
+    "certainty": {
+      "observed": "Observed",
+      "inferred": "Inferred",
+      "unknown": "Certainty unknown"
+    },
+    "timeline": {
+      "title_one": "{{count}} event in order",
+      "title_other": "{{count}} events in order",
+      "intro": "Times in UTC. Order shows when alerts happened, not that one caused the next.",
+      "none": "No dated events outside the unrelated alerts.",
+      "noiseTitle_one": "{{count}} unrelated event",
+      "noiseTitle_other": "{{count}} unrelated events",
+      "noiseIntro": "From alerts the correlation found unrelated to the rest of the case. Kept here, not discarded.",
+      "noNoise": "Every alert relates to the rest of the case.",
+      "undatedTitle_one": "{{count}} event without a usable time",
+      "undatedTitle_other": "{{count}} events without a usable time",
+      "undatedIntro": "These can't be placed in the order, so they are kept apart.",
+      "noUndated": "Every event has a usable time.",
+      "noTime": "No usable time",
+      "asSent": "Sent as {{value}}",
+      "timezoneUnknown": "Time zone unknown",
+      "uncertainLink": "Uncertain link"
+    },
+    "correlationPanel": {
+      "title": "How the alerts relate",
+      "intro": "Alerts are related when they share entities within {{seconds}} seconds. Related is not proof of an attack.",
+      "groups_one": "{{count}} related group",
+      "groups_other": "{{count}} related groups",
+      "noGroups": "No alerts were related to each other.",
+      "group": "Group {{number}}",
+      "uncertain_one": "{{count}} uncertain alert",
+      "uncertain_other": "{{count}} uncertain alerts",
+      "unrelated_one": "{{count}} unrelated alert",
+      "unrelated_other": "{{count}} unrelated alerts",
+      "noneOfKind": "None.",
+      "pairs_one": "Show the {{count}} compared pair",
+      "pairs_other": "Show the {{count}} compared pairs",
+      "apart": "{{seconds}} s apart."
+    },
+    "assets": {
+      "observed_one": "{{count}} observed asset",
+      "observed_other": "{{count}} observed assets",
+      "observedIntro": "Hosts that appear in the alerts, with what was seen on each.",
+      "asset": "Asset",
+      "activity": "Observed activity",
+      "basis": "From alerts",
+      "suspectedAssets_one": "{{count}} suspected asset",
+      "suspectedAssets_other": "{{count}} suspected assets",
+      "confirmedAssets_one": "{{count}} confirmed asset",
+      "confirmedAssets_other": "{{count}} confirmed assets",
+      "suspectedIdentities_one": "{{count}} suspected identity",
+      "suspectedIdentities_other": "{{count}} suspected identities",
+      "confirmedIdentities_one": "{{count}} confirmed identity",
+      "confirmedIdentities_other": "{{count}} confirmed identities",
+      "none": "None.",
+      "unknowns": "What the scope still doesn't know",
+      "noUnknowns": "None listed."
+    }
   }
 }

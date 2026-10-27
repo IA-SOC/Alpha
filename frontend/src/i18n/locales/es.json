@@ -38,7 +38,8 @@
       "body": "El caso {{id}} está guardado y listo para investigar.",
       "uuid": "ID de la aplicación",
       "copy": "Copiar",
-      "copied": "Copiado"
+      "copied": "Copiado",
+      "investigate": "Investigar"
     },
     "invalid": {
       "title_one": "{{count}} problema por corregir",
@@ -76,5 +77,316 @@
   "session": {
     "signedInAs": "Sesión iniciada como",
     "signOut": "Cerrar sesión"
+  },
+  "case": {
+    "title": "Caso",
+    "applicationId": "ID de la aplicación",
+    "loading": "Cargando el informe del caso",
+    "missing": {
+      "title": "No hay ningún caso con este ID",
+      "body": "El backend no tiene ningún caso guardado con este ID de la aplicación. Puede ser una errata, o que se reiniciara la base de datos del backend.",
+      "newCase": "Enviar un caso nuevo"
+    },
+    "notRun": {
+      "title": "Todavía sin investigar",
+      "body": "El caso está guardado. Lanza el agente para obtener su informe."
+    },
+    "run": {
+      "title": "Investigando el caso",
+      "body": "El agente correlaciona las alertas, asigna técnicas de ATT&CK, arma la cronología y revisa los IoC adjuntos. El caso de demo tarda unos segundos. Los casos más grandes pueden tardar unos minutos.",
+      "limit": "de un máximo de {{limit}}",
+      "timeUsed": "Tiempo usado del límite",
+      "timeUsedValue": "{{elapsed}} de {{limit}}"
+    },
+    "failed": {
+      "timeout": "La investigación se quedó sin tiempo",
+      "agent": "La investigación falló",
+      "pageTimeout": {
+        "title": "Sin respuesta tras {{limit}}",
+        "body": "El backend nunca respondió. Puede que se parara, o que el agente aún termine. Recarga esta página en unos minutos para ver si ya está el informe."
+      },
+      "unexpected": {
+        "title": "Algo falló al leer la respuesta"
+      },
+      "kept": "Tu caso sigue guardado, así que puedes lanzarlo otra vez sin enviarlo dos veces.",
+      "retry": "Lanzar la investigación otra vez"
+    },
+    "loadFailed": {
+      "title": "No se pudo cargar el informe"
+    }
+  },
+  "report": {
+    "tabs": {
+      "label": "Secciones del informe",
+      "summary": "Resumen",
+      "mitre": "MITRE ATT&CK",
+      "review": "Revisión",
+      "evidence": "Evidencia",
+      "timeline": "Cronología",
+      "assets": "Activos afectados"
+    },
+    "facts": {
+      "sources": "Fuentes",
+      "alerts": "Alertas",
+      "alertsValue": "{{processed}} de {{total}} procesadas",
+      "window": "Ventana de tiempo",
+      "generated": "Informe generado",
+      "review": "Revisión",
+      "to": "a"
+    },
+    "sourceFormat": {
+      "elastic_ecs": "Elastic ECS",
+      "elastic_security": "Elastic Security",
+      "wazuh": "Wazuh",
+      "mixed": "Fuentes mixtas",
+      "unknown": "Desconocido"
+    },
+    "reviewStatus": {
+      "pending": "Pendiente de revisión",
+      "validated": "Validado",
+      "corrected": "Corregido",
+      "rejected": "Rechazado"
+    },
+    "confidence": {
+      "label": "Confianza",
+      "alta": "Alta",
+      "media": "Media",
+      "baja": "Baja",
+      "insuficiente": "Insuficiente"
+    },
+    "priority": {
+      "urgent": "Urgente",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "summary": {
+      "title": "Qué encontró el agente"
+    },
+    "hypotheses": {
+      "title_one": "{{count}} hipótesis",
+      "title_other": "{{count}} hipótesis",
+      "none": "El agente no formuló ninguna hipótesis para este caso.",
+      "group": "Del grupo de alertas",
+      "for_one": "{{count}} evidencia a favor",
+      "for_other": "{{count}} evidencias a favor",
+      "against_one": "{{count}} evidencia en contra",
+      "against_other": "{{count}} evidencias en contra",
+      "noneFor": "No se registró evidencia a favor.",
+      "noneAgainst": "No se registró evidencia en contra.",
+      "alternatives": "Explicaciones alternativas",
+      "noAlternatives": "Ninguna.",
+      "unknowns": "Lo que aún se desconoce",
+      "noUnknowns": "Nada indicado.",
+      "iocs_one": "{{count}} IoC relacionado",
+      "iocs_other": "{{count}} IoC relacionados",
+      "iocSource": "De {{provider}}, vinculado a {{alert}}"
+    },
+    "evidence": {
+      "fields": "Campos leídos: {{fields}}",
+      "openAlert": "Abrir la alerta {{id}} en Evidencia",
+      "sourceFields_one": "Ver el {{count}} campo de origen",
+      "sourceFields_other": "Ver los {{count}} campos de origen",
+      "path": "Campo en el caso",
+      "value": "Valor",
+      "check": "Comprobación",
+      "matches": "Coincide",
+      "differs": "El caso tiene este valor. El informe cita {{value}}",
+      "notFound": "No está en el caso enviado",
+      "caseLoading": "Cargando el caso enviado",
+      "caseFailed": "No se pudo cargar el caso enviado, así que no se pueden comprobar los campos.",
+      "alertsTitle_one": "{{count}} alerta en el caso",
+      "alertsTitle_other": "{{count}} alertas en el caso",
+      "alertsIntro": "Cada alerta tal como se envió, con los campos que el informe leyó de ella.",
+      "system": {
+        "elastic": "Elastic",
+        "wazuh": "Wazuh"
+      },
+      "severity": "Severidad de la alerta",
+      "severityField": "de {{field}}",
+      "noSeverity": "La alerta no trae severidad",
+      "correlation": "Correlación",
+      "citedBy": "Usada en",
+      "notCited": "No se usa en el informe",
+      "cite": {
+        "hypothesis_for": "Hipótesis {{rank}}, a favor",
+        "hypothesis_against": "Hipótesis {{rank}}, en contra",
+        "timeline": "Cronología",
+        "action": "Acción {{number}}"
+      },
+      "fieldsRead_one": "{{count}} campo leído por el informe",
+      "fieldsRead_other": "{{count}} campos leídos por el informe",
+      "noFields": "El informe no lee ningún campo de esta alerta.",
+      "original": "Ver la alerta original"
+    },
+    "actions": {
+      "title_one": "{{count}} acción recomendada",
+      "title_other": "{{count}} acciones recomendadas",
+      "none": "El agente no recomendó ninguna acción.",
+      "priority": "Prioridad",
+      "basedOn": "Basada en",
+      "approval": "Necesita la aprobación de un analista antes de aplicarse."
+    },
+    "limits": {
+      "title": "Límites de este informe",
+      "none": "El informe no indica limitaciones.",
+      "missingFields": "Campos que faltan en las alertas"
+    },
+    "mitre": {
+      "intro": "Las técnicas llevan un estado, no una confianza. Una candidata coincide con el patrón de las alertas y aún necesita que un analista la confirme.",
+      "none": "El agente no asignó ninguna técnica de ATT&CK a este caso.",
+      "noTactic": "Sin táctica indicada",
+      "status": "Estado",
+      "statuses": {
+        "candidate": "Candidata",
+        "supported": "Respaldada",
+        "not_supported": "No respaldada",
+        "unknown": "Desconocido"
+      },
+      "evidence_one": "{{count}} evidencia",
+      "evidence_other": "{{count}} evidencias",
+      "noEvidence": "Sin evidencia registrada.",
+      "version": "Fuente de la técnica: {{version}}",
+      "noVersion": "Sin fuente de la técnica indicada"
+    },
+    "review": {
+      "title": "Revisión del analista",
+      "status": "Estado",
+      "analyst": "Analista",
+      "notes": "Notas",
+      "reviewedAt": "Revisado el",
+      "intro": "Valida, corrige o rechaza cada hallazgo y explica por qué. El agente propone, tú decides.",
+      "oneReview": "Por ahora todas las decisiones se guardan juntas como una sola revisión del informe completo, escritas en sus notas.",
+      "problems_one": "Falta {{count}} dato para poder guardar la revisión.",
+      "problems_other": "Faltan {{count}} datos para poder guardar la revisión.",
+      "findings_one": "{{count}} hallazgo",
+      "findings_other": "{{count}} hallazgos",
+      "decided": "{{decided}} de {{total}} decididos",
+      "hypothesis": "Hipótesis {{rank}}",
+      "technique": "Técnica de MITRE ATT&CK",
+      "decisions": {
+        "validated": "Validar",
+        "corrected": "Corregir",
+        "rejected": "Rechazar"
+      },
+      "decisionMissing": "Elige una decisión para este hallazgo.",
+      "findingNote": "Nota",
+      "findingNoteHint": "Por qué lo decides. Si corriges, escribe cuál es la conclusión correcta.",
+      "noteMissing": "Escribe una nota.",
+      "outcome": "Resultado de la revisión",
+      "outcomeSuggested": "Sugerido a partir de tus decisiones: {{status}}. Puedes elegir otro.",
+      "outcomeWaiting": "Decide todos los hallazgos para ver una sugerencia.",
+      "outcomeNoFindings": "El agente no llegó a hallazgos que decidir, así que elige el resultado del informe completo.",
+      "outcomeMissing": "Elige un resultado.",
+      "suggested": "Sugerido",
+      "analystMissing": "Escribe el nombre del analista.",
+      "generalNote": "Nota general, opcional",
+      "generalNoteHint": "Cualquier cosa sobre el informe en conjunto.",
+      "generalNoteRequired": "Nota",
+      "generalNoteHintRequired": "Por qué eliges este resultado.",
+      "save": "Guardar revisión",
+      "saving": "Guardando la revisión",
+      "kept": "Tus decisiones y notas siguen aquí. Vuelve a intentarlo cuando responda el backend.",
+      "conflict": {
+        "title": "Esta investigación ya no admite revisión",
+        "restarted": "El backend se reinició después de esta investigación, así que ya no existe la ejecución en pausa que espera la revisión.",
+        "reviewed": "Esta ejecución ya tiene una revisión, quizá guardada desde otra pestaña.",
+        "other": "El backend rechazó la revisión de esta ejecución.",
+        "kept": "Tus decisiones y notas están guardadas en este navegador. Vuelve a investigar y aparecerán rellenas, listas para enviar.",
+        "rerun": "Volver a investigar",
+        "showSaved": "Ver la revisión guardada"
+      },
+      "stale": {
+        "title": "Hay una investigación más reciente de este caso",
+        "body": "Alguien volvió a lanzar el agente después de que se cargara este informe, así que esta revisión caería en una ejecución con otros hallazgos. No se guardó nada.",
+        "kept": "Tus decisiones y notas están guardadas en este navegador y vuelven en cada hallazgo que comparta la nueva ejecución.",
+        "load": "Cargar la investigación más reciente"
+      }
+    },
+    "correlation": {
+      "related": "Relacionada",
+      "uncertain": "Incierta",
+      "unrelated": "No relacionada"
+    },
+    "iocs": {
+      "title_one": "{{count}} IoC",
+      "title_other": "{{count}} IoC",
+      "status": "Enriquecimiento",
+      "statuses": {
+        "provided": "Aportado con el caso",
+        "partial": "Aportado en parte",
+        "no_disponible": "No disponible"
+      },
+      "none": "El caso no trae enriquecimiento de IoC.",
+      "provider": "Proveedor: {{provider}}",
+      "alerts": "Vinculado a",
+      "noAlerts": "ninguna alerta de este caso",
+      "noResult": "El proveedor no envió ningún resultado.",
+      "result": "Lo que devolvió el proveedor",
+      "full": "Ver el resultado completo"
+    },
+    "stage": {
+      "initial_access": "Acceso inicial",
+      "progression": "Progresión",
+      "impact": "Impacto"
+    },
+    "certainty": {
+      "observed": "Observado",
+      "inferred": "Inferido",
+      "unknown": "Certeza desconocida"
+    },
+    "timeline": {
+      "title_one": "{{count}} evento en orden",
+      "title_other": "{{count}} eventos en orden",
+      "intro": "Horas en UTC. El orden dice cuándo ocurrió cada alerta, no que una causara la siguiente.",
+      "none": "No hay eventos con hora fuera de las alertas no relacionadas.",
+      "noiseTitle_one": "{{count}} evento no relacionado",
+      "noiseTitle_other": "{{count}} eventos no relacionados",
+      "noiseIntro": "De alertas que la correlación no relacionó con el resto del caso. Se conservan aquí, no se descartan.",
+      "noNoise": "Todas las alertas se relacionan con el resto del caso.",
+      "undatedTitle_one": "{{count}} evento sin hora utilizable",
+      "undatedTitle_other": "{{count}} eventos sin hora utilizable",
+      "undatedIntro": "No se pueden colocar en el orden, así que van aparte.",
+      "noUndated": "Todos los eventos tienen una hora utilizable.",
+      "noTime": "Sin hora utilizable",
+      "asSent": "Enviada como {{value}}",
+      "timezoneUnknown": "Zona horaria desconocida",
+      "uncertainLink": "Relación incierta"
+    },
+    "correlationPanel": {
+      "title": "Cómo se relacionan las alertas",
+      "intro": "Las alertas se relacionan cuando comparten entidades en menos de {{seconds}} segundos. Relacionadas no prueba un ataque.",
+      "groups_one": "{{count}} grupo relacionado",
+      "groups_other": "{{count}} grupos relacionados",
+      "noGroups": "Ninguna alerta se relacionó con otra.",
+      "group": "Grupo {{number}}",
+      "uncertain_one": "{{count}} alerta incierta",
+      "uncertain_other": "{{count}} alertas inciertas",
+      "unrelated_one": "{{count}} alerta no relacionada",
+      "unrelated_other": "{{count}} alertas no relacionadas",
+      "noneOfKind": "Ninguna.",
+      "pairs_one": "Ver el {{count}} par comparado",
+      "pairs_other": "Ver los {{count}} pares comparados",
+      "apart": "Separadas {{seconds}} s."
+    },
+    "assets": {
+      "observed_one": "{{count}} activo observado",
+      "observed_other": "{{count}} activos observados",
+      "observedIntro": "Hosts que aparecen en las alertas, con lo que se vio en cada uno.",
+      "asset": "Activo",
+      "activity": "Actividad observada",
+      "basis": "De las alertas",
+      "suspectedAssets_one": "{{count}} activo sospechoso",
+      "suspectedAssets_other": "{{count}} activos sospechosos",
+      "confirmedAssets_one": "{{count}} activo confirmado",
+      "confirmedAssets_other": "{{count}} activos confirmados",
+      "suspectedIdentities_one": "{{count}} identidad sospechosa",
+      "suspectedIdentities_other": "{{count}} identidades sospechosas",
+      "confirmedIdentities_one": "{{count}} identidad confirmada",
+      "confirmedIdentities_other": "{{count}} identidades confirmadas",
+      "none": "Ninguno.",
+      "unknowns": "Lo que aún no se sabe del alcance",
+      "noUnknowns": "Nada indicado."
+    }
   }
 }
