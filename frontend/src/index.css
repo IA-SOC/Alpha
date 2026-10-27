@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+/* Aligo brand tokens, from the Aligo identity manual. State colors are derived for UI. */
+@theme {
+  --color-aligo-negro: #000000;
+  --color-aligo-rojo: #e63340;
+  --color-aligo-gris: #4c5356;
+  --color-aligo-blanco: #ffffff;
+  --color-aligo-rojo-oscuro: #c80e28;
+  --color-aligo-rojo-medio: #e3032c;
+  --color-aligo-rojo-claro: #ec6670;
+  --color-aligo-gris-oscuro: #313535;
+  --color-aligo-gris-medio: #787979;
+  --color-aligo-gris-claro: #acadad;
+
+  --color-state-error: #c80e28;
+  --color-state-error-bg: #fbe3e5;
+  --color-state-ok: #006032;
+  --color-state-ok-bg: #cbf1df;
+  --color-state-info: #236688;
+  --color-state-info-bg: #bfdae8;
+  --color-state-warn: #b9770e;
+  --color-state-warn-bg: #fce9ce;
+
+  /* Screen roles mapped onto the brand. Surfaces step up in lightness, never with shadows. */
+  --color-ground: #000000;
+  --color-surface: #313535;
+  --color-rule: #313535;
+  --color-control: #4c5356;
+  --color-muted: #acadad;
+  --color-faint: #787979; /* 4.5:1 on the ground only, never on a surface */
+
+  --font-sans: 'Poppins', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
+}
+
+@layer base {
+  /* Manual: body text in Light, titles in Bold, line height at least 5pt over the font size. */
+  body {
+    @apply bg-aligo-negro text-aligo-blanco font-sans antialiased;
+    font-weight: 300;
+    line-height: calc(1em + 5pt);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 700;
+    line-height: calc(1em + 5pt);
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-aligo-rojo;
+  }
+}

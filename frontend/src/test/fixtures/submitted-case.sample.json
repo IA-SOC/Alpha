@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "case_id": "SPRINT2-DEMO-3088c6f8ad2c",
+  "submitted_at": "2026-10-09T12:10:00Z",
+  "title": "Synthetic mixed-source correlation demo",
+  "description": "Simulated data, not customer exports.",
+  "alerts": [
+    {
+      "alert_id": "ecs-auth-001",
+      "source_system": "elastic",
+      "source_version": "8.19",
+      "ecs_version": "8.x",
+      "raw_alert": {
+        "event": {
+          "id": "ecs-auth-001",
+          "category": [
+            "authentication"
+          ],
+          "action": "failed_login",
+          "outcome": "failure"
+        },
+        "@timestamp": "2026-10-09T12:00:00Z",
+        "source": {
+          "ip": "192.0.2.50"
+        },
+        "host": {
+          "name": "web-01"
+        },
+        "user": {
+          "name": "demo-user"
+        },
+        "tags": [
+          "brute_force"
+        ],
+        "customer_custom": {
+          "decoder_hint": "synthetic",
+          "opaque": [
+            null,
+            true,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "alert_id": "wazuh-auth-002",
+      "source_system": "wazuh",
+      "source_version": "4.14",
+      "raw_alert": {
+        "id": "wazuh-auth-002",
+        "timestamp": "2026-10-09T07:02:00-05:00",
+        "data": {
+          "srcip": "192.0.2.50",
+          "dstuser": "demo-user"
+        },
+        "agent": {
+          "name": "web-01",
+          "id": "001"
+        },
+        "rule": {
+          "level": 8,
+          "description": "Repeated authentication failures",
+          "groups": [
+            "authentication_failures"
+          ]
+        }
+      }
+    },
+    {
+      "alert_id": "ecs-noise-003",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "ecs-noise-003",
+          "category": [
+            "network"
+          ]
+        },
+        "@timestamp": "2026-10-09T12:01:00Z",
+        "source": {
+          "ip": "198.51.100.10"
+        },
+        "host": {
+          "name": "dns-02"
+        },
+        "user": {
+          "name": "backup"
+        },
+        "dns": {
+          "question": {
+            "name": "updates.example.test"
+          }
+        }
+      }
+    },
+    {
+      "alert_id": "ecs-uncertain-004",
+      "source_system": "elastic",
+      "raw_alert": {
+        "event": {
+          "id": "ecs-uncertain-004",
+          "action": "logon"
+        },
+        "@timestamp": "2026-10-09T12:03:00Z",
+        "source": {
+          "ip": "203.0.113.80"
+        },
+        "host": {
+          "name": "web-01"
+        },
+        "user": {
+          "name": "other-user"
+        }
+      }
+    }
+  ],
+  "enrichments": [
+    {
+      "provider": "synthetic_feed",
+      "observable": {
+        "type": "ip",
+        "value": "192.0.2.50"
+      },
+      "related_alert_ids": [
+        "ecs-auth-001"
+      ],
+      "raw_result": {
+        "verdict": "suspicious",
+        "reference": "https://example.test/synthetic-ioc",
+        "custom": {
+          "score": 42
+        }
+      }
+    },
+    {
+      "provider": "synthetic_declared_link",
+      "observable": {
+        "type": "domain",
+        "value": "unseen.example.test"
+      },
+      "related_alert_ids": [
+        "wazuh-auth-002"
+      ],
+      "raw_result": {
+        "note": "Explicit association supplied; observable not present in alert fields"
+      }
+    },
+    {
+      "provider": "synthetic_unmatched",
+      "observable": {
+        "type": "ip",
+        "value": "203.0.113.200"
+      }
+    }
+  ]
+}
