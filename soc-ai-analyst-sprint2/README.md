@@ -52,7 +52,16 @@ Expected: 4 alerts, 6 pairs (1 related, 2 uncertain, 3 unrelated), one noise
 candidate (`ecs-noise-003`), 3 IoC items, valid report and `pending_review`.
 The report's conclusions remain candidates.
 
+## Reports for technical and non-technical readers
+
+New agent investigations include `report.audience_sections` and a two-part
+`report_markdown`. The rule-based formatter uses English headings and narrative,
+preserves original-language evidence and refreshes both sections after human
+review. Existing report fields and older report rendering remain supported.
+See [issue #66's contract and integration](docs/sprint4/US19-issue-66-report-formatter.md).
+
 ## API
+
 
 All `{case_id}` paths use the **application UUID returned by intake**, not the
 submitted external ID.

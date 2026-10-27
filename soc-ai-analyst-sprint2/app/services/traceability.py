@@ -2,6 +2,8 @@
 
 import re
 
+from app.services.report_formatter import validate_audience_sections
+
 
 def _resolve_pointer(document: dict, pointer: str):
     """Resolve a strict RFC 6901 pointer while distinguishing absent from null."""
@@ -27,6 +29,7 @@ def _resolve_pointer(document: dict, pointer: str):
 
 
 def verify_traceability(context: dict, report: dict) -> None:
+    validate_audience_sections(report)
     original = context["original_case"]
     alerts = original["alerts"]
     alert_indexes = {a["alert_id"]: i for i, a in enumerate(alerts)}
