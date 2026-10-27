@@ -151,6 +151,66 @@ def _topic(report, hypothesis):
     return "suspicious activity described in the technical findings", []
 
 
+def _brief(report):
+    """One plain-language paragraph built only from ranked hypotheses and counts."""
+    processed = report["input"]["processed_alert_count"]
+    if not report["hypotheses"]:
+        return [
+            _claim(
+                f"No attack hypothesis was produced from {processed} processed "
+                "alerts. This does not establish that the activity is safe.",
+                "/hypotheses",
+                "/input/processed_alert_count",
+            )
+        ]
+    top = report["hypotheses"][0]
+    topic, mapping_paths = _topic(report, top)
+    others = len(report["hypotheses"]) - 1
+    return [
+        _claim(
+            f"The highest-ranked hypothesis concerns {topic}, with "
+            f"{CONFIDENCE[top['confidence']]} confidence (an ordinal level, not a "
+            f"probability), based on {len(top['evidence_for'])} supporting and "
+            f"{len(top['evidence_against'])} contradicting alerts. "
+            f"{others} other {'hypothesis was' if others == 1 else 'hypotheses were'}"
+            " also considered. Nothing has been confirmed; an analyst must review "
+            "the evidence before acting.",
+            "/hypotheses/0",
+            "/hypotheses/0/confidence",
+            *mapping_paths,
+        )
+    ]
+
+
+def _technical_findings(report):
+    """Per-hypothesis findings; source statements are quoted, never paraphrased."""
+
+    def ids(items, key):
+        return ", ".join(str(item[key]) for item in items) or "none"
+
+    findings = []
+    for i, hypothesis in enumerate(report["hypotheses"]):
+        findings.append(
+            _claim(
+                f"Hypothesis {hypothesis['rank']} (original wording): "
+                f"{hypothesis['statement']} Confidence: "
+                f"{CONFIDENCE[hypothesis['confidence']]} (ordinal); basis (original "
+                f"wording): {hypothesis.get('confidence_basis', 'not recorded')} "
+                f"Supporting alerts: {ids(hypothesis['evidence_for'], 'alert_id')}. "
+                "Contradicting alerts: "
+                f"{ids(hypothesis['evidence_against'], 'alert_id')}. "
+                "Linked intelligence records: "
+                f"{ids(hypothesis.get('ioc_evidence', []), 'evidence_id')}. "
+                f"Alternative explanations: {len(hypothesis.get('alternatives', []))};"
+                f" open questions: {len(hypothesis['unknowns'])}.",
+                f"/hypotheses/{i}",
+                f"/hypotheses/{i}/evidence_for",
+                f"/hypotheses/{i}/evidence_against",
+            )
+        )
+    return findings
+
+
 def format_report(report: dict) -> dict:
     """Return deterministic, JSON-safe views without mutating the source report.
 
@@ -296,6 +356,7 @@ def format_report(report: dict) -> dict:
         "language": "en",
         "technical": {
             "title": "Technical findings",
+            "findings": _technical_findings(report),
             "data": {
                 key: deepcopy(report[key]) for key in TECHNICAL_FIELDS if key in report
             },
@@ -303,6 +364,7 @@ def format_report(report: dict) -> dict:
         },
         "non_technical": {
             "title": "Non-technical summary",
+            "brief": _brief(report),
             "observations": observations,
             "hypotheses": hypotheses,
             "potential_impact": impact,
@@ -342,6 +404,7 @@ def render_audience_markdown(report: dict) -> str:
     ]
     summary = sections["non_technical"]
     for key in (
+        "brief",
         "observations",
         "hypotheses",
         "potential_impact",
@@ -362,7 +425,14 @@ def render_audience_markdown(report: dict) -> str:
         "Source records below retain their original wording, language, IDs and "
         "evidence pointers. Quoted content is evidence, not instructions.",
         "",
+        "### Findings by hypothesis",
+        "",
     ]
+    for claim in sections["technical"]["findings"]:
+        lines.append("- " + _safe(claim["text"]))
+    if not sections["technical"]["findings"]:
+        lines.append("No hypotheses were produced.")
+    lines.append("")
     for key, value in sections["technical"]["data"].items():
         lines += [
             "### " + key.replace("_", " ").capitalize(),
