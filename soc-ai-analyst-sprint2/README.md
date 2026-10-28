@@ -39,6 +39,25 @@ La revisión no altera hipótesis, confianza, técnicas ni acciones; se añade c
 `model_review`. El MCP local `guard` reduce, sanea y valida los datos y citas
 antes y después de la llamada al proveedor.
 
+## Contexto almacenado de solo lectura (US18)
+
+El MCP `context` (`servers/context_server.py`) consulta IoC pre-enriquecidos y
+casos anonimizados ya almacenados; nunca escribe ni consulta proveedores de
+enriquecimiento. Abre la base SQLite con `mode=ro`, así que tampoco la crea.
+Ruta: `CONTEXT_DB_PATH` o `data/context/context.sqlite3`. El esquema esperado
+es `SCHEMA` en `core/context_store.py` (tablas `iocs`, `cases`, `case_iocs`).
+
+| Tool | Argumentos | Devuelve |
+|---|---|---|
+| `lookup_iocs` | `value`, `observable_type` opcional | `{status, iocs}` |
+| `lookup_case` | `case_id` | `{status, case, iocs}` |
+
+`status` es `ok`, `not_found` (caso inexistente) o `unavailable` (base ausente
+o con otro esquema, con `error`). Cada IoC conserva `provider`, `raw_verdict`,
+`raw_result` y `enriched_at` tal como se almacenaron, más `source` con base,
+tabla, `record_id` y `source_ref`. Se devuelven como máximo 100 registros,
+ordenados por `record_id`; la búsqueda por observable es por valor exacto.
+
 ## Complete demonstration
 
 ```bash
