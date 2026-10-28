@@ -123,6 +123,23 @@ REQUIRED_FIELDS = (
 )
 
 
+ASSESSMENT = {
+    "supports": "the cited evidence supports it",
+    "weak": "the cited evidence is weak",
+    "contradicts": "the cited evidence contradicts it",
+}
+
+
+def _interpretation(hypothesis, technical):
+    item = hypothesis.get("interpretation")
+    if not item:
+        return ""
+    text = f" Interpretation by {item['source']}: {ASSESSMENT[item['assessment']]}."
+    if technical:
+        text += f" Explanation (original wording): {item['explanation']}"
+    return text
+
+
 def _claim(text, *paths):
     return {"text": text, "report_paths": list(paths)}
 
@@ -202,7 +219,8 @@ def _technical_findings(report):
                 "Linked intelligence records: "
                 f"{ids(hypothesis.get('ioc_evidence', []), 'evidence_id')}. "
                 f"Alternative explanations: {len(hypothesis.get('alternatives', []))};"
-                f" open questions: {len(hypothesis['unknowns'])}.",
+                f" open questions: {len(hypothesis['unknowns'])}."
+                + _interpretation(hypothesis, technical=True),
                 f"/hypotheses/{i}",
                 f"/hypotheses/{i}/evidence_for",
                 f"/hypotheses/{i}/evidence_against",
@@ -255,6 +273,7 @@ def format_report(report: dict) -> dict:
             f"Open questions: {len(hypothesis['unknowns'])}; "
             f"alternative explanations: {len(hypothesis.get('alternatives', []))}. "
             "This remains a hypothesis; review its evidence and limitations."
+            + _interpretation(hypothesis, technical=False)
         )
         hypotheses.append(_claim(text, f"/hypotheses/{i}", *mapping_paths))
     if not hypotheses:

@@ -62,7 +62,18 @@
           "evidence_for": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
           "evidence_against": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
           "alternatives": {"type": "array", "items": {"type": "string"}},
-          "unknowns": {"type": "array", "items": {"type": "string"}}
+          "unknowns": {"type": "array", "items": {"type": "string"}},
+          "interpretation": {
+            "type": "object",
+            "required": ["source", "assessment", "explanation", "cited_alert_ids"],
+            "properties": {
+              "source": {"type": "string"},
+              "assessment": {"enum": ["supports", "weak", "contradicts"]},
+              "explanation": {"type": "string"},
+              "cited_alert_ids": {"type": "array", "items": {"type": "string"}}
+            },
+            "additionalProperties": false
+          }
         },
         "additionalProperties": true
       }
@@ -151,8 +162,7 @@
     "model_review": {
       "type": "object",
       "properties": {
-        "status": {"enum": ["ok", "error", "unavailable"]},
-        "items": {"type": "array", "items": {"type": "object"}}
+        "status": {"enum": ["ok", "error", "unavailable"]}
       },
       "additionalProperties": true
     },

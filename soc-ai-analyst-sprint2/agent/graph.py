@@ -197,6 +197,10 @@ def run_skill_validator(case: Dict[str, Any], report: Dict[str, Any]) -> Dict[st
 async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
     started = time.perf_counter()
     case, summary = state["case"], state["input_summary"]
+    hypotheses, model_review = await llm.interpret_hypotheses(
+        state["alerts"], state["hypotheses"],
+        lambda tool, arguments: call_tool("guard", tool, arguments),
+    )
     report = {
         "case_id": str(case.get("case_id") or "sin-id"),
         "generated_at": _now(),
@@ -207,7 +211,7 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         "executive_summary": inv.executive_summary(case, state["chain"], state["hypotheses"],
                                                    summary["processed_alert_count"]),
         "attack_mapping": state["attack_mapping"],
-        "hypotheses": [{k: v for k, v in h.items() if k != "tactic"} for h in state["hypotheses"]],
+        "hypotheses": [{k: v for k, v in h.items() if k != "tactic"} for h in hypotheses],
         "timeline": state["timeline"],
         "blast_radius": state["blast_radius"],
         "enrichment": state["enrichment"],
@@ -226,15 +230,11 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         report["limitations"].append(
             "No se pudo correlacionar las alertas (IDs duplicados o alertas fuera del contrato v1.0); "
             "las hipótesis agrupan por técnica y pueden mezclar actividad no relacionada.")
-    model_review = await llm.build_model_review(
-        state["alerts"], state["hypotheses"],
-        lambda tool, arguments: call_tool("guard", tool, arguments),
-    )
     if model_review is not None:
         report["model_review"] = model_review
         if model_review["status"] in {"error", "unavailable"}:
             report["limitations"].append(
-                "La segunda opinion del modelo no estuvo disponible; el reporte usa solo el motor determinista.")
+                "El modelo no estuvo disponible; la interpretación de las hipótesis usa reglas deterministas.")
     report["audience_sections"] = format_report(report)
     validation = run_skill_validator(case, report)
     return {

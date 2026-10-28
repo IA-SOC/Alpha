@@ -180,7 +180,18 @@
       "noUnknowns": "None listed.",
       "iocs_one": "{{count}} related IoC",
       "iocs_other": "{{count}} related IoCs",
-      "iocSource": "From {{provider}}, linked to {{alert}}"
+      "iocSource": "From {{provider}}, linked to {{alert}}",
+      "interpretation": "Interpretation",
+      "source": {
+        "rules": "Rules",
+        "gemini": "Gemini"
+      },
+      "assessment": {
+        "supports": "The cited evidence supports it.",
+        "weak": "The cited evidence is weak.",
+        "contradicts": "The cited evidence contradicts it."
+      },
+      "cites": "Cites"
     },
     "evidence": {
       "fields": "Fields read: {{fields}}",

@@ -103,22 +103,74 @@ def _run(thread_id):
     return app.get_state(config).values
 
 
-def test_mock_es_opinion_sin_cambiar_reporte(monkeypatch):
+def _facts(report):
+    return [
+        {k: v for k, v in h.items() if k != "interpretation"}
+        for h in report["hypotheses"]
+    ]
+
+
+def _sources(report):
+    return [h["interpretation"]["source"] for h in report["hypotheses"]]
+
+
+def _no_provider(monkeypatch):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+
+
+def test_modelo_interpreta_sin_cambiar_hechos(monkeypatch):
+    _no_provider(monkeypatch)
     baseline = _run("llm-baseline")
     assert "model_review" not in baseline["report"]
+    assert baseline["report"]["hypotheses"]
+    assert set(_sources(baseline["report"])) == {"rules"}
     monkeypatch.setenv("LLM_PROVIDER", "mock")
     reviewed = _run("llm-mock")
     assert reviewed["report"]["model_review"]["status"] == "ok"
-    assert reviewed["report"]["hypotheses"] == baseline["report"]["hypotheses"]
+    assert set(_sources(reviewed["report"])) == {"mock"}
+    assert _facts(reviewed["report"]) == _facts(baseline["report"])
     assert reviewed["report"]["attack_mapping"] == baseline["report"]["attack_mapping"]
     assert (
         reviewed["report"]["recommended_actions"]
         == baseline["report"]["recommended_actions"]
     )
     assert reviewed["validation"]["ok"]
-    assert "## Model second opinion" in reviewed["report_markdown"]
-    assert "## Model second opinion" not in baseline["report_markdown"]
+    assert "Interpretation by mock" in reviewed["report_markdown"]
+    assert "## Model interpretation" in reviewed["report_markdown"]
+    assert "## Model interpretation" not in baseline["report_markdown"]
+
+
+EXPLANATION = "Explicación del modelo."
+
+
+def test_item_rechazado_cae_a_reglas_solo_en_su_hipotesis(monkeypatch):
+    class PartialProvider:
+        name = "gemini"
+        model = "prueba"
+
+        def review(self, context):
+            first = context["hypotheses"][0]
+            items = [
+                {"rank": first["rank"], "assessment": "supports",
+                 "explanation": EXPLANATION,
+                 "cited_alert_ids": first["evidence_for_ids"][:1]},
+                {"rank": 999, "assessment": "weak",
+                 "explanation": "Rango inventado.", "cited_alert_ids": ["x"]},
+            ]
+            return {"items": items}, {"input_tokens": 1, "output_tokens": 1}
+
+    _no_provider(monkeypatch)
+    monkeypatch.setenv("LLM_PROVIDER", "gemini")
+    monkeypatch.setattr(llm, "get_provider", lambda: PartialProvider())
+    state = _run("llm-partial")
+    report = state["report"]
+    assert report["model_review"]["rejected_count"] == 1
+    assert "items" not in report["model_review"]
+    assert report["hypotheses"][0]["interpretation"]["source"] == "gemini"
+    assert report["hypotheses"][0]["interpretation"]["explanation"] == EXPLANATION
+    assert set(_sources(report)[1:]) <= {"rules"}
+    assert state["validation"]["ok"]
 
 
 def test_provider_fallido_no_filtra_clave_ni_cambia_hipotesis(monkeypatch):
@@ -129,7 +181,7 @@ def test_provider_fallido_no_filtra_clave_ni_cambia_hipotesis(monkeypatch):
         def review(self, context):
             raise TimeoutError("clave-falsa-prueba")
 
-    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    _no_provider(monkeypatch)
     baseline = _run("llm-error-baseline")
     monkeypatch.setenv("LLM_PROVIDER", "gemini")
     monkeypatch.setenv("GEMINI_API_KEY", "clave-falsa-prueba")
@@ -145,4 +197,14 @@ def test_gemini_sin_clave_permanece_valido(monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     state = _run("llm-unavailable")
     assert state["report"]["model_review"]["status"] == "unavailable"
+    assert set(_sources(state["report"])) == {"rules"}
     assert state["validation"]["ok"]
+
+
+def test_gemini_es_principal_si_hay_clave(monkeypatch):
+    _no_provider(monkeypatch)
+    assert llm.provider_name() == "none"
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
+    assert llm.provider_name() == "gemini"
+    monkeypatch.setenv("LLM_PROVIDER", "none")
+    assert llm.provider_name() == "none"

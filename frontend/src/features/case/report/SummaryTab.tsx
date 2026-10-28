@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
 import type { Hypothesis, Report } from '../../../api/types'
-import { asEvidence, groupAlertIds, iocReferences } from './extras'
+import { asEvidence, groupAlertIds, interpretation, iocReferences } from './extras'
 import { AlertIds, Chip, Confidence, Empty, EvidenceList, Panel, TextList } from './parts'
 
 // 1152 container minus 2 x 24 padding = 1104 = 720 main column + 24 gap + 360 rail, as in New Case.
@@ -57,6 +57,7 @@ function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
   const support = asEvidence(hypothesis.evidence_for)
   const group = groupAlertIds(hypothesis)
   const iocs = iocReferences(hypothesis)
+  const reading = interpretation(hypothesis)
 
   return (
     <article className="rounded-2xl bg-surface p-5">
@@ -67,6 +68,23 @@ function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
         <Confidence value={hypothesis.confidence} />
         <p className="mt-1 text-sm text-muted">{hypothesis.confidence_basis}</p>
       </div>
+      {reading && (
+        <div className="mt-4">
+          <h4 className="flex flex-wrap items-baseline gap-x-2 text-sm font-medium">
+            {t('report.hypotheses.interpretation')}
+            <Chip>{t(`report.hypotheses.source.${reading.source}`, { defaultValue: reading.source })}</Chip>
+          </h4>
+          <p className="mt-1 text-sm">
+            {t(`report.hypotheses.assessment.${reading.assessment}`)} {reading.explanation}
+          </p>
+          {reading.cited_alert_ids.length > 0 && (
+            <p className="mt-1 text-sm">
+              <span className="text-muted">{t('report.hypotheses.cites')} </span>
+              <AlertIds ids={reading.cited_alert_ids} />
+            </p>
+          )}
+        </div>
+      )}
       {group.length > 0 && (
         <p className="mt-3 text-sm">
           <span className="text-muted">{t('report.hypotheses.group')} </span>

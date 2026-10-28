@@ -29,15 +29,21 @@ database, SIEM access, intelligence subscription or LLM download is needed.
 MCP servers start as local stdio subprocesses with the same Python interpreter.
 Open `http://127.0.0.1:8000/docs` for the API.
 
-## Segunda opinión opcional del modelo
+## Interpretación de hipótesis: modelo principal, reglas de respaldo
 
-Por defecto `LLM_PROVIDER=none`: el reporte permanece solo determinista.
-Copie `.env.example` a `.env`, defina `LLM_PROVIDER=gemini` y configure
-`GEMINI_API_KEY` únicamente en el entorno; nunca la guarde en el repositorio.
-`GEMINI_MODEL` usa `gemini-3.8-flash` y `LLM_TIMEOUT_SECONDS` usa 30 por defecto.
-La revisión no altera hipótesis, confianza, técnicas ni acciones; se añade como
-`model_review`. El MCP local `guard` reduce, sanea y valida los datos y citas
-antes y después de la llamada al proveedor.
+Los hechos (técnicas MITRE, línea de tiempo, correlación, IoC, rangos y
+acciones) salen siempre de los MCP servers con reglas deterministas. La
+interpretación de cada hipótesis (`hypotheses[].interpretation`: evaluación,
+explicación y alertas citadas) la hace Gemini cuando está configurado; si el
+modelo falla, no está disponible o su respuesta no pasa el MCP `guard`, esa
+hipótesis usa la interpretación por reglas (`source: "rules"`).
+
+Gemini es el proveedor por defecto cuando existe `GEMINI_API_KEY` en el
+entorno; nunca guarde la clave en el repositorio. `LLM_PROVIDER=none` fuerza
+solo reglas. `GEMINI_MODEL` usa `gemini-3.8-flash` y `LLM_TIMEOUT_SECONDS`
+usa 30 por defecto. `model_review` registra proveedor, latencia, tokens y
+respuestas rechazadas. El MCP local `guard` reduce, sanea y valida los datos y
+citas antes y después de la llamada al proveedor.
 
 ## Complete demonstration
 

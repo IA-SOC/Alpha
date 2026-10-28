@@ -270,24 +270,25 @@ def main() -> int:
             errors.append(f"{field}: expected array")
 
     model_review = report.get("model_review")
-    if model_review is not None:
-        if not isinstance(model_review, dict):
-            errors.append("model_review: expected object")
-        elif model_review.get("status") == "ok":
-            for i, item in enumerate(as_list(model_review.get("items"), "model_review.items", errors)):
-                where = f"model_review.items[{i}]"
-                if not isinstance(item, dict):
-                    errors.append(f"{where}: expected object")
-                    continue
-                if item.get("rank") not in hypothesis_ranks:
-                    errors.append(f"{where}.rank: unknown hypothesis rank")
-                if item.get("assessment") not in {"supports", "weak", "contradicts"}:
-                    errors.append(f"{where}.assessment: invalid assessment")
-                refs = as_list(item.get("cited_alert_ids"), f"{where}.cited_alert_ids", errors)
-                if not refs:
-                    errors.append(f"{where}.cited_alert_ids: at least one alert reference is required")
-                for j, ref in enumerate(refs):
-                    check_ref(ref, f"{where}.cited_alert_ids[{j}]")
+    if model_review is not None and not isinstance(model_review, dict):
+        errors.append("model_review: expected object")
+
+    for i, item in enumerate(hypotheses):
+        interpretation = item.get("interpretation") if isinstance(item, dict) else None
+        if interpretation is None:
+            continue
+        where = f"hypotheses[{i}].interpretation"
+        if not isinstance(interpretation, dict) or not isinstance(interpretation.get("source"), str):
+            errors.append(f"{where}: expected object with a source")
+            continue
+        if interpretation.get("assessment") not in {"supports", "weak", "contradicts"}:
+            errors.append(f"{where}.assessment: invalid assessment")
+        nonempty_text(interpretation, "explanation", where, errors)
+        refs = as_list(interpretation.get("cited_alert_ids"), f"{where}.cited_alert_ids", errors)
+        if not refs and interpretation["source"] != "rules":
+            errors.append(f"{where}.cited_alert_ids: a model interpretation must cite at least one alert")
+        for j, ref in enumerate(refs):
+            check_ref(ref, f"{where}.cited_alert_ids[{j}]")
 
     review = report.get("review")
     if not isinstance(review, dict):

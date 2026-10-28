@@ -60,6 +60,19 @@ describe('Case report', () => {
     expect(screen.getByRole('main').textContent).not.toMatch(/\d\s?%/)
   })
 
+  it('shows who interpreted each hypothesis and what it cites', async () => {
+    const copy = structuredClone(sampleInvestigation)
+    const cited = copy.report.hypotheses[0].evidence_for[0].alert_id
+    copy.report.hypotheses[0].interpretation = {
+      source: 'gemini', assessment: 'supports', explanation: 'Both logins come from one source.', cited_alert_ids: [cited],
+    }
+    openReport(copy)
+
+    const card = (await screen.findByRole('heading', { name: `1. ${report.hypotheses[0].statement}` })).closest('article')!
+    expect(within(card).getByText('Gemini')).toBeInTheDocument()
+    expect(within(card).getByText('The cited evidence supports it. Both logins come from one source.')).toBeInTheDocument()
+  })
+
   it('never hides the evidence against', async () => {
     openReport(withEvidenceAgainst())
 

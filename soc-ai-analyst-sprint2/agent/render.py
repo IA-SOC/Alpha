@@ -5,20 +5,18 @@ from app.services.report_formatter import _safe, render_audience_markdown
 
 
 def _model_review_markdown(report: Dict[str, Any]) -> str:
-    """Model output is untrusted text: escaped and kept apart from the engine's findings."""
+    """How the model run went; its interpretations are in the technical findings."""
     review = report.get("model_review")
     if not review:
         return ""
-    lines = ["", "## Model second opinion", "",
-             "Advisory only: it does not change hypotheses, confidence or actions.", ""]
+    lines = ["", "## Model interpretation", ""]
     if review["status"] == "ok":
         lines.append(f"- Provider/model: {_safe(review['provider'])} / {_safe(review['model'])}; "
-                     f"latency {review['latency_ms']} ms.")
-        for item in review["items"]:
-            lines.append(f"- Hypothesis {item['rank']}: {_safe(item['assessment'])}. {_safe(item['explanation'])} "
-                         f"Alerts: {_safe(', '.join(item['cited_alert_ids']))}.")
+                     f"latency {review['latency_ms']} ms; rejected items: {review['rejected_count']}. "
+                     "Hypotheses without an accepted model item use the rules interpretation.")
     else:
-        lines.append(f"- Status: {_safe(review['status'])}. {_safe(review.get('error', ''))}")
+        lines.append(f"- Status: {_safe(review['status'])}. {_safe(review.get('error', ''))} "
+                     "All hypotheses use the rules interpretation.")
     return "\n".join(lines) + "\n"
 
 

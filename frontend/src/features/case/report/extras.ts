@@ -4,6 +4,15 @@ import type { EnrichmentItem, Evidence, Hypothesis, IocReference, Report, Timeli
 // older agent does not carry the field.
 export const iocReferences = (hypothesis: Hypothesis) => (hypothesis.ioc_evidence as IocReference[] | undefined) ?? []
 
+export type Interpretation = {
+  source: string
+  assessment: 'supports' | 'weak' | 'contradicts'
+  explanation: string
+  cited_alert_ids: string[]
+}
+
+export const interpretation = (hypothesis: Hypothesis) => hypothesis.interpretation as Interpretation | undefined
+
 export const groupAlertIds = (item: Hypothesis | Report['attack_mapping'][number]) =>
   (item.correlation_group_alert_ids as string[] | undefined) ?? []
 
