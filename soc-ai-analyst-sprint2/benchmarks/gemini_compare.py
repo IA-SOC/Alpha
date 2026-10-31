@@ -53,6 +53,15 @@ PRICINGS = {
         "source": "https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash",
         "valid_through": None,
     },
+    "gemini-2.5-flash-lite": {
+        **PRICING,
+        "model": "gemini-2.5-flash-lite",
+        "input": 0.10,
+        "cached_input": 0.01,
+        "output_including_thinking": 0.40,
+        "source": "https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash-lite",
+        "valid_through": None,
+    },
 }
 
 
@@ -243,7 +252,7 @@ async def benchmark(names, live=False, key_file=None, model=MODEL):
                     max_output_tokens=2048,
                     retry_attempts=1,
                     thinking_level="low" if model == MODEL else None,
-                    thinking_budget=0 if model == "gemini-2.5-flash" else None,
+                    thinking_budget=0 if model != MODEL else None,
                 )
                 if live
                 else MockProvider()
