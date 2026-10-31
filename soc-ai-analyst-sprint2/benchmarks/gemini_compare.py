@@ -166,6 +166,11 @@ def measure_review(provider, context, live):
         result = {
             "status": "error",
             "error_type": type(exc).__name__,
+            "http_status": (
+                getattr(exc, "code", None)
+                if type(getattr(exc, "code", None)) is int
+                else None
+            ),
             "usage": None,
             "estimated_api_cost_usd": None,
         }
