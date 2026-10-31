@@ -1,0 +1,160 @@
+{
+  "acceptance_version": "1.0",
+  "date_local": "2026-10-31",
+  "timezone": "America/Bogota",
+  "code_revision": "4fb12eabead3548dbf1e815c931ca97c237590ec",
+  "main_revision": "c2c91cb156e99522176fb90e4b066df6e528ee1a",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.2",
+    "node": "20.16.0",
+    "npm": "10.8.1",
+    "frontend_node_required": ">=22.22.0",
+    "frontend_node_modules_present": false,
+    "fastapi": "0.161.1",
+    "langgraph": "1.2.16",
+    "mcp": "2.3.0",
+    "jsonschema": "4.26.0",
+    "pytest": "9.1.1",
+    "ruff": "0.16.9"
+  },
+  "backend_tests": {
+    "command": "$env:LLM_PROVIDER='none'; .\\.venv\\Scripts\\python.exe -m pytest tests -q",
+    "exit_code": 0,
+    "passed": 424,
+    "skipped": 2,
+    "elapsed_seconds": 239.95,
+    "skip_reasons": [
+      "ALIGO_PREPARED_DIR not supplied",
+      "Customer ZIP local opt-in not enabled"
+    ]
+  },
+  "backend_lint": {
+    "command": ".\\.venv\\Scripts\\python.exe -m ruff check app tests demo/run_pipeline.py demo/verify_local.py --exclude tests/test_agent_graph.py",
+    "exit_code": 0,
+    "result": "All checks passed"
+  },
+  "demo": {
+    "command": ".\\.venv\\Scripts\\python.exe docs/sprint4/acceptance-v1/demo_check.py",
+    "exit_code": 0,
+    "results": {
+      "case_id": "ab751305-69d2-47d9-ace5-230cbc70be0b",
+      "elapsed_seconds": 4.231,
+      "pair_counts": {
+        "related": 1,
+        "unrelated": 3,
+        "uncertain": 2
+      },
+      "noise_alert_ids": [
+        "ecs-noise-003"
+      ],
+      "ioc_count": 3,
+      "status": "pending_review",
+      "validation": {
+        "ok": true,
+        "returncode": 0,
+        "output": "REPORT STRUCTURE OK — 4 input alert(s); referenced IDs resolve.\nNOTE: This validates structure and references, not the truth of the findings.",
+        "traceability_ok": true
+      },
+      "negative_intake_http": {
+        "duplicate": 409,
+        "invalid": 422
+      },
+      "review_http": 200,
+      "review_status": "corrected",
+      "finding_decisions": 2,
+      "export_matches_saved_review": true,
+      "audit_phases": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hypotheses_unchanged_by_review": true,
+      "model_provider": "none",
+      "browser_verified": false,
+      "known_gaps": {
+        "export_includes_synthetic_password": true
+      }
+    }
+  },
+  "frontend_attempts": [
+    {
+      "command": "npm test",
+      "cwd": "frontend",
+      "exit_code": 1,
+      "result": "vitest not recognized; tests did not collect"
+    },
+    {
+      "command": "npm run e2e",
+      "cwd": "frontend",
+      "exit_code": 1,
+      "result": "playwright not recognized; browser workflow did not execute"
+    }
+  ],
+  "not_executed": [
+    "Frontend lint, typecheck and build",
+    "Live Gemini smoke/evaluation",
+    "Private customer-data compatibility tests",
+    "50-alert end-to-end performance benchmark",
+    "Recorded browser demo/client sign-off"
+  ],
+  "observed_probes": [
+    {
+      "command": "from core.logic import map_alerts_to_mitre; map_alerts_to_mitre([{'id':'benign-command','rule_name':'vssadmin list shadows','tags':[]}])",
+      "result": "T1490 mapping emitted for benign inventory command; candidate-only reporting mitigates but does not remove false positives"
+    },
+    {
+      "command": "from agent.investigation import ordinal_confidence; ordinal_confidence([{'rule_name':str(i),'timestamp_problem':None,'host':None,'user':None} for i in range(3)],[],False)",
+      "result": {
+        "confidence": "alta",
+        "confidence_basis": "3 alertas con 3 reglas distintas coinciden."
+      }
+    }
+  ],
+  "sprint4_open_issue_snapshot": [
+    50,
+    67,
+    68,
+    69,
+    79,
+    80,
+    81,
+    82,
+    84,
+    85,
+    87,
+    90,
+    92,
+    93,
+    94,
+    95,
+    99,
+    100,
+    101,
+    102
+  ],
+  "open_pr_snapshot": [
+    122,
+    124,
+    125,
+    126,
+    127
+  ],
+  "overall_release_accepted": false,
+  "client_sign_off_observed": false,
+  "verification_script_lint": {
+    "command": ".\\.venv\\Scripts\\python.exe -m ruff check docs/sprint4/acceptance-v1/demo_check.py --select E,F,I",
+    "exit_code": 0,
+    "result": "All checks passed after moving runtime path-dependent imports inside main"
+  },
+  "publication_dependency_update": {
+    "pr_127": "merged into PR 126 branch; deleted source branch",
+    "pr_126": "still open against main",
+    "merged_branch_revision": "1045e4871c74598f88e0cd48db31a3b70aa21e63",
+    "code_tree_diff_from_tested_revision": "empty (git diff 4fb12ea origin/feat/84-87-confidence-report-validation)",
+    "original_open_pr_snapshot_retained": true
+  }
+}
