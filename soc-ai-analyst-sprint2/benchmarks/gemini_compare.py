@@ -42,6 +42,18 @@ PRICING = {
     "valid_through": "2026-12-31",
     "basis": "Standard paid-tier estimate; not invoice/free-tier billing",
 }
+PRICINGS = {
+    MODEL: PRICING,
+    "gemini-2.5-flash": {
+        **PRICING,
+        "model": "gemini-2.5-flash",
+        "input": 0.30,
+        "cached_input": 0.03,
+        "output_including_thinking": 2.50,
+        "source": "https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash",
+        "valid_through": None,
+    },
+}
 
 
 class ReviewItem(BaseModel):
@@ -150,7 +162,7 @@ def source_quality(case, report):
     return {"original_fields_checked": checked, "original_field_errors": errors}
 
 
-def measure_review(provider, context, live):
+def measure_review(provider, context, live, pricing=PRICING):
     started = time.perf_counter()
     try:
         output, usage = provider.review(context)
@@ -158,7 +170,7 @@ def measure_review(provider, context, live):
             "status": "executed" if live else "offline_mock",
             "quality": review_quality(output, context),
             "usage": usage,
-            "estimated_api_cost_usd": estimate_cost(usage) if live else 0.0,
+            "estimated_api_cost_usd": estimate_cost(usage, pricing) if live else 0.0,
             "returned_model_version": getattr(provider, "last_model_version", None),
         }
     except Exception as exc:
@@ -178,13 +190,15 @@ def measure_review(provider, context, live):
     return result
 
 
-async def benchmark(names, live=False, key_file=None):
+async def benchmark(names, live=False, key_file=None, model=MODEL):
     from agent.graph import investigate
 
     if not names or len(names) > 4 or len(set(names)) != len(names):
         raise ValueError("Choose one to four distinct registered synthetic cases")
     if any(name not in CASES for name in names):
         raise ValueError("Only registered synthetic cases are permitted")
+    if model not in PRICINGS:
+        raise ValueError("Model requires a verified pricing snapshot")
     key = None
     if live:
         if key_file is None or ROOT.parent in Path(key_file).resolve().parents:
@@ -225,17 +239,18 @@ async def benchmark(names, live=False, key_file=None):
             provider = (
                 GeminiProvider(
                     key,
-                    model=MODEL,
+                    model=model,
                     max_output_tokens=2048,
                     retry_attempts=1,
-                    thinking_level="low",
+                    thinking_level="low" if model == MODEL else None,
+                    thinking_budget=0 if model == "gemini-2.5-flash" else None,
                 )
                 if live
                 else MockProvider()
             )
             with environment(GEMINI_API_KEY=key):
                 review = await asyncio.to_thread(
-                    measure_review, provider, context, live
+                    measure_review, provider, context, live, PRICINGS[model]
                 )
             stopped = review["status"] == "error"
         rows.append(
@@ -258,13 +273,13 @@ async def benchmark(names, live=False, key_file=None):
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
         ).strip(),
         "mode": "live" if live else "offline_mock",
-        "model": MODEL,
-        "pricing": PRICING,
+        "model": model,
+        "pricing": PRICINGS[model],
         "limits": {
             "max_requests": len(names),
             "retry_attempts": 1,
             "max_output_tokens_per_request": 2048,
-            "thinking_level": "low",
+            "thinking": "low" if model == MODEL else "budget=0",
         },
         "comparison": "deterministic full report vs incremental Gemini second opinion",
         "rows": rows,
@@ -275,11 +290,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--key-file", type=Path)
+    parser.add_argument("--model", choices=PRICINGS, default=MODEL)
     parser.add_argument("--cases", nargs="+", choices=CASES, default=list(CASES))
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
-        result, key = asyncio.run(benchmark(args.cases, args.live, args.key_file))
+        result, key = asyncio.run(
+            benchmark(args.cases, args.live, args.key_file, args.model)
+        )
         serialized = json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False)
         if key and key in serialized:
             raise ValueError("Credential detected; refusing output")
