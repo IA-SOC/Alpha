@@ -13,6 +13,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from core.report_contract import report_errors
+
 REQUIRED = {
     "case_id", "input", "executive_summary", "attack_mapping", "hypotheses",
     "timeline", "blast_radius", "enrichment", "recommended_actions",
@@ -99,6 +103,13 @@ def main() -> int:
     if not isinstance(report, dict):
         print("ERROR: report root must be a JSON object", file=sys.stderr)
         return 2
+
+    schema_errors = report_errors(report)
+    if schema_errors:
+        print("REPORT VALIDATION FAILED")
+        for error in schema_errors:
+            print(f"- {error}")
+        return 1
 
     missing = sorted(REQUIRED - report.keys())
     if missing:

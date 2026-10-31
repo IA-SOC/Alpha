@@ -10,6 +10,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 from app.main import create_app
 from app.services.report_formatter import format_report
 from app.services.traceability import verify_traceability
+from core.report_contract import SCHEMA_ID, serialize_report
 from tests.test_correlation_engine import case_for, event
 from tests.test_ioc_integration import ioc
 
@@ -57,6 +58,8 @@ def test_full_api_pipeline_reaches_real_langgraph_and_mcp(real_run):
     assert result["report"]["review"]["status"] == "pending"
     assert result["report"]["input"]["source_format"] == "mixed"
     assert result["report"]["input"]["schema_version"] == "1.0"
+    assert result["report"]["methodology"]["report_schema"] == SCHEMA_ID
+    assert json.loads(serialize_report(result["report"])) == result["report"]
     assert result["report"]["audience_sections"] == format_report(result["report"])
     assert result["report"]["audience_sections"]["language"] == "en"
     assert "## Non-technical summary" in result["report_markdown"]
@@ -74,6 +77,27 @@ def test_full_api_pipeline_reaches_real_langgraph_and_mcp(real_run):
     Draft202012Validator(schema, format_checker=FormatChecker()).validate(
         result["report"]
     )
+
+
+@pytest.mark.parametrize("corruption", ["percentage", "unsupported", "section"])
+def test_backend_rechecks_contract_even_if_agent_validation_was_ok(
+    real_run, corruption
+):
+    _, app, _, cid, _, result = real_run
+    report = deepcopy(result["report"])
+    if corruption == "percentage":
+        report["hypotheses"][0]["confidence"] = "99%"
+    elif corruption == "unsupported":
+        report["hypotheses"][0]["evidence_for"] = []
+    else:
+        del report["timeline"]
+    state = {
+        "validation": {"ok": True},
+        "case": {"investigation_context": result["investigation_context"]},
+        "report": report,
+    }
+    with pytest.raises(ValueError, match="Report contract"):
+        app.state.investigation_service._result(cid, result["run_id"], state)
 
 
 def test_findings_reference_real_ioc_evidence_without_increasing_confidence(real_run):
