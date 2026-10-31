@@ -149,5 +149,12 @@
     "command": ".\\.venv\\Scripts\\python.exe -m ruff check docs/sprint4/acceptance-v1/demo_check.py --select E,F,I",
     "exit_code": 0,
     "result": "All checks passed after moving runtime path-dependent imports inside main"
+  },
+  "publication_dependency_update": {
+    "pr_127": "merged into PR 126 branch; deleted source branch",
+    "pr_126": "still open against main",
+    "merged_branch_revision": "1045e4871c74598f88e0cd48db31a3b70aa21e63",
+    "code_tree_diff_from_tested_revision": "empty (git diff 4fb12ea origin/feat/84-87-confidence-report-validation)",
+    "original_open_pr_snapshot_retained": true
   }
 }

@@ -2,9 +2,11 @@
 
 **2026-10-31, America/Bogota. Release acceptance: pending.** Technical review of
 `4fb12ea` on Windows/Python 3.12.2, with `LLM_PROVIDER=none`. This candidate includes
-unmerged [#126](https://github.com/IA-SOC/Alpha/pull/126) (#84/#87) and
-[#127](https://github.com/IA-SOC/Alpha/pull/127) (#67). `origin/main` was `c2c91cb`;
-candidate results do not establish those PRs are merged or client-accepted.
+[#126](https://github.com/IA-SOC/Alpha/pull/126) (#84/#87) and
+[#127](https://github.com/IA-SOC/Alpha/pull/127) (#67). During publication, #127
+merged into #126's branch as `1045e48`, whose code tree is identical to `4fb12ea`.
+#126 remains unmerged to `main` (`c2c91cb`); candidate results do not establish
+main-branch delivery or client acceptance.
 This checklist supersedes older implementation-status claims only for this
 revision; original specifications, workbooks and historical records are unchanged.
 
@@ -46,7 +48,7 @@ real-HTTP demo in [results.json](results.json), reproduced with [demo_check.py](
 | US16 web upload/paste | P: `frontend/src/features/new-case` and tests present | Runtime UI verification blocked locally (G4); #51–#53/#106 closed |
 | US17 Gemini evaluation | P: adapter, guarded mock/error fallback in `test_llm` | No executed live smoke/evaluation here; no comparison harness found; #68 open, #75 closed |
 | US18 read-only retrieval | N in candidate | [#125](https://github.com/IA-SOC/Alpha/pull/125) unmerged, explicitly excludes agent wiring; #77 closed, #79/#99 open |
-| US19 two report audiences | P: #67 tests plus `test_report_formatter`, D JSON/Markdown | #126/#127 merge/acceptance pending; UI gap G2; #66/#78 closed, #67/#81 open |
+| US19 two report audiences | P: #67 tests plus `test_report_formatter`, D JSON/Markdown | #127 joined #126 during review; main merge/acceptance pending; UI gap G2; #66/#78 closed, #67/#81 open |
 | US20 analyst-guided revision | N in candidate | No instruction/revision endpoints; [#122](https://github.com/IA-SOC/Alpha/pull/122) unmerged; #76 closed, #80/#101 open |
 | US21 future SIEM connectivity assessment | P: fixture-based Wazuh converter/importer exists | No live access implied; general Elastic/Wazuh access/mapping assessment #90/#102 open |
 | US22 client compatibility | P: local tests exist; older [US3 verification](../US3-verification.md) is historical evidence | Both private-data tests skipped now; no adjudicated investigation-quality acceptance; #91 closed |
@@ -81,7 +83,7 @@ real-HTTP demo in [results.json](results.json), reproduced with [demo_check.py](
 | G3 — bounded methodology and evidence checks | Reproduced benign `vssadmin list shadows` → T1490; 3 distinct rule names with missing host/user → `alta`. [Catalog criteria](../../sprint3/S3-US5-T01-mitre-catalog-review.md), [HY-08/10/15/16/18](../../sprint3/S3-US6-T01-hypothesis-criteria.md), [EV-13/20](../../sprint3/S3-US7-T01-evidence-criteria.md) retain their separate gaps. | Candidate labels mitigate overclaiming but do not prove correctness. Corroboration, missing-field downgrades, fallback contradiction windows, tailored unknowns, narrative entailment and direct-path pointer enforcement need explicit scope decisions; #84/#85 and original #37/#42 criteria. No accuracy percentage justified. |
 | G4 — UI execution unavailable here | Commands stop before tests collect; existing [Playwright workflow](../../../../frontend/e2e) contains a review-note locator targeted by unmerged [#124](https://github.com/IA-SOC/Alpha/pull/124). | Use supported Node and locked dependencies, run documented frontend checks and Chrome E2E, then review #124. The locator defect was source-inspected here, not reproduced in a browser. #59 is closed. |
 | G5 — operational/history limits | [Service](../../../app/services/investigation_service.py) and [store](../../../app/storage/case_store.py): latest investigation replaces prior result; sessions/locks process-local; request occupies HTTP call. | Structured per-finding review survives restart (tested); legacy review without run ID still needs live checkpoint. No durable history/queue or multiple workers; no case-closure API. #80/#101 and deployment follow-up. |
-| G6 — unmerged work / status drift | Open PRs #122/#124/#125/#126/#127; some associated issues already closed. README's blanket restart-review limitation predates durable per-finding review. | Merge status, issue closure and workbook planning are not acceptance proof. Reconcile documentation/status after review; do not silently claim follow-up/retrieval exists on main. |
+| G6 — unmerged work / status drift | Open PRs #122/#124/#125/#126 at publication; #127 merged into #126 during review, not main. Some associated issues already closed. README's blanket restart-review limitation predates durable per-finding review. | Merge status, issue closure and workbook planning are not acceptance proof. Reconcile documentation/status after review; do not silently claim follow-up/retrieval exists on main. |
 
 ## Scope and client decisions for sprint review
 
