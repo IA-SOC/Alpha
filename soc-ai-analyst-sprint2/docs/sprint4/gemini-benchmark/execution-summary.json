@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-31",
+  "timezone": "America/Bogota",
+  "final_code_revision": "f094235",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.2",
+    "google_genai": "2.33.0",
+    "mcp": "2.3.0",
+    "langgraph": "1.2.16",
+    "sdk_installed_from_existing_requirement": true,
+    "pip_check": "No broken requirements found"
+  },
+  "regressions": {
+    "command": "$env:LLM_PROVIDER='none'; .\\.venv\\Scripts\\python.exe -m pytest tests -q",
+    "passed": 447,
+    "skipped": 2,
+    "elapsed_seconds": 231.62,
+    "skip_reasons": [
+      "ALIGO_PREPARED_DIR not supplied",
+      "Local customer ZIP opt-in not enabled"
+    ]
+  },
+  "checks": [
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m ruff check app tests demo/run_pipeline.py demo/verify_local.py --exclude tests/test_agent_graph.py",
+      "result": "passed"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m ruff check benchmarks --select E,F,I",
+      "result": "passed"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m ruff check agent/llm.py --select F",
+      "result": "passed"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m pip check",
+      "result": "passed"
+    },
+    {
+      "check": "JSON artifacts and local Markdown links",
+      "result": "passed"
+    },
+    {
+      "check": "Exact credential match in 327 project files and new Git patches; boolean/count-only output",
+      "result": "no match"
+    }
+  ],
+  "live_generation_attempts": 4,
+  "live_generation_successes": 0,
+  "metadata_requests": 2,
+  "metadata_checks": [
+    {
+      "operation": "get gemini-2.5-flash",
+      "status": "available"
+    },
+    {
+      "operation": "list first model page supporting generateContent",
+      "status": "advertised gemini-2.5-flash and gemini-2.5-flash-lite"
+    }
+  ],
+  "api_endpoint": "https://generativelanguage.googleapis.com",
+  "sdk_attempts_per_generation": 1,
+  "customer_data_sent": false,
+  "credential_file_modified": false,
+  "actual_token_usage": null,
+  "estimated_total_incurred_cost_usd": null,
+  "live_schema_and_evidence_quality": "unmeasured: no usable generation response",
+  "issue_68_closure": "pending usable live measurements and owner review",
+  "records": [
+    "offline.json",
+    "live-first-attempt.json",
+    "live-second-attempt.json",
+    "live-fallback.json",
+    "live-final-attempt.json"
+  ]
+}
