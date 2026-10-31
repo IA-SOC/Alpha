@@ -304,6 +304,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
+        if args.key_file and args.output.resolve() == args.key_file.resolve():
+            raise ValueError("Output must not overwrite the credential file")
         result, key = asyncio.run(
             benchmark(args.cases, args.live, args.key_file, args.model)
         )

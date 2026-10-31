@@ -215,3 +215,38 @@ def test_key_inside_repository_is_rejected():
         asyncio.run(
             bench.benchmark(["phishing_ecs"], True, bench.ROOT.parent / "key.txt")
         )
+
+
+def test_cli_refuses_credential_overwrite(monkeypatch, tmp_path, capsys):
+    key_file = tmp_path / "credential.txt"
+    key_file.write_text("fake-key-must-stay", encoding="utf-8")
+    monkeypatch.setattr(
+        "sys.argv",
+        ["benchmark", "--live", "--key-file", str(key_file), "--output", str(key_file)],
+    )
+    assert bench.main() == 1
+    assert key_file.read_text() == "fake-key-must-stay"
+    assert "fake-key-must-stay" not in capsys.readouterr().out
+
+
+def test_fallback_cost_uses_its_own_snapshot():
+    usage = {
+        "input_tokens": 1000,
+        "output_tokens": 1000,
+        "thinking_tokens": 0,
+        "cached_input_tokens": 0,
+    }
+    assert bench.estimate_cost(usage, bench.PRICINGS["gemini-2.5-flash"]) == 0.0028
+    assert bench.estimate_cost(usage, bench.PRICINGS["gemini-2.5-flash-lite"]) == 0.0005
+
+
+def test_cli_blocks_credentials_in_generated_result(monkeypatch, tmp_path, capsys):
+    async def fake_benchmark(*args):
+        return {"unexpected": "fake-echoed-key"}, "fake-echoed-key"
+
+    output_path = tmp_path / "result.json"
+    monkeypatch.setattr(bench, "benchmark", fake_benchmark)
+    monkeypatch.setattr("sys.argv", ["benchmark", "--output", str(output_path)])
+    assert bench.main() == 1
+    assert not output_path.exists()
+    assert "fake-echoed-key" not in capsys.readouterr().out
