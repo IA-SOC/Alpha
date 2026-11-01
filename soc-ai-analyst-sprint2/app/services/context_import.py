@@ -16,13 +16,9 @@ def _load(path: Path) -> Any:
 
 def _records(value: Any, key: str, path: Path) -> list[dict[str, Any]]:
     records = value.get(key) if isinstance(value, dict) else value
-<<<<<<< Updated upstream
-    if not isinstance(records, list) or not all(isinstance(item, dict) for item in records):
-=======
     if not isinstance(records, list) or not all(
         isinstance(item, dict) for item in records
     ):
->>>>>>> Stashed changes
         raise ValueError(f"{path}: expected an array of {key}")
     return records
 
@@ -124,11 +120,7 @@ def import_context(
             )
             connection.executemany("INSERT INTO case_iocs VALUES (?, ?)", links)
         except sqlite3.IntegrityError as exc:
-<<<<<<< Updated upstream
-            raise ValueError(f"Context database already contains imported IDs: {exc}") from exc
-=======
             raise ValueError(
                 f"Context database already contains imported IDs: {exc}"
             ) from exc
->>>>>>> Stashed changes
     return {"iocs": len(ioc_rows), "cases": len(case_rows), "case_iocs": len(links)}
