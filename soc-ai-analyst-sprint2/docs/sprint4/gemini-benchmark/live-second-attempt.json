@@ -1,0 +1,90 @@
+{
+  "benchmark_version": "1.0",
+  "created_at": "2026-10-31T23:40:37.392661+00:00",
+  "revision": "1c55895b12e7e2ed996bc5e7e63dc44d8373a41b",
+  "mode": "live",
+  "model": "gemini-3.8-flash",
+  "pricing": {
+    "model": "gemini-3.8-flash",
+    "currency": "USD",
+    "per_tokens": 1000000,
+    "input": 0.75,
+    "cached_input": 0.075,
+    "output_including_thinking": 3.75,
+    "source": "https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash",
+    "verified_date": "2026-10-31",
+    "valid_through": "2026-12-31",
+    "basis": "Standard paid-tier estimate; not invoice/free-tier billing"
+  },
+  "limits": {
+    "max_requests": 3,
+    "retry_attempts": 1,
+    "max_output_tokens_per_request": 2048,
+    "thinking_level": "low"
+  },
+  "comparison": "deterministic full report vs incremental Gemini second opinion",
+  "rows": [
+    {
+      "case": "phishing_ecs",
+      "fixture_sha256": "6dc8dacb7eea6663483db33f242f03e4721c02afe8c84b574319810cb1025298",
+      "context_sha256": "da48f1d74c18711aca72936648b63bd60c01998f97da28e75a724e98dbaae974",
+      "alert_count": 4,
+      "hypothesis_count": 2,
+      "baseline": {
+        "latency_ms": 3662.545,
+        "schema_valid": true,
+        "api_tokens": 0,
+        "estimated_api_cost_usd": 0.0,
+        "expected_catalog_match": true,
+        "original_fields_checked": 96,
+        "original_field_errors": 0
+      },
+      "gemini_second_opinion": {
+        "status": "error",
+        "error_type": "ServerError",
+        "http_status": 504,
+        "usage": null,
+        "estimated_api_cost_usd": null,
+        "latency_ms": 30077.143
+      }
+    },
+    {
+      "case": "bruteforce_wazuh",
+      "fixture_sha256": "a413c3fa9cecde4ec331d30569936d21f67ba43d8fe0cbd1b511c99b0e83cecd",
+      "context_sha256": "52509835a4b193ae36bbe6a125df513f04068164836a12a730d0a3fdb004e62a",
+      "alert_count": 8,
+      "hypothesis_count": 2,
+      "baseline": {
+        "latency_ms": 3765.073,
+        "schema_valid": true,
+        "api_tokens": 0,
+        "estimated_api_cost_usd": 0.0,
+        "expected_catalog_match": true,
+        "original_fields_checked": 182,
+        "original_field_errors": 0
+      },
+      "gemini_second_opinion": {
+        "status": "not_executed_after_error"
+      }
+    },
+    {
+      "case": "pre_ransomware",
+      "fixture_sha256": "f55d7266f7f92e004e3bfbc9ab859ce81880811c240e4747a76b5317b665e05f",
+      "context_sha256": "f80a06a65ea89052338c23fe72399e2d87f1b769b419ae340a8401eeaee470e0",
+      "alert_count": 5,
+      "hypothesis_count": 4,
+      "baseline": {
+        "latency_ms": 3715.805,
+        "schema_valid": true,
+        "api_tokens": 0,
+        "estimated_api_cost_usd": 0.0,
+        "expected_catalog_match": true,
+        "original_fields_checked": 170,
+        "original_field_errors": 0
+      },
+      "gemini_second_opinion": {
+        "status": "not_executed_after_error"
+      }
+    }
+  ]
+}

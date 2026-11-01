@@ -1,0 +1,52 @@
+{
+  "benchmark_version": "1.0",
+  "created_at": "2026-10-31T23:44:01.637930+00:00",
+  "revision": "b1c2b87d36040d8b819d097bc2df849d7da79df2",
+  "mode": "live",
+  "model": "gemini-2.5-flash-lite",
+  "pricing": {
+    "model": "gemini-2.5-flash-lite",
+    "currency": "USD",
+    "per_tokens": 1000000,
+    "input": 0.1,
+    "cached_input": 0.01,
+    "output_including_thinking": 0.4,
+    "source": "https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash-lite",
+    "verified_date": "2026-10-31",
+    "valid_through": null,
+    "basis": "Standard paid-tier estimate; not invoice/free-tier billing"
+  },
+  "limits": {
+    "max_requests": 1,
+    "retry_attempts": 1,
+    "max_output_tokens_per_request": 2048,
+    "thinking": "budget=0"
+  },
+  "comparison": "deterministic full report vs incremental Gemini second opinion",
+  "rows": [
+    {
+      "case": "bruteforce_wazuh",
+      "fixture_sha256": "a413c3fa9cecde4ec331d30569936d21f67ba43d8fe0cbd1b511c99b0e83cecd",
+      "context_sha256": "52509835a4b193ae36bbe6a125df513f04068164836a12a730d0a3fdb004e62a",
+      "alert_count": 8,
+      "hypothesis_count": 2,
+      "baseline": {
+        "latency_ms": 3677.64,
+        "schema_valid": true,
+        "api_tokens": 0,
+        "estimated_api_cost_usd": 0.0,
+        "expected_catalog_match": true,
+        "original_fields_checked": 182,
+        "original_field_errors": 0
+      },
+      "gemini_second_opinion": {
+        "status": "error",
+        "error_type": "ClientError",
+        "http_status": 404,
+        "usage": null,
+        "estimated_api_cost_usd": null,
+        "latency_ms": 1437.358
+      }
+    }
+  ]
+}
