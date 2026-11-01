@@ -1,0 +1,13 @@
+[
+  {
+    "event": {"id": "ecs-sample-001", "kind": "alert"},
+    "ecs": {"version": "8.17.0"},
+    "@timestamp": "2026-10-09T07:00:00-05:00",
+    "host": {"name": "lab-web"},
+    "user": {"name": "lab-user"},
+    "source": {"ip": "192.0.2.10"},
+    "rule": {"name": "brute_force"},
+    "tags": ["brute_force"],
+    "synthetic_custom/field~": {"values": [null, true, 42], "label": "prueba"}
+  }
+]
