@@ -3,6 +3,7 @@
 import re
 
 from app.services.report_formatter import validate_audience_sections
+from core.report_contract import validate_report
 
 
 def _resolve_pointer(document: dict, pointer: str):
@@ -29,6 +30,7 @@ def _resolve_pointer(document: dict, pointer: str):
 
 
 def verify_traceability(context: dict, report: dict) -> None:
+    validate_report(report)
     validate_audience_sections(report)
     original = context["original_case"]
     alerts = original["alerts"]

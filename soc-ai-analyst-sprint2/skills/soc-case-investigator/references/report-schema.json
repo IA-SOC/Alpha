@@ -17,7 +17,13 @@
     "review"
   ],
   "properties": {
-    "case_id": {"type": "string", "minLength": 1},
+    "methodology": {
+      "type": "object",
+      "required": ["report_schema"],
+      "properties": {"report_schema": {"const": "urn:soc-investigation-report:schema:1.1"}},
+      "additionalProperties": true
+    },
+    "case_id": {"type": "string", "minLength": 1, "pattern": "\\S"},
     "generated_at": {"type": ["string", "null"], "format": "date-time"},
     "input": {
       "type": "object",
@@ -28,11 +34,11 @@
         "alert_count": {"type": "integer", "minimum": 0},
         "processed_alert_count": {"type": "integer", "minimum": 0},
         "time_window_utc": {"type": ["object", "null"]},
-        "missing_fields": {"type": "array", "items": {"type": "string"}}
+        "missing_fields": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}
       },
       "additionalProperties": true
     },
-    "executive_summary": {"type": "string"},
+    "executive_summary": {"type": "string", "minLength": 1, "pattern": "\\S"},
     "attack_mapping": {
       "type": "array",
       "items": {
@@ -41,9 +47,9 @@
         "properties": {
           "tactic": {"type": ["string", "null"]},
           "technique_id": {"type": ["string", "null"], "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"},
-          "technique_name": {"type": "string"},
+          "technique_name": {"type": "string", "minLength": 1, "pattern": "\\S"},
           "status": {"enum": ["candidate", "supported", "not_supported", "unknown"]},
-          "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+          "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}},
           "source_version": {"type": ["string", "null"]}
         },
         "additionalProperties": true
@@ -56,14 +62,31 @@
         "required": ["rank", "statement", "confidence", "confidence_basis", "evidence_for", "evidence_against", "unknowns"],
         "properties": {
           "rank": {"type": "integer", "minimum": 1},
-          "statement": {"type": "string"},
+          "statement": {"type": "string", "minLength": 1, "pattern": "\\S"},
           "confidence": {"enum": ["alta", "media", "baja", "insuficiente"]},
-          "confidence_basis": {"type": "string"},
-          "evidence_for": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
-          "evidence_against": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
-          "alternatives": {"type": "array", "items": {"type": "string"}},
-          "unknowns": {"type": "array", "items": {"type": "string"}}
+          "confidence_percentage": false,
+          "confidence_percent": false,
+          "confidence_score": false,
+          "confidence_probability": false,
+          "probability": false,
+          "confidence_basis": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "evidence_for": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/evidence"}, {"properties": {"role": {"const": "supporting"}}}]}},
+          "evidence_against": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/evidence"}, {"properties": {"role": {"const": "contradicting"}}}]}},
+          "alternatives": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+          "unknowns": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}
         },
+        "allOf": [
+          {
+            "if": {"properties": {"confidence": {"enum": ["baja", "media", "alta"]}}},
+            "then": {"properties": {"evidence_for": {"minItems": 1}}}
+          },
+          {
+            "anyOf": [
+              {"properties": {"evidence_for": {"minItems": 1}}},
+              {"properties": {"evidence_against": {"minItems": 1}}}
+            ]
+          }
+        ],
         "additionalProperties": true
       }
     },
@@ -76,8 +99,8 @@
           "timestamp_original": {"type": ["string", "null"]},
           "timestamp_utc": {"type": ["string", "null"]},
           "timezone_unknown": {"type": "boolean"},
-          "description": {"type": "string"},
-          "alert_ids": {"type": "array", "items": {"type": "string"}},
+          "description": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
           "certainty": {"enum": ["observed", "inferred", "unknown"]}
         },
         "additionalProperties": true
@@ -106,30 +129,30 @@
             "type": "object",
             "required": ["asset", "basis_alert_ids", "observed_activity"],
             "properties": {
-              "asset": {"type": "string", "minLength": 1},
-              "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-              "observed_activity": {"type": "string", "minLength": 1}
+              "asset": {"type": "string", "minLength": 1, "pattern": "\\S"},
+              "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+              "observed_activity": {"type": "string", "minLength": 1, "pattern": "\\S"}
             },
             "additionalProperties": true
           }
         },
         "confirmed_assets": {
           "type": "array",
-          "items": {"type": "object", "required": ["asset", "basis_alert_ids"], "properties": {"asset": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+          "items": {"type": "object", "required": ["asset", "basis_alert_ids"], "properties": {"asset": {"type": "string", "minLength": 1, "pattern": "\\S"}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}}, "additionalProperties": true}
         },
         "suspected_assets": {
           "type": "array",
-          "items": {"type": "object", "required": ["asset", "basis_alert_ids"], "properties": {"asset": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+          "items": {"type": "object", "required": ["asset", "basis_alert_ids"], "properties": {"asset": {"type": "string", "minLength": 1, "pattern": "\\S"}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}}, "additionalProperties": true}
         },
         "confirmed_identities": {
           "type": "array",
-          "items": {"type": "object", "required": ["identity", "basis_alert_ids"], "properties": {"identity": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+          "items": {"type": "object", "required": ["identity", "basis_alert_ids"], "properties": {"identity": {"type": "string", "minLength": 1, "pattern": "\\S"}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}}, "additionalProperties": true}
         },
         "suspected_identities": {
           "type": "array",
-          "items": {"type": "object", "required": ["identity", "basis_alert_ids"], "properties": {"identity": {"type": "string", "minLength": 1}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}}, "additionalProperties": true}
+          "items": {"type": "object", "required": ["identity", "basis_alert_ids"], "properties": {"identity": {"type": "string", "minLength": 1, "pattern": "\\S"}, "basis_alert_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}}, "additionalProperties": true}
         },
-        "unknowns": {"type": "array", "items": {"type": "string"}}
+        "unknowns": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}}
       },
       "additionalProperties": true
     },
@@ -150,17 +173,17 @@
         "required": ["priority", "action", "rationale", "evidence_ids", "requires_human_approval", "approval_status", "hypothesis_ranks"],
         "properties": {
           "priority": {"enum": ["urgent", "high", "medium", "low"]},
-          "action": {"type": "string"},
-          "rationale": {"type": "string"},
-          "evidence_ids": {"type": "array", "items": {"type": "string"}},
-          "requires_human_approval": {"type": "boolean"},
+          "action": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "evidence_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+          "requires_human_approval": {"const": true},
           "approval_status": {"enum": ["pending"]},
           "hypothesis_ranks": {"type": "array", "minItems": 1, "items": {"type": "integer"}}
         },
         "additionalProperties": true
       }
     },
-    "limitations": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
     "model_review": {
       "type": "object",
       "properties": {
@@ -188,9 +211,9 @@
             "type": "object",
             "required": ["finding_key", "status", "notes"],
             "properties": {
-              "finding_key": {"type": "string"},
+              "finding_key": {"type": "string", "minLength": 1, "pattern": "\\S"},
               "status": {"enum": ["validated", "corrected", "rejected"]},
-              "notes": {"type": "string", "minLength": 1}
+              "notes": {"type": "string", "minLength": 1, "pattern": "\\S"}
             },
             "additionalProperties": false
           }
@@ -204,11 +227,11 @@
       "type": "object",
       "required": ["alert_id", "role", "observation", "relevance"],
       "properties": {
-        "alert_id": {"type": "string"},
+        "alert_id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "role": {"enum": ["supporting", "contradicting", "context"]},
-        "fields": {"type": "array", "items": {"type": "string"}},
-        "observation": {"type": "string"},
-        "relevance": {"type": "string"}
+        "fields": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+        "observation": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "relevance": {"type": "string", "minLength": 1, "pattern": "\\S"}
       },
       "additionalProperties": true
     }

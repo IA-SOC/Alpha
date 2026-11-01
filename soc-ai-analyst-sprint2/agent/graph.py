@@ -47,12 +47,12 @@ from agent.normalize import normalize_case
 from agent.render import render_markdown
 from app.services.agent_adapter import correlate_direct
 from app.services.report_formatter import format_report, validate_audience_sections
+from core.report_contract import SCHEMA_ID, serialize_report
 from orchestrator.client import SERVERS, McpToolClient
 
 SKILL_DIR = ROOT / "skills" / "soc-case-investigator"
 VALIDATOR = SKILL_DIR / "scripts" / "validate_report.py"
 SKILL_NAME = "soc-case-investigator"
-SCHEMA_ID = "urn:soc-investigation-report:schema:1.1"
 
 PHASES = [
     "recibir_validar",
@@ -187,6 +187,10 @@ def consumir_ioc(state: InvestigationState) -> Dict[str, Any]:
 
 # --- Fase 5 -----------------------------------------------------------------
 def run_skill_validator(case: Dict[str, Any], report: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        serialized = serialize_report(report)
+    except (ValueError, TypeError) as exc:
+        return {"ok": False, "returncode": 1, "output": str(exc)}
     audience_error = ""
     try:
         validate_audience_sections(report)
@@ -195,7 +199,7 @@ def run_skill_validator(case: Dict[str, Any], report: Dict[str, Any]) -> Dict[st
     with tempfile.TemporaryDirectory() as tmp:
         case_path, report_path = Path(tmp) / "case.json", Path(tmp) / "report.json"
         case_path.write_text(json.dumps(case, ensure_ascii=False), encoding="utf-8")
-        report_path.write_text(json.dumps(report, ensure_ascii=False), encoding="utf-8")
+        report_path.write_text(serialized, encoding="utf-8")
         proc = subprocess.run(
             [sys.executable, str(VALIDATOR), "--case", str(case_path), "--report", str(report_path)],
             capture_output=True, text=True, encoding="utf-8",
