@@ -1,0 +1,11 @@
+[
+  {
+    "id": "original",
+    "timestamp": "2026-10-09T12:01:00Z",
+    "agent": {"name": "lab-web", "id": "001"},
+    "data": {"srcip": "192.0.2.10", "dstuser": "lab-user"},
+    "rule": {"id": "synthetic-rule", "description": "failed_login", "level": 5},
+    "tags": ["failed_login"],
+    "synthetic_custom": {"unknown": [false, null, {"nested": "kept"}]}
+  }
+]
