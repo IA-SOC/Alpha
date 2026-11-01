@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 
 from agent.graph import build_graph, investigate, submit_review
 from agent.render import render_markdown
-from app.schemas.investigation import ReviewDecision
+from app.schemas.investigation import AnalystInstruction, ReviewDecision
 from app.services.agent_adapter import adapt_case
 from app.services.finding_review import validate_finding_decisions
 from app.services.report_formatter import format_report
@@ -37,6 +37,7 @@ class InvestigationService:
         return {
             "case_id": str(case_id),
             "run_id": run_id,
+            "revision": 1,
             "status": "pending_review" if review == "pending" else review,
             "correlation": context["correlation"],
             "investigation_context": context,
@@ -46,9 +47,13 @@ class InvestigationService:
             "audit_log": state["audit_log"],
         }
 
-    async def run(self, case_id: UUID) -> dict:
+    async def run(
+        self, case_id: UUID, guidance: dict | None = None
+    ) -> dict:
         async with self.locks.setdefault(str(case_id), asyncio.Lock()):
             adapted = await asyncio.to_thread(self.context, case_id)
+            if guidance is not None:
+                adapted["analyst_guidance"] = deepcopy(guidance)
             graph, run_id = build_graph(), str(uuid4())
             state = await asyncio.wait_for(
                 investigate(adapted, thread_id=run_id, app=graph),
@@ -58,6 +63,48 @@ class InvestigationService:
             await asyncio.to_thread(self.store.save_investigation, case_id, result)
             self.sessions[str(case_id)] = (graph, run_id)
             return result
+
+    async def instruct(
+        self, case_id: UUID, instruction: AnalystInstruction
+    ) -> dict:
+        async with self.locks.setdefault(str(case_id), asyncio.Lock()):
+            saved = await asyncio.to_thread(self.store.get_investigation, case_id)
+            if saved is None:
+                raise LookupError("No completed investigation found")
+            current_revision = int(saved.get("revision", 1))
+            if instruction.revision != current_revision:
+                raise LookupError("The investigation revision has changed; reload")
+            guidance = instruction.model_dump(exclude={"revision"})
+            result = await self._run_unlocked(case_id, guidance)
+            result["revision"] = current_revision + 1
+            result["instruction_history"] = [
+                *saved.get("instruction_history", []),
+                {
+                    **guidance,
+                    "revision": result["revision"],
+                    "run_id": result["run_id"],
+                    "recorded_at": datetime.now(timezone.utc).isoformat(),
+                },
+            ]
+            await asyncio.to_thread(
+                self.store.save_instruction_revision,
+                case_id,
+                current_revision,
+                result,
+            )
+            return result
+
+    async def _run_unlocked(self, case_id: UUID, guidance: dict) -> dict:
+        adapted = await asyncio.to_thread(self.context, case_id)
+        adapted["analyst_guidance"] = deepcopy(guidance)
+        graph, run_id = build_graph(), str(uuid4())
+        state = await asyncio.wait_for(
+            investigate(adapted, thread_id=run_id, app=graph),
+            timeout=self.window_seconds,
+        )
+        result = self._result(case_id, run_id, state)
+        self.sessions[str(case_id)] = (graph, run_id)
+        return result
 
     async def review(self, case_id: UUID, decision: ReviewDecision) -> dict:
         async with self.locks.setdefault(str(case_id), asyncio.Lock()):
@@ -72,6 +119,10 @@ class InvestigationService:
                 raise LookupError("The investigation is not awaiting review")
             state = await submit_review(graph, run_id, decision.model_dump())
             result = self._result(case_id, run_id, state)
+            saved = await asyncio.to_thread(self.store.get_investigation, case_id)
+            if saved is not None:
+                result["revision"] = int(saved.get("revision", 1))
+                result["instruction_history"] = saved.get("instruction_history", [])
             await asyncio.to_thread(self.store.save_investigation, case_id, result)
             return result
 
@@ -95,6 +146,8 @@ class InvestigationService:
             "findings": [item.model_dump() for item in decision.findings],
         }
         result["status"] = decision.status
+        result["revision"] = int(saved.get("revision", 1))
+        result["instruction_history"] = saved.get("instruction_history", [])
         result["report"]["audience_sections"] = format_report(result["report"])
         result["report_markdown"] = render_markdown(result["report"])
         verify_traceability(result["investigation_context"], result["report"])

@@ -5,9 +5,9 @@ import logging
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 
-from app.schemas.investigation import ReviewDecision
+from app.schemas.investigation import AnalystInstruction, ReviewDecision
 from app.services.investigation_service import InvestigationService
 
 router = APIRouter(prefix="/api/v1/cases", tags=["investigations"])
@@ -63,6 +63,41 @@ def read_investigation(case_id: UUID, service: Service):
     if result is None:
         raise HTTPException(404, "No completed investigation found")
     return result
+
+
+@router.get("/{case_id}/report")
+def read_report(case_id: UUID, service: Service):
+    result = service.store.get_investigation(case_id)
+    if result is None:
+        raise HTTPException(404, "No completed investigation found")
+    return {
+        "case_id": result["case_id"],
+        "report": result["report"],
+        "audience_sections": result["report"]["audience_sections"],
+        "report_markdown": result["report_markdown"],
+    }
+
+
+@router.post("/{case_id}/instructions")
+async def submit_instruction(
+    case_id: UUID,
+    instruction: AnalystInstruction,
+    service: Service,
+    analyst_header: Annotated[str, Header(alias="X-Analyst-Id")],
+):
+    if service.store.get_by_id(case_id) is None:
+        raise HTTPException(404, "Case not found")
+    if analyst_header != instruction.analyst_id:
+        raise HTTPException(403, "X-Analyst-Id does not match analyst_id")
+    try:
+        result = await service.instruct(case_id, instruction)
+        return {key: value for key, value in result.items() if key != "_graph"}
+    except LookupError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    except TimeoutError as exc:
+        raise HTTPException(504, "Follow-up investigation timed out") from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
 
 
 @router.post("/{case_id}/review")

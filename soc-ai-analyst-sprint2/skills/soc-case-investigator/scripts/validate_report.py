@@ -234,6 +234,27 @@ def main() -> int:
     if not isinstance(blast, dict):
         errors.append("blast_radius: expected object")
     else:
+        if "observed_entities" in blast:
+            entities = as_list(
+                blast["observed_entities"], "blast_radius.observed_entities", errors
+            )
+            for i, entity in enumerate(entities):
+                where = f"blast_radius.observed_entities[{i}]"
+                if not isinstance(entity, dict):
+                    errors.append(f"{where}: expected object")
+                    continue
+                nonempty_text(entity, "entity", where, errors)
+                nonempty_text(entity, "entity_type", where, errors)
+                refs = as_list(
+                    entity.get("basis_alert_ids"), f"{where}.basis_alert_ids", errors
+                )
+                if not refs:
+                    errors.append(
+                        f"{where}.basis_alert_ids: "
+                        "at least one alert reference is required"
+                    )
+                for j, ref in enumerate(refs):
+                    check_ref(ref, f"{where}.basis_alert_ids[{j}]")
         for field in ("observed_assets", "confirmed_assets", "suspected_assets"):
             entities = as_list(blast.get(field), f"blast_radius.{field}", errors)
             for i, entity in enumerate(entities):

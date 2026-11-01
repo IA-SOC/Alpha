@@ -133,6 +133,8 @@ def verify_traceability(context: dict, report: dict) -> None:
                 raise ValueError("Broken hypothesis IoC evidence reference")
 
     blast = report["blast_radius"]
+    for entity in blast.get("observed_entities", []):
+        check_alert_ids(entity["basis_alert_ids"])
     for section in (
         "observed_assets",
         "confirmed_assets",
