@@ -58,6 +58,21 @@ o con otro esquema, con `error`). Cada IoC conserva `provider`, `raw_verdict`,
 tabla, `record_id` y `source_ref`. Se devuelven como máximo 100 registros,
 ordenados por `record_id`; la búsqueda por observable es por valor exacto.
 
+The prototype database is created by the write-side importer, not by the MCP:
+
+```bash
+python scripts/import_context.py \
+  --iocs data/context/fixtures/iocs.json \
+  --cases data/context/fixtures/cases.json
+```
+
+The importer validates all records and relationships before writing, preserves
+provider verdicts and raw results (including provider errors), and records
+deterministic source references. It uses the exact `SCHEMA` from
+`core/context_store.py`; rerunning an import with existing IDs is rejected
+instead of merging or overwriting records. The default output is
+`data/context/context.sqlite3`, which is ignored as a generated local artifact.
+
 ## Complete demonstration
 
 ```bash
