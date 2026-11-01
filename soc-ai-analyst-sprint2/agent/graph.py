@@ -204,6 +204,7 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
                         "engine": "LangGraph + MCP servers (reglas deterministas)",
                         "attack_catalog": inv.CATALOG_VERSION},
         "input": {k: v for k, v in summary.items() if k != "untrusted_instruction_fields"},
+        "analyst_guidance": case.get("analyst_guidance"),
         "executive_summary": inv.executive_summary(case, state["chain"], state["hypotheses"],
                                                    summary["processed_alert_count"]),
         "attack_mapping": state["attack_mapping"],
