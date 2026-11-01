@@ -3,8 +3,10 @@
 Issues: [#90](https://github.com/IA-SOC/Alpha/issues/90), parent
 [#102](https://github.com/IA-SOC/Alpha/issues/102). Source: workspace
 `SOC_AI_Sprint_Backlog.xlsx`, `SPRINT 4 BACKLOG`, task row 36.
-Base: `c051e443b2a39ac17e63b299cdd12c4ee9fe6f6a`; branch
-`feat/90-sample-siem-adapter`. This is a local sample-file spike, not live
+Initial base: `c051e443b2a39ac17e63b299cdd12c4ee9fe6f6a`; branch
+`feat/90-sample-siem-adapter`. Main advanced during verification; integration
+snapshot `5a5fa5c` was merged as `9a95304` for a second regression run.
+This is a local sample-file spike, not live
 connectivity. No production SIEM, confidential customer data, credentials,
 enrichment service or model API was accessed for implementation/verification.
 
@@ -80,7 +82,7 @@ or client approvals. Official references checked on 2026-10-31:
 
 | Area | Required agreement / future implementation |
 | --- | --- |
-| Elastic search and permissions | Identify permitted indices/data streams/aliases and tenant/space scope. Grant a dedicated identity index `read` for selected targets; add only required metadata privileges for approved mapping discovery. No write/admin/deletion role is needed for collection. See [search authorization](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search) and [privileges](https://www.elastic.co/docs/reference/elasticsearch/security-privileges). Restricted Security indices require a separately approved access route, not blanket privileges. |
+| Elastic search and permissions | Identify permitted indices/data streams/aliases and tenant/space scope. Grant a dedicated identity index `read` for selected targets; add `view_index_metadata` only if approved mapping discovery needs it. No write/admin/deletion role is needed for collection. See [search authorization](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search) and [privileges](https://www.elastic.co/docs/reference/elasticsearch/security-privileges). Restricted Security indices require a separately approved access route, not blanket privileges. |
 | Elastic authentication | Client provisions/rotates a scoped API key or approved service identity. Elasticsearch supports API-key, bearer and Basic authentication; use authorization headers over verified TLS. Provisioning keys is an operator task, not a collector privilege. See [authentication](https://www.elastic.co/docs/api/doc/elasticsearch/authentication). |
 | Wazuh alert retrieval | Agree an indexer endpoint and allowed alert indices (deployment-specific). The indexer API commonly uses port 9200 and supports authenticated search. Give a dedicated identity only scoped search/read actions via the deployed RBAC configuration; do not reuse an admin account. Basic or configured JWT authentication depends on that deployment. See [indexer API](https://documentation.wazuh.com/current/user-manual/indexer-api/getting-started.html) and [RBAC](https://documentation.wazuh.com/current/user-manual/user-administration/rbac.html). |
 | Wazuh manager is separate | The manager API commonly uses 55000 with authentication/token and its own permissions; it is not the historical indexed-alert search endpoint. Request it only if approved operational metadata is needed. Indexer and manager tokens/roles are not interchangeable. See [server API authentication](https://documentation.wazuh.com/current/user-manual/api/getting-started.html). |
@@ -109,12 +111,19 @@ frozen schema, intake/storage, deep-copy preservation, custom and null values,
 existing Wazuh enrichment reuse/rebased paths, pointer-like IDs, explicit full-hit
 profile admission, invalid/duplicate/missing IDs, combined limits, missing event
 times through the real API/agent/report path, bad JSON and CLI no-overwrite/error
-handling. Final full suite: **362 passed, 2 skipped in 242.53 seconds**. Both skips
+handling. Full suite before integrating the new main snapshot:
+**362 passed, 2 skipped in 242.53 seconds**. Both skips
 require opt-in local customer data (`ALIGO_PREPARED_DIR` and the customer ZIP);
 neither was executed or counted as passed. Exact CI lint, local-link and staged
 whitespace checks pass; no unrelated application modules or source contracts
 were changed. Local evidence left by earlier chats was preserved and excluded
 from this change.
+
+After integrating main `5a5fa5c`, the full suite at `9a95304` passed
+**372 tests, 2 skipped in 236.40 seconds**. This is the final application-code
+verification, including all 23 adapter tests and main's newer retrieval,
+instruction and blast-radius behavior. The same two private-data tests were
+skipped; the CI lint scope also passed on this snapshot.
 
 Technical spike/demo evidence is ready for owner review. Keep #90 open until the
 assigned owner reviews/tests the accepted output and records actual human effort
