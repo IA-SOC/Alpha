@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {
+      "case_id": "case-synthetic-001",
+      "title": "Synthetic phishing investigation",
+      "summary": "Anonymized case with pre-enriched indicators.",
+      "source_ref": "fixtures/cases.json#case[0]",
+      "ioc_record_ids": ["ioc-synthetic-001", "ioc-synthetic-002"]
+    }
+  ]
+}
