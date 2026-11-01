@@ -156,6 +156,10 @@
       },
       "additionalProperties": true
     },
+    "follow_up": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "review": {
       "type": "object",
       "required": ["status"],
