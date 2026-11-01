@@ -71,6 +71,7 @@ TECHNICAL_FIELDS = (
     "correlation",
     "follow_up",
     "review",
+    "analyst_guidance",
 )
 LIMITATION_TEXT = {
     (
@@ -266,16 +267,22 @@ def format_report(report: dict) -> dict:
                 "/hypotheses",
             )
         )
+    impact_paths = [
+        "/blast_radius/observed_assets",
+        "/blast_radius/suspected_assets",
+        "/blast_radius/confirmed_assets",
+    ]
+    if "observed_entities" in blast:
+        impact_paths.append("/blast_radius/observed_entities")
     impact = [
         _claim(
             f"Assets with recorded activity: {len(blast['observed_assets'])}. "
             f"Assets with suspected impact: {len(blast['suspected_assets'])}. "
             f"Assets with confirmed impact: {len(blast['confirmed_assets'])}. "
+            f"Additional observed entities: {len(blast.get('observed_entities', []))}. "
             "An observed asset is not automatically compromised. Business loss and "
             "service disruption are not estimated by this formatter.",
-            "/blast_radius/observed_assets",
-            "/blast_radius/suspected_assets",
-            "/blast_radius/confirmed_assets",
+            *impact_paths,
         )
     ]
     actions = []

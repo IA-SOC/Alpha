@@ -173,14 +173,32 @@ def build_timeline(alerts: List[Dict[str, Any]], mcp_timeline: List[Dict[str, An
 def build_blast_radius(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Fase 3: activos observados vs. sospechosos. Nada se marca como confirmado."""
     observed: Dict[str, Dict[str, Any]] = {}
+    observed_entities: Dict[tuple[str, str], Dict[str, Any]] = {}
+
+    def add_entity(kind: str, value: Any, alert_id: str) -> None:
+        if not isinstance(value, str) or not value:
+            return
+        entry = observed_entities.setdefault(
+            (kind, value),
+            {"entity": value, "entity_type": kind, "basis_alert_ids": []},
+        )
+        if alert_id not in entry["basis_alert_ids"]:
+            entry["basis_alert_ids"].append(alert_id)
+
     for alert in alerts:
         host = alert.get("host")
-        if not host:
-            continue
-        entry = observed.setdefault(host, {"asset": host, "basis_alert_ids": [], "rules": []})
-        entry["basis_alert_ids"].append(alert["id"])
-        if alert["rule_name"] and alert["rule_name"] not in entry["rules"]:
-            entry["rules"].append(alert["rule_name"])
+        if host:
+            entry = observed.setdefault(
+                host, {"asset": host, "basis_alert_ids": [], "rules": []}
+            )
+            if alert["id"] not in entry["basis_alert_ids"]:
+                entry["basis_alert_ids"].append(alert["id"])
+            if alert["rule_name"] and alert["rule_name"] not in entry["rules"]:
+                entry["rules"].append(alert["rule_name"])
+            add_entity("host", host, alert["id"])
+        add_entity("user", alert.get("user"), alert["id"])
+        add_entity("source_ip", alert.get("source_ip"), alert["id"])
+        add_entity("destination_ip", alert.get("dest_ip"), alert["id"])
     observed_assets = [
         {"asset": e["asset"], "basis_alert_ids": e["basis_alert_ids"],
          "observed_activity": "; ".join(e["rules"]) or "actividad sin regla nombrada"}
@@ -215,6 +233,7 @@ def build_blast_radius(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str, 
 
     return {
         "observed_assets": observed_assets,
+        "observed_entities": list(observed_entities.values()),
         "confirmed_assets": [],
         "suspected_assets": [{"asset": h, "basis_alert_ids": ids} for h, ids in suspected.items()],
         "confirmed_identities": [],

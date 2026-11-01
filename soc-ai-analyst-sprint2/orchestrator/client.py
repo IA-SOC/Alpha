@@ -15,6 +15,7 @@ Uso:
 """
 import asyncio
 import json
+import os
 import sys
 from pathlib import Path
 from contextlib import AsyncExitStack
@@ -29,14 +30,18 @@ SERVERS = {
     "hypothesis": ROOT / "servers" / "hypothesis_server.py",
     "report": ROOT / "servers" / "report_server.py",
     "guard": ROOT / "servers" / "guard_server.py",
+    "context": ROOT / "servers" / "context_server.py",
 }
+# MCP subprocesses get a minimal environment; forward only non-secret settings they need.
+FORWARDED_ENV = ("CONTEXT_DB_PATH",)
 
 
 class McpToolClient:
     """Envoltorio delgado: abre una sesión MCP contra un server y llama una tool."""
 
     def __init__(self, script_path: Path):
-        self.params = StdioServerParameters(command=sys.executable, args=[str(script_path)])
+        env = {key: os.environ[key] for key in FORWARDED_ENV if key in os.environ}
+        self.params = StdioServerParameters(command=sys.executable, args=[str(script_path)], env=env or None)
 
     async def call(self, stack: AsyncExitStack, tool_name: str, arguments: dict):
         read, write = await stack.enter_async_context(stdio_client(self.params))

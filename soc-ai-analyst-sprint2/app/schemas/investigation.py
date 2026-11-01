@@ -75,3 +75,13 @@ class ReviewDecision(BaseModel):
     notes: str = Field(min_length=1, pattern=r"\S")
     run_id: str | None = None
     findings: list[FindingDecision] = Field(default_factory=list)
+
+
+class AnalystInstruction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    analyst_id: str = Field(min_length=1, pattern=r"\S+")
+    instruction: str = Field(min_length=1, pattern=r"\S+", max_length=4000)
+    context: str | None = Field(default=None, max_length=8000)
+    feedback: str | None = Field(default=None, max_length=8000)
+    revision: int = Field(ge=1)

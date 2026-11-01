@@ -102,6 +102,28 @@ class CaseStore:
                 (str(case_id), json.dumps(result, ensure_ascii=False, allow_nan=False)),
             )
 
+    def save_instruction_revision(
+        self, case_id: UUID, expected_revision: int, result: dict
+    ) -> None:
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT result FROM investigations WHERE case_id = ?", (str(case_id),)
+            ).fetchone()
+            current = json.loads(row[0]) if row else None
+            actual_revision = int(current.get("revision", 1)) if current else None
+            if current is None:
+                raise LookupError("No completed investigation found")
+            if actual_revision != expected_revision:
+                raise LookupError("The investigation revision has changed; reload")
+            connection.execute(
+                "UPDATE investigations SET result = ? WHERE case_id = ?",
+                (
+                    json.dumps(result, ensure_ascii=False, allow_nan=False),
+                    str(case_id),
+                ),
+            )
+
     def get_investigation(self, case_id: UUID) -> dict | None:
         with closing(sqlite3.connect(self.path)) as connection:
             row = connection.execute(
