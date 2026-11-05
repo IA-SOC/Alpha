@@ -44,9 +44,23 @@ def _ids(ids: List[Any]) -> str:
     return ", ".join(map(str, ids)) if ids else "—"
 
 
+def _probable_noise_markdown(report: Dict[str, Any]) -> str:
+    matches = (report.get("correlation") or {}).get("probable_noise", [])
+    if not matches:
+        return ""
+    lines = ["", "## Probable noise", ""]
+    for match in matches:
+        lines.append(
+            f"- Alert {_safe(match['alert_id'])} matched process rule "
+            f"{_safe(match['rule_id'])}. Evidence retained for review."
+        )
+    return "\n".join(lines) + "\n"
+
+
 def render_markdown(report: Dict[str, Any]) -> str:
     if "audience_sections" in report:
-        return (render_audience_markdown(report) + _model_review_markdown(report)
+        return (render_audience_markdown(report) + _probable_noise_markdown(report)
+                + _model_review_markdown(report)
                 + _follow_up_markdown(report))
     inp = report["input"]
     window = inp.get("time_window_utc") or {}
@@ -135,4 +149,5 @@ def render_markdown(report: Dict[str, Any]) -> str:
         f"- Analista: {review.get('analyst') or '—'}",
         f"- Correcciones/notas: {review.get('notes') or '—'}",
     ]
-    return "\n".join(lines) + "\n" + _follow_up_markdown(report)
+    return ("\n".join(lines) + "\n" + _probable_noise_markdown(report)
+            + _follow_up_markdown(report))

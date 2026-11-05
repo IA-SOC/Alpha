@@ -58,6 +58,25 @@ o con otro esquema, con `error`). Cada IoC conserva `provider`, `raw_verdict`,
 tabla, `record_id` y `source_ref`. Se devuelven como máximo 100 registros,
 ordenados por `record_id`; la búsqueda por observable es por valor exacto.
 
+## Configurable probable noise
+
+Set `BENIGN_PROCESS_RULES` to a JSON array before starting the API or direct
+agent. The default is an empty array. For example, in PowerShell:
+
+```powershell
+$env:BENIGN_PROCESS_RULES = '[{"id":"backup-agent","match":{"process.executable":"/opt/backup/agent"}}]'
+```
+
+Each rule has a unique ID and one or more exact field matches. Supported fields
+are `process.executable`, `process.hash.sha256`, and `data.win.eventdata.image`
+(Wazuh). All configured fields must match. Paths are case-sensitive and SHA-256
+comparison ignores hexadecimal case. Add a process hash when available to
+distinguish executables that share a path. Restart to load changes.
+
+Matches appear in `correlation.probable_noise` with the alert ID, rule ID,
+and original evidence pointers and values. The alert stays in the investigation
+and remains available for analyst review.
+
 ## Complete demonstration
 
 ```bash

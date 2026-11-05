@@ -80,6 +80,7 @@ def verify_traceability(context: dict, report: dict) -> None:
         for group in correlation["related_groups"]:
             check_alert_ids(group)
         check_alert_ids(correlation["noise_alert_ids"])
+        check_evidence(correlation.get("probable_noise", []))
 
     for item in report["enrichment"]["items"]:
         expected = iocs.get(item["evidence_id"])

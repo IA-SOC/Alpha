@@ -5,8 +5,11 @@ from uuid import uuid4
 
 import pytest
 
+from agent.normalize import normalize_case
+from app.core.config import Settings
 from app.schemas.case import IncidentCase
-from app.services.agent_adapter import adapt_case
+from app.services import agent_adapter
+from app.services.agent_adapter import adapt_case, correlate_direct
 from app.services.case_service import native_identifier
 from app.services.correlation import correlate
 from app.services.evidence import extract_events
@@ -55,6 +58,30 @@ def case_for(*alerts, enrichments=None):
 
 def analysis(*alerts):
     return correlate(extract_events(case_for(*alerts)))
+
+
+def test_direct_wazuh_process_noise_uses_original_pointer(monkeypatch):
+    monkeypatch.setenv(
+        "BENIGN_PROCESS_RULES",
+        '[{"id":"backup","match":{"data.win.eventdata.image":"/opt/backup/agent"}}]',
+    )
+    monkeypatch.setattr(agent_adapter, "settings", Settings.from_environment())
+    raw = event("backup-1", source="wazuh")["raw_alert"]
+    raw["data"]["win"] = {"eventdata": {"image": "/opt/backup/agent"}}
+    case = {"alerts": [raw]}
+    alerts, _ = normalize_case(case)
+
+    result = correlate_direct(case, alerts)
+
+    assert result["probable_noise"] == [{
+        "alert_id": "backup-1",
+        "rule_id": "backup",
+        "source_fields": [{
+            "alert_id": "backup-1",
+            "path": "/alerts/0/data/win/eventdata/image",
+            "value": "/opt/backup/agent",
+        }],
+    }]
 
 
 @pytest.mark.parametrize("second_source", ["elastic", "wazuh"])

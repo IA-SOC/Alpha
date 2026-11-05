@@ -5,11 +5,55 @@ from copy import deepcopy
 
 from pydantic import ValidationError
 
+from app.core.config import settings
 from app.schemas.case import IncidentCase
+from app.schemas.investigation import EventEvidence
 from app.services.correlation import correlate
-from app.services.evidence import SIGNAL_PATHS, extract_events, read_field
+from app.services.evidence import (
+    SIGNAL_PATHS,
+    comparison_value,
+    extract_events,
+    read_field,
+)
 from app.services.ioc_integration import integrate_iocs
 from app.storage.case_store import AcceptedCase
+
+
+def _correlation(
+    case: IncidentCase, events: list[EventEvidence], window_seconds: int
+) -> dict:
+    result = correlate(events, window_seconds).model_dump()
+    matches = []
+    for index, alert in enumerate(case.alerts):
+        for rule in settings.benign_process_rules:
+            evidence = []
+            for field, expected in rule.match.items():
+                fields = read_field(
+                    alert.raw_alert, field, f"/alerts/{index}/raw_alert"
+                )
+                kind = field.rsplit(".", 1)[-1]
+                expected_value = comparison_value(kind, expected)
+                # Reject ambiguous exports when the same field has conflicting values.
+                if not fields or any(
+                    comparison_value(kind, value) != expected_value
+                    for _, value in fields
+                ):
+                    break
+                evidence.extend(
+                    {"alert_id": alert.alert_id, "path": path, "value": value}
+                    for path, value in fields
+                )
+            else:
+                matches.append(
+                    {
+                        "alert_id": alert.alert_id,
+                        "rule_id": rule.id,
+                        "source_fields": evidence,
+                    }
+                )
+    if matches:
+        result["probable_noise"] = matches
+    return result
 
 
 def _unwrap_pointers(value):
@@ -63,14 +107,14 @@ def correlate_direct(case: dict, alerts: list[dict], window_seconds: int = 300):
         )
     except ValidationError:
         return None
-    result = correlate(extract_events(wrapped), window_seconds).model_dump()
+    result = _correlation(wrapped, extract_events(wrapped), window_seconds)
     return _unwrap_pointers(result)
 
 
 def adapt_case(accepted: AcceptedCase, window_seconds: int = 300) -> dict:
     case = accepted.submitted_case
     events = extract_events(case)
-    correlation = correlate(events, window_seconds)
+    correlation = _correlation(case, events, window_seconds)
     iocs = integrate_iocs(case, events)
     alerts, signal_evidence = [], {}
     for index, wrapper in enumerate(case.alerts):
@@ -100,7 +144,7 @@ def adapt_case(accepted: AcceptedCase, window_seconds: int = 300) -> dict:
         "original_case": case.model_dump(exclude_unset=True),
         "events": [e.model_dump() for e in events],
         "signal_evidence": signal_evidence,
-        "correlation": correlation.model_dump(),
+        "correlation": correlation,
         "ioc_evidence": iocs,
     }
     return {
