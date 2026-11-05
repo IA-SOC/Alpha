@@ -1,0 +1,22 @@
+{
+  "iocs": [
+    {
+      "record_id": "ioc-synthetic-001",
+      "observable": {"type": "ip", "value": "203.0.113.77"},
+      "provider": "synthetic-virustotal",
+      "raw_verdict": "malicious",
+      "raw_result": {"reputation": "malicious", "score": 85},
+      "source_ref": "fixtures/iocs.json#ioc[0]",
+      "enriched_at": "2026-10-20T10:00:00Z"
+    },
+    {
+      "record_id": "ioc-synthetic-002",
+      "observable": {"type": "domain", "value": "login.example.test"},
+      "provider": "synthetic-misp",
+      "raw_verdict": "suspicious",
+      "raw_result": {"tag": "credential-phishing"},
+      "source_ref": "fixtures/iocs.json#ioc[1]",
+      "enriched_at": "2026-10-20T10:05:00Z"
+    }
+  ]
+}
