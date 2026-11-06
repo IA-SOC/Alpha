@@ -33,9 +33,9 @@ function CasePage({ caseId }: { caseId: string }) {
     retry: retryUnlessAnswered,
   })
   const runKey = ['investigate', caseId]
-  const run = useMutation<Investigation, Error>({
+  const run = useMutation<Investigation, Error, boolean | void>({
     mutationKey: runKey,
-    mutationFn: () => withTimeLimit((signal) => api.investigate(caseId, signal)),
+    mutationFn: (force) => withTimeLimit((signal) => api.investigate(caseId, signal, force === true)),
     onSuccess: (data) => queryClient.setQueryData(['investigation', caseId], data),
   })
   // Runs live in the shared mutation cache, so leaving the page mid-run and coming back shows the
@@ -44,8 +44,6 @@ function CasePage({ caseId }: { caseId: string }) {
   const { mutate } = run
   const started = useRef(false)
 
-  // New Case sends the analyst here asking for a run. The request is dropped from history right
-  // away, so a reload shows the stored report instead of starting the agent again.
   const askedToRun = (location.state as { investigate?: boolean } | null)?.investigate === true
   useEffect(() => {
     if (!askedToRun || started.current) return
@@ -68,17 +66,17 @@ function CasePage({ caseId }: { caseId: string }) {
 
   let body
   if (latest?.status === 'pending') body = <RunProgress startedAt={latest.submittedAt} />
-  else if (latest?.status === 'error' && latest.error) body = <RunFailed error={latest.error as Error} onRetry={() => run.mutate()} />
+  else if (latest?.status === 'error' && latest.error) body = <RunFailed error={latest.error as Error} onRetry={() => run.mutate(true)} />
   else if (investigation.data)
     body = (
       <ReportView
         investigation={investigation.data}
         caseState={{ submitted: stored.data?.submitted_case, failed: stored.isError }}
-        onRerun={() => run.mutate()}
+        onRerun={() => run.mutate(true)}
       />
     )
   else if (investigation.isPending) body = <p className="text-sm text-muted">{t('case.loading')}</p>
-  else if (isMissing(investigation.error)) body = <NotInvestigated onStart={() => run.mutate()} />
+  else if (isMissing(investigation.error)) body = <NotInvestigated onStart={() => run.mutate(true)} />
   else body = <LoadFailed error={investigation.error} onRetry={() => void investigation.refetch()} />
 
   return (

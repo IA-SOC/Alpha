@@ -53,7 +53,10 @@ def build_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str,
                             "evidence_against_ids": evidence_against, "alerts": selected, "iocs": iocs},
                            max_chars, stats))
     stats["chars"] = len(json.dumps(items, ensure_ascii=False))
-    return {"hypotheses": items, "stats": stats}
+    case_alerts = [_alert_view(alert, max_chars, stats) for alert in alerts[:50]]
+    stats["case_alerts_sent"] = len(case_alerts)
+    stats["chars"] = len(json.dumps({"hypotheses": items, "alerts": case_alerts}, ensure_ascii=False))
+    return {"hypotheses": items, "alerts": case_alerts, "stats": stats}
 
 
 def check_model_output(output: Any, context: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
