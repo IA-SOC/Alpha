@@ -1,5 +1,6 @@
 import json
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 from uuid import uuid4
 
@@ -7,7 +8,9 @@ import pytest
 from fastapi.testclient import TestClient
 from jsonschema import Draft202012Validator, FormatChecker
 
+from app.core.config import BenignProcessRule, settings
 from app.main import create_app
+from app.services import agent_adapter
 from app.services.report_formatter import format_report
 from app.services.traceability import verify_traceability
 from core.report_contract import SCHEMA_ID, serialize_report
@@ -22,6 +25,53 @@ def submit(client, case):
     response = client.post(URL, json=case.model_dump(exclude_unset=True))
     assert response.status_code == 201, response.text
     return response.json()["case_id"]
+
+
+def test_probable_noise_keeps_related_alert_and_evidence(tmp_path, monkeypatch):
+    executable = "/opt/backup/agent"
+    sha256 = "a" * 64
+    rule = BenignProcessRule.model_validate({
+        "id": "backup-agent",
+        "match": {"process.executable": executable, "process.hash.sha256": sha256},
+    })
+    monkeypatch.setattr(
+        agent_adapter, "settings", replace(settings, benign_process_rules=(rule,)),
+    )
+    a, b = event("a"), event("b")
+    a["raw_alert"]["_source"] = {
+        "process.executable": executable,
+        "process": {"hash": {"sha256": sha256.upper()}},
+    }
+    b["raw_alert"]["process"] = {
+        "executable": executable, "hash": {"sha256": "b" * 64},
+    }
+    payload = case_for(a, b)
+    with TestClient(create_app(database_path=tmp_path / "cases.sqlite3")) as client:
+        case_id = submit(client, payload)
+        response = client.post(f"{URL}/{case_id}/investigate")
+        assert response.status_code == 200, response.text
+        result = response.json()
+        saved = client.get(f"{URL}/{case_id}/investigation").json()
+    correlation = result["report"]["correlation"]
+    assert correlation["related_groups"] == [["a", "b"]]
+    assert correlation["noise_alert_ids"] == []
+    assert correlation["probable_noise"] == [{
+        "alert_id": "a",
+        "rule_id": "backup-agent",
+        "source_fields": [
+            {"alert_id": "a", "path": "/alerts/0/raw_alert/_source/process.executable",
+             "value": executable},
+            {"alert_id": "a", "path": "/alerts/0/raw_alert/_source/process/hash/sha256",
+             "value": sha256.upper()},
+        ],
+    }]
+    assert result["investigation_context"]["original_case"] == payload.model_dump(
+        exclude_unset=True
+    )
+    assert result["report"]["input"]["processed_alert_count"] == 2
+    assert result["validation"]["traceability_ok"]
+    assert "## Probable noise" in result["report_markdown"]
+    assert saved["report"]["correlation"] == correlation
 
 
 @pytest.fixture(scope="module")
