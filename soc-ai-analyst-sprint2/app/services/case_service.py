@@ -1,6 +1,7 @@
 """Semantic intake checks followed by UUID allocation and acceptance."""
 
 from collections.abc import Callable
+from typing import Literal
 from uuid import UUID
 
 from pydantic import JsonValue
@@ -9,7 +10,7 @@ from app.core.config import Settings
 from app.core.ids import generate_case_id
 from app.schemas.case import IncidentCase
 from app.schemas.errors import CaseValidationError, ValidationIssue
-from app.storage.case_store import AcceptedCase, CaseStore
+from app.storage.case_store import AcceptedCase, CaseStore, StoredCase
 
 
 def native_identifier(raw_alert: dict[str, JsonValue], pointer: str) -> JsonValue:
@@ -111,3 +112,9 @@ class CaseService:
         if issues:
             raise CaseValidationError(issues)
         return self.store.create(case, self.id_factory)
+
+    def list_cases(self) -> list[StoredCase]:
+        return self.store.list_cases()
+
+    def update_status(self, case_id: UUID, status: Literal["open", "closed"]) -> bool:
+        return self.store.update_status(case_id, status)

@@ -1,10 +1,14 @@
 import json
+import sqlite3
 from copy import deepcopy
 from dataclasses import replace
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
+from fastapi.testclient import TestClient
 
+from app.main import create_app
+from app.storage.case_store import CaseStore
 from tests.helpers import add_enrichment, assert_rejected, make_case
 
 URL = "/api/v1/cases"
@@ -30,6 +34,98 @@ def test_two_cases_have_different_uuid4_ids(client):
     second = client.post(URL, json=make_case(case_id="INC-B")).json()
     assert first["case_id"] != second["case_id"]
     assert UUID(first["case_id"]).version == UUID(second["case_id"]).version == 4
+
+
+def test_list_cases_returns_status_creation_date_and_investigation_summary(
+    client, application
+):
+    first = client.post(URL, json=make_case(case_id="INC-A")).json()
+    client.post(URL, json=make_case(case_id="INC-B"))
+    application.state.case_service.store.save_investigation(
+        UUID(first["case_id"]),
+        {
+            "status": "pending_review",
+            "revision": 2,
+            "run_id": "run-1",
+            "report": {"review": {"status": "pending"}},
+        },
+    )
+
+    response = client.get(URL)
+
+    assert response.status_code == 200
+    cases = response.json()
+    assert [item["submitted_case_id"] for item in cases] == ["INC-B", "INC-A"]
+    assert cases[0]["status"] == "open"
+    assert cases[0]["investigation"] is None
+    assert cases[1]["investigation"] == {
+        "status": "pending_review",
+        "revision": 2,
+        "run_id": "run-1",
+        "review_status": "pending",
+    }
+    assert cases[1]["created_at"]
+
+
+def test_closing_and_reopening_case_preserves_investigation(client, application):
+    accepted = client.post(URL, json=make_case()).json()
+    case_id = UUID(accepted["case_id"])
+    result = {
+        "status": "validated",
+        "revision": 1,
+        "run_id": "run-1",
+        "report": {
+            "review": {"status": "validated"},
+            "findings": [{"id": "finding-1", "status": "validated"}],
+        },
+    }
+    application.state.case_service.store.save_investigation(case_id, result)
+
+    closed = client.patch(f"{URL}/{case_id}", json={"status": "closed"})
+    reopened = client.patch(f"{URL}/{case_id}", json={"status": "open"})
+
+    assert closed.status_code == 200
+    assert closed.json()["status"] == "closed"
+    assert reopened.status_code == 200
+    assert reopened.json()["status"] == "open"
+    assert application.state.case_service.store.get_investigation(case_id) == result
+
+    restarted = create_app(database_path=application.state.case_service.store.path)
+    with TestClient(restarted) as restarted_client:
+        listed = restarted_client.get(URL).json()
+
+    assert listed[0]["status"] == "open"
+    assert listed[0]["investigation"]["run_id"] == "run-1"
+
+
+def test_case_status_update_rejects_unknown_case_and_status(client):
+    missing = client.patch(f"{URL}/{uuid4()}", json={"status": "closed"})
+    invalid = client.patch(f"{URL}/{uuid4()}", json={"status": "archived"})
+
+    assert missing.status_code == 404
+    assert invalid.status_code == 422
+
+
+def test_initialize_migrates_existing_cases_table(tmp_path):
+    path = tmp_path / "cases.sqlite3"
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "CREATE TABLE cases ("
+            "submitted_case_id TEXT PRIMARY KEY, "
+            "case_id TEXT NOT NULL UNIQUE, payload TEXT NOT NULL)"
+        )
+        connection.execute(
+            "INSERT INTO cases VALUES (?, ?, ?)",
+            ("legacy", str(uuid4()), json.dumps(make_case())),
+        )
+
+    store = CaseStore(path)
+    store.initialize()
+
+    cases = store.list_cases()
+    assert len(cases) == 1
+    assert cases[0].status == "open"
+    assert cases[0].created_at.tzinfo is not None
 
 
 def test_mixed_case_with_custom_fields_is_preserved(client, application):

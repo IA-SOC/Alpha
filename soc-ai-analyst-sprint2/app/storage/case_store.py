@@ -5,10 +5,11 @@ import sqlite3
 from collections.abc import Callable
 from contextlib import closing
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
-from app.schemas.case import IncidentCase
+from app.schemas.case import CaseStatus, IncidentCase
 from app.schemas.errors import CaseValidationError, ValidationIssue
 
 
@@ -16,6 +17,15 @@ from app.schemas.errors import CaseValidationError, ValidationIssue
 class AcceptedCase:
     case_id: UUID
     submitted_case: IncidentCase
+
+
+@dataclass(frozen=True)
+class StoredCase:
+    case_id: UUID
+    submitted_case_id: str
+    status: CaseStatus
+    created_at: datetime
+    investigation: dict | None
 
 
 class CaseStore:
@@ -32,8 +42,24 @@ class CaseStore:
                 "CREATE TABLE IF NOT EXISTS cases ("
                 "submitted_case_id TEXT PRIMARY KEY, "
                 "case_id TEXT NOT NULL UNIQUE, "
-                "payload TEXT NOT NULL)"
+                "payload TEXT NOT NULL, "
+                "status TEXT NOT NULL DEFAULT 'open', "
+                "created_at TEXT NOT NULL)"
             )
+            columns = {
+                row[1]
+                for row in connection.execute("PRAGMA table_info(cases)").fetchall()
+            }
+            if "status" not in columns:
+                connection.execute(
+                    "ALTER TABLE cases ADD COLUMN status TEXT NOT NULL DEFAULT 'open'"
+                )
+            if "created_at" not in columns:
+                connection.execute("ALTER TABLE cases ADD COLUMN created_at TEXT")
+                connection.execute(
+                    "UPDATE cases SET created_at = ? WHERE created_at IS NULL",
+                    (datetime.now(timezone.utc).isoformat(),),
+                )
             connection.execute(
                 "CREATE TABLE IF NOT EXISTS investigations ("
                 "case_id TEXT PRIMARY KEY, result TEXT NOT NULL)"
@@ -62,15 +88,44 @@ class CaseStore:
                 )
             record = AcceptedCase(id_factory(), case.model_copy(deep=True))
             connection.execute(
-                "INSERT INTO cases (submitted_case_id, case_id, payload) "
-                "VALUES (?, ?, ?)",
+                "INSERT INTO cases "
+                "(submitted_case_id, case_id, payload, status, created_at) "
+                "VALUES (?, ?, ?, 'open', ?)",
                 (
                     case.case_id,
                     str(record.case_id),
                     case.model_dump_json(exclude_unset=True),
+                    datetime.now(timezone.utc).isoformat(),
                 ),
             )
         return record
+
+    def list_cases(self) -> list[StoredCase]:
+        with closing(sqlite3.connect(self.path)) as connection:
+            rows = connection.execute(
+                "SELECT c.case_id, c.submitted_case_id, c.status, c.created_at, "
+                "i.result FROM cases AS c "
+                "LEFT JOIN investigations AS i ON i.case_id = c.case_id "
+                "ORDER BY c.created_at DESC, c.case_id DESC"
+            ).fetchall()
+        return [
+            StoredCase(
+                case_id=UUID(row[0]),
+                submitted_case_id=row[1],
+                status=row[2],
+                created_at=datetime.fromisoformat(row[3]),
+                investigation=json.loads(row[4]) if row[4] else None,
+            )
+            for row in rows
+        ]
+
+    def update_status(self, case_id: UUID, status: CaseStatus) -> bool:
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            result = connection.execute(
+                "UPDATE cases SET status = ? WHERE case_id = ?",
+                (status, str(case_id)),
+            )
+        return result.rowcount == 1
 
     def get(self, submitted_case_id: str) -> AcceptedCase | None:
         """Look up the submitted identifier for existing internal callers."""
