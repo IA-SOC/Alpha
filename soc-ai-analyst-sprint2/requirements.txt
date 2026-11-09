@@ -5,5 +5,5 @@ rfc3339-validator==0.1.4
 jsonschema==4.26.0
 
 mcp==2.3.0
-langgraph==1.2.16
+langgraph==1.2.20
 google-genai==2.33.0
