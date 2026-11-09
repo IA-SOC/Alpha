@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 
 from app.schemas.investigation import AnalystInstruction, ReviewDecision
 from app.services.investigation_service import InvestigationService
+from app.services.pdf_report import build_investigation_pdf
 
 router = APIRouter(prefix="/api/v1/cases", tags=["investigations"])
 logger = logging.getLogger(__name__)
@@ -124,6 +125,22 @@ def export_investigation(case_id: UUID, service: Service):
         headers={
             "Content-Disposition": (
                 f'attachment; filename="investigation-{case_id}.json"'
+            )
+        },
+    )
+
+
+@router.get("/{case_id}/export/pdf")
+def export_investigation_pdf(case_id: UUID, service: Service):
+    result = service.store.get_investigation(case_id)
+    if result is None:
+        raise HTTPException(404, "No completed investigation found")
+    return Response(
+        content=build_investigation_pdf(result),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="investigation-{case_id}.pdf"'
             )
         },
     )
