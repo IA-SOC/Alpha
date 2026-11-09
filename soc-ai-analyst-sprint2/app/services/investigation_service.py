@@ -28,7 +28,7 @@ class InvestigationService:
             raise KeyError("Case not found")
         return adapt_case(accepted, self.window_seconds)
 
-    def _result(self, case_id, run_id, state):
+    def _result(self, case_id, run_id, state, revision: int = 1):
         if not state["validation"]["ok"]:
             raise ValueError("Agent report validation failed")
         context = state["case"]["investigation_context"]
@@ -37,7 +37,7 @@ class InvestigationService:
         return {
             "case_id": str(case_id),
             "run_id": run_id,
-            "revision": 1,
+            "revision": revision,
             "status": "pending_review" if review == "pending" else review,
             "correlation": context["correlation"],
             "investigation_context": context,
@@ -51,6 +51,8 @@ class InvestigationService:
         self, case_id: UUID, guidance: dict | None = None
     ) -> dict:
         async with self.locks.setdefault(str(case_id), asyncio.Lock()):
+            saved = await asyncio.to_thread(self.store.get_investigation, case_id)
+            revision = int(saved.get("revision", 1)) + 1 if saved else 1
             adapted = await asyncio.to_thread(self.context, case_id)
             if guidance is not None:
                 adapted["analyst_guidance"] = deepcopy(guidance)
@@ -59,7 +61,9 @@ class InvestigationService:
                 investigate(adapted, thread_id=run_id, app=graph),
                 timeout=300,
             )
-            result = self._result(case_id, run_id, state)
+            result = self._result(case_id, run_id, state, revision)
+            if saved is not None:
+                result["instruction_history"] = saved.get("instruction_history", [])
             await asyncio.to_thread(self.store.save_investigation, case_id, result)
             self.sessions[str(case_id)] = (graph, run_id)
             return result
@@ -91,6 +95,10 @@ class InvestigationService:
                 case_id,
                 current_revision,
                 result,
+                (
+                    instruction.instruction,
+                    result.get("report_markdown", result.get("status", "completed")),
+                ),
             )
             return result
 

@@ -7,7 +7,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 
-from app.schemas.investigation import AnalystInstruction, ReviewDecision
+from app.schemas.investigation import (
+    AnalystInstruction,
+    ChatMessageResponse,
+    InvestigationRevisionResponse,
+    ReviewDecision,
+)
 from app.services.investigation_service import InvestigationService
 
 router = APIRouter(prefix="/api/v1/cases", tags=["investigations"])
@@ -63,6 +68,28 @@ def read_investigation(case_id: UUID, service: Service):
     if result is None:
         raise HTTPException(404, "No completed investigation found")
     return result
+
+
+@router.get(
+    "/{case_id}/messages",
+    response_model=list[ChatMessageResponse],
+    summary="Read the case chat history",
+)
+def read_messages(case_id: UUID, service: Service):
+    if service.store.get_by_id(case_id) is None:
+        raise HTTPException(404, "Case not found")
+    return service.store.get_messages(case_id)
+
+
+@router.get(
+    "/{case_id}/revisions",
+    response_model=list[InvestigationRevisionResponse],
+    summary="Read persisted investigation revisions",
+)
+def read_revisions(case_id: UUID, service: Service):
+    if service.store.get_by_id(case_id) is None:
+        raise HTTPException(404, "Case not found")
+    return service.store.get_revisions(case_id)
 
 
 @router.get("/{case_id}/report")

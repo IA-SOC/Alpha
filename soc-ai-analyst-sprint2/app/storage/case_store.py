@@ -28,6 +28,25 @@ class StoredCase:
     investigation: dict | None
 
 
+@dataclass(frozen=True)
+class StoredMessage:
+    message_id: int
+    case_id: UUID
+    revision: int
+    role: str
+    content: str
+    created_at: datetime
+
+
+@dataclass(frozen=True)
+class StoredRevision:
+    case_id: UUID
+    revision: int
+    run_id: str
+    result: dict
+    created_at: datetime
+
+
 class CaseStore:
     """Store accepted evidence and enforce submitted-ID uniqueness atomically."""
 
@@ -64,6 +83,43 @@ class CaseStore:
                 "CREATE TABLE IF NOT EXISTS investigations ("
                 "case_id TEXT PRIMARY KEY, result TEXT NOT NULL)"
             )
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS investigation_revisions ("
+                "case_id TEXT NOT NULL, "
+                "revision INTEGER NOT NULL, "
+                "run_id TEXT NOT NULL, "
+                "result TEXT NOT NULL, "
+                "created_at TEXT NOT NULL, "
+                "PRIMARY KEY (case_id, revision), "
+                "FOREIGN KEY (case_id) REFERENCES cases(case_id))"
+            )
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS chat_messages ("
+                "message_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "case_id TEXT NOT NULL, "
+                "revision INTEGER NOT NULL, "
+                "role TEXT NOT NULL, "
+                "content TEXT NOT NULL, "
+                "created_at TEXT NOT NULL, "
+                "FOREIGN KEY (case_id) REFERENCES cases(case_id))"
+            )
+            legacy = connection.execute(
+                "SELECT case_id, result FROM investigations"
+            ).fetchall()
+            for case_id, raw_result in legacy:
+                result = json.loads(raw_result)
+                connection.execute(
+                    "INSERT OR IGNORE INTO investigation_revisions "
+                    "(case_id, revision, run_id, result, created_at) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (
+                        case_id,
+                        int(result.get("revision", 1)),
+                        result["run_id"],
+                        raw_result,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
 
     def create(
         self, case: IncidentCase, id_factory: Callable[[], UUID]
@@ -151,14 +207,36 @@ class CaseStore:
 
     def save_investigation(self, case_id: UUID, result: dict) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:
+            serialized = json.dumps(
+                result, ensure_ascii=False, allow_nan=False
+            )
+            created_at = datetime.now(timezone.utc).isoformat()
             connection.execute(
                 "INSERT INTO investigations (case_id, result) VALUES (?, ?) "
                 "ON CONFLICT(case_id) DO UPDATE SET result = excluded.result",
-                (str(case_id), json.dumps(result, ensure_ascii=False, allow_nan=False)),
+                (str(case_id), serialized),
+            )
+            connection.execute(
+                "INSERT INTO investigation_revisions "
+                "(case_id, revision, run_id, result, created_at) "
+                "VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT(case_id, revision) DO UPDATE SET "
+                "run_id = excluded.run_id, result = excluded.result",
+                (
+                    str(case_id),
+                    int(result.get("revision", 1)),
+                    result["run_id"],
+                    serialized,
+                    created_at,
+                ),
             )
 
     def save_instruction_revision(
-        self, case_id: UUID, expected_revision: int, result: dict
+        self,
+        case_id: UUID,
+        expected_revision: int,
+        result: dict,
+        chat_turn: tuple[str, str] | None = None,
     ) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:
             connection.execute("BEGIN IMMEDIATE")
@@ -178,6 +256,44 @@ class CaseStore:
                     str(case_id),
                 ),
             )
+            serialized = json.dumps(result, ensure_ascii=False, allow_nan=False)
+            connection.execute(
+                "INSERT INTO investigation_revisions "
+                "(case_id, revision, run_id, result, created_at) "
+                "VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT(case_id, revision) DO UPDATE SET "
+                "run_id = excluded.run_id, result = excluded.result",
+                (
+                    str(case_id),
+                    int(result["revision"]),
+                    result["run_id"],
+                    serialized,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
+            if chat_turn is not None:
+                created_at = datetime.now(timezone.utc).isoformat()
+                connection.executemany(
+                    "INSERT INTO chat_messages "
+                    "(case_id, revision, role, content, created_at) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    [
+                        (
+                            str(case_id),
+                            int(result["revision"]),
+                            "user",
+                            chat_turn[0],
+                            created_at,
+                        ),
+                        (
+                            str(case_id),
+                            int(result["revision"]),
+                            "assistant",
+                            chat_turn[1],
+                            created_at,
+                        ),
+                    ],
+                )
 
     def get_investigation(self, case_id: UUID) -> dict | None:
         with closing(sqlite3.connect(self.path)) as connection:
@@ -185,6 +301,62 @@ class CaseStore:
                 "SELECT result FROM investigations WHERE case_id = ?", (str(case_id),)
             ).fetchone()
         return json.loads(row[0]) if row else None
+
+    def save_chat_turn(
+        self,
+        case_id: UUID,
+        revision: int,
+        instruction: str,
+        response: str,
+    ) -> None:
+        created_at = datetime.now(timezone.utc).isoformat()
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            connection.executemany(
+                "INSERT INTO chat_messages "
+                "(case_id, revision, role, content, created_at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                [
+                    (str(case_id), revision, "user", instruction, created_at),
+                    (str(case_id), revision, "assistant", response, created_at),
+                ],
+            )
+
+    def get_messages(self, case_id: UUID) -> list[StoredMessage]:
+        with closing(sqlite3.connect(self.path)) as connection:
+            rows = connection.execute(
+                "SELECT message_id, case_id, revision, role, content, created_at "
+                "FROM chat_messages WHERE case_id = ? ORDER BY message_id",
+                (str(case_id),),
+            ).fetchall()
+        return [
+            StoredMessage(
+                message_id=row[0],
+                case_id=UUID(row[1]),
+                revision=row[2],
+                role=row[3],
+                content=row[4],
+                created_at=datetime.fromisoformat(row[5]),
+            )
+            for row in rows
+        ]
+
+    def get_revisions(self, case_id: UUID) -> list[StoredRevision]:
+        with closing(sqlite3.connect(self.path)) as connection:
+            rows = connection.execute(
+                "SELECT case_id, revision, run_id, result, created_at "
+                "FROM investigation_revisions WHERE case_id = ? ORDER BY revision",
+                (str(case_id),),
+            ).fetchall()
+        return [
+            StoredRevision(
+                case_id=UUID(row[0]),
+                revision=row[1],
+                run_id=row[2],
+                result=json.loads(row[3]),
+                created_at=datetime.fromisoformat(row[4]),
+            )
+            for row in rows
+        ]
 
     def save_review(self, case_id: UUID, run_id: str, result: dict) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:
@@ -200,4 +372,19 @@ class CaseStore:
             connection.execute(
                 "UPDATE investigations SET result = ? WHERE case_id = ?",
                 (json.dumps(result, ensure_ascii=False, allow_nan=False), str(case_id)),
+            )
+            serialized = json.dumps(result, ensure_ascii=False, allow_nan=False)
+            connection.execute(
+                "INSERT INTO investigation_revisions "
+                "(case_id, revision, run_id, result, created_at) "
+                "VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT(case_id, revision) DO UPDATE SET "
+                "run_id = excluded.run_id, result = excluded.result",
+                (
+                    str(case_id),
+                    int(result.get("revision", 1)),
+                    result["run_id"],
+                    serialized,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
             )
