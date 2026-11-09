@@ -53,6 +53,11 @@ class CaseStore:
     def __init__(self, path: Path) -> None:
         self.path = path
 
+    @staticmethod
+    def _run_id_for_revision(result: dict) -> str:
+        run_id = result.get("run_id")
+        return run_id if isinstance(run_id, str) and run_id else "unknown"
+
     def initialize(self) -> None:
         """Run during application startup; importing the app creates no database."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -115,7 +120,7 @@ class CaseStore:
                     (
                         case_id,
                         int(result.get("revision", 1)),
-                        result["run_id"],
+                        self._run_id_for_revision(result),
                         raw_result,
                         datetime.now(timezone.utc).isoformat(),
                     ),
@@ -225,7 +230,7 @@ class CaseStore:
                 (
                     str(case_id),
                     int(result.get("revision", 1)),
-                    result["run_id"],
+                    self._run_id_for_revision(result),
                     serialized,
                     created_at,
                 ),
