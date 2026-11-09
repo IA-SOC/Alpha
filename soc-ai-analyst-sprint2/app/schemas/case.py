@@ -1,5 +1,6 @@
 """Pydantic input models implementing the existing v1.0 structural contract."""
 
+from datetime import datetime
 from typing import Annotated, Any, Literal
 
 from pydantic import (
@@ -108,3 +109,27 @@ class AcceptedCaseResponse(BaseModel):
     case_id: UUID4
     submitted_case_id: str
     status: Literal["accepted"] = "accepted"
+
+
+CaseStatus = Literal["open", "closed"]
+
+
+class CaseStatusUpdate(BaseModel):
+    status: CaseStatus
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class InvestigationSummary(BaseModel):
+    status: str
+    revision: int
+    run_id: str
+    review_status: str
+
+
+class CaseListItem(BaseModel):
+    case_id: UUID4
+    submitted_case_id: str
+    status: CaseStatus
+    created_at: datetime
+    investigation: InvestigationSummary | None = None

@@ -144,6 +144,8 @@ submitted external ID.
 | Method and path | Result |
 | --- | --- |
 | `POST /api/v1/cases` | Unchanged v1.0 validation, SQLite acceptance, UUID; 201 |
+| `GET /api/v1/cases` | List stored cases with status, creation date and investigation summary |
+| `PATCH /api/v1/cases/{case_id}` | Set case status to `open` or `closed` without removing findings |
 | `GET /api/v1/cases/{case_id}` | Original accepted input |
 | `GET /api/v1/cases/{case_id}/context` | Correlation and IoC evidence; no agent subprocess |
 | `POST /api/v1/cases/{case_id}/investigate` | Run the existing agent and save its result |
@@ -166,6 +168,18 @@ curl -X POST http://127.0.0.1:8000/api/v1/cases/RETURNED_UUID/review \
   -H 'Content-Type: application/json' \
   -d '{"status":"validated","analyst":"demo-analyst","notes":"Evidence reviewed."}'
 ```
+
+Cases can be managed without resubmitting their input:
+
+```bash
+curl http://127.0.0.1:8000/api/v1/cases
+curl -X PATCH http://127.0.0.1:8000/api/v1/cases/RETURNED_UUID \
+  -H 'Content-Type: application/json' \
+  -d '{"status":"closed"}'
+```
+
+Reopening uses the same endpoint with `{"status":"open"}`. Status changes
+preserve the accepted input and any saved investigation findings.
 
 Analyst-guided follow-ups require the current `revision` and matching
 `X-Analyst-Id` header. The response increments the revision and stores the
