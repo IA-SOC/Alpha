@@ -120,6 +120,30 @@ def _source_fields(raw: Dict[str, Any], alert_id: str, prefix: str) -> List[Dict
     ]
 
 
+TECHNIQUE_ID = re.compile(r"^T\d{4}(\.\d{3})?$")
+
+
+def wazuh_mitre(raw: Dict[str, Any]) -> List[Dict[str, str]]:
+    """rule.mitre de Wazuh (listas id/technique/tactic) -> técnicas con táctica.
+
+    Wazuh aplana las tácticas de todas las técnicas; si no hay una por técnica
+    se usa la primera. Los IDs con formato inválido se descartan.
+    """
+    mitre = get_path(raw, "rule.mitre")
+    if not isinstance(mitre, dict):
+        return []
+    ids, names, tactics = (_as_list(mitre.get(k)) for k in ("id", "technique", "tactic"))
+    out = []
+    for i, technique_id in enumerate(ids):
+        if not TECHNIQUE_ID.match(technique_id):
+            continue
+        tactic = tactics[i] if len(tactics) == len(ids) else (tactics[0] if tactics else "")
+        out.append({"technique_id": technique_id,
+                    "technique_name": names[i] if i < len(names) else technique_id,
+                    "tactic": tactic})
+    return out
+
+
 def normalize_alert(alert: Dict[str, Any], index: int) -> Dict[str, Any]:
     source_format = detect_format(alert)
 
@@ -159,6 +183,7 @@ def normalize_alert(alert: Dict[str, Any], index: int) -> Dict[str, Any]:
         "user": user,
         "source_ip": _first(alert, "source_ip", "source.ip", "data.srcip"),
         "dest_ip": _first(alert, "dest_ip", "destination.ip", "data.dstip"),
+        "wazuh_mitre": wazuh_mitre(alert),
         "raw": alert,
     }
 
@@ -184,6 +209,7 @@ def normalize_case(case: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str
             normalized["id"] = original["alert_id"]
             normalized["id_is_native"] = True
             normalized["raw"] = original["raw_alert"]
+            normalized["wazuh_mitre"] = wazuh_mitre(original["raw_alert"])
             normalized["string_values"] = _strings(original["raw_alert"])
             # Pointers into the submitted case, not into the _source view the agent reads.
             normalized["source_fields"] = deepcopy(context["signal_evidence"][original["alert_id"]])

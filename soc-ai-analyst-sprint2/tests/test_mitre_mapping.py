@@ -148,3 +148,66 @@ def test_vendor_rule_names_match_despite_punctuation(rule_name, technique_id):
     """#33: real Elastic/Wazuh rule names, not only underscore keywords."""
     alert = {"id": "a", "rule_name": rule_name, "tags": []}
     assert [m["technique_id"] for m in map_alerts_to_mitre([alert])] == [technique_id]
+
+
+# --- S5-US5-T01 (#146): Wazuh rule.mitre first, local catalog as fallback -----
+
+WAZUH_RULE = {
+    "level": 12,
+    "description": "Windows Defender disabled",
+    "mitre": {
+        "id": ["T1562.001"],
+        "tactic": ["Defense Evasion"],
+        "technique": ["Disable or Modify Tools"],
+    },
+}
+
+
+def wazuh_alert(aid, rule=WAZUH_RULE, tags=()):
+    from agent.normalize import normalize_alert
+
+    return normalize_alert({"id": aid, "rule": rule, "tags": list(tags)}, 1)
+
+
+def test_native_wazuh_mitre_is_used_and_recorded():
+    [mapping] = map_alerts_to_mitre([wazuh_alert("w1")])
+    assert mapping["technique_id"] == "T1562.001"
+    assert mapping["tactic"] == "Defense Evasion"
+    assert mapping["technique_name"] == "Disable or Modify Tools"
+    assert mapping["mapping_source"] == "wazuh_rule_mitre"
+
+
+def test_native_wazuh_mitre_wins_over_the_catalog_for_the_same_alert():
+    # The tags match T1110 in the catalog; Wazuh's own mapping still wins.
+    mappings = map_alerts_to_mitre([wazuh_alert("w1", tags=["brute_force"])])
+    assert [m["technique_id"] for m in mappings] == ["T1562.001"]
+
+
+def test_alerts_without_wazuh_mitre_fall_back_to_the_catalog():
+    plain = {"id": "c1", "rule_name": "x", "tags": ["brute_force"]}
+    mappings = map_alerts_to_mitre([wazuh_alert("w1"), plain])
+    by_id = {m["technique_id"]: m for m in mappings}
+    assert by_id["T1110"]["mapping_source"] == "local_catalog"
+    assert by_id["T1562.001"]["mapping_source"] == "wazuh_rule_mitre"
+    assert by_id["T1110"]["supporting_alert_ids"] == ["c1"]
+
+
+def test_invalid_wazuh_technique_ids_are_dropped():
+    mitre = {
+        "id": ["bogus", "T1078"],
+        "tactic": ["Persistence", "Initial Access"],
+        "technique": ["x", "Valid Accounts"],
+    }
+    rule = {"level": 5, "mitre": mitre}
+    [mapping] = map_alerts_to_mitre([wazuh_alert("w1", rule)])
+    assert (mapping["technique_id"], mapping["tactic"]) == ("T1078", "Initial Access")
+
+
+def test_wazuh_mapping_source_reaches_the_report(client):
+    alert = tagged("def-1", [])
+    alert["raw_alert"]["rule"] = WAZUH_RULE
+    result = investigate(client, alert)
+    [mapping] = result["report"]["attack_mapping"]
+    assert mapping["technique_id"] == "T1562.001"
+    assert mapping["mapping_source"] == "wazuh_rule_mitre"
+    assert "Wazuh" in mapping["source_version"]

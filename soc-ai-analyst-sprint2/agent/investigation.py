@@ -53,6 +53,7 @@ PRIORITY_BY_TACTIC = {
 PRIORITIES = ["low", "medium", "high", "urgent"]
 
 CATALOG_VERSION = "catálogo local core/logic.RULES (sin versión ATT&CK fijada)"
+WAZUH_VERSION = "rule.mitre nativo de Wazuh (sin versión ATT&CK fijada)"
 
 
 def _evidence(alert: Dict[str, Any], role: str, relevance: str) -> Dict[str, Any]:
@@ -123,7 +124,9 @@ def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str,
             "status": "not_supported" if analyst_legitimate and not support else "candidate",
             "evidence": [_evidence(a, "supporting", f"Señal que coincide con el patrón de {mapping['technique_name']}.")
                          for a in mapped_support],
-            "source_version": CATALOG_VERSION,
+            "mapping_source": mapping.get("mapping_source", "local_catalog"),
+            "source_version": WAZUH_VERSION if mapping.get("mapping_source") == "wazuh_rule_mitre"
+                              else CATALOG_VERSION,
         })
 
         confidence = ordinal_confidence(support, against, synthetic)
