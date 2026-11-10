@@ -66,8 +66,18 @@ class InvestigationService:
             if not force:
                 saved = await asyncio.to_thread(self.store.get_investigation, case_id)
                 status = await asyncio.to_thread(self.store.analysis_status, case_id)
-                if saved is not None and status and status["status"] == "completed":
-                    return saved
+                if saved is not None and status:
+                    if status["status"] == "completed":
+                        return saved
+                    if (
+                        status["status"] == "error"
+                        and status["error"] == "ProviderUnavailable"
+                    ):
+                        # Older runs saved the report before marking the job failed.
+                        await asyncio.to_thread(
+                            self.store.set_analysis_status, case_id, "completed"
+                        )
+                        return saved
                 if status and status["status"] == "error":
                     raise ProviderUnavailable(
                         "Previous analysis failed; use force=true to retry"
@@ -84,14 +94,13 @@ class InvestigationService:
                     timeout=300,
                 )
                 result = self._result(case_id, run_id, state)
-                await asyncio.to_thread(self.store.save_investigation, case_id, result)
-                self.sessions[str(case_id)] = (graph, run_id)
-                model = result["report"].get("model_review", {})
-                if require_gemini and model.get("status") != "ok":
-                    raise ProviderUnavailable("Gemini investigation did not complete")
                 await asyncio.to_thread(
-                    self.store.set_analysis_status, case_id, "completed"
+                    self.store.save_investigation,
+                    case_id,
+                    result,
+                    complete_analysis=True,
                 )
+                self.sessions[str(case_id)] = (graph, run_id)
                 return result
             except asyncio.CancelledError:
                 await asyncio.to_thread(

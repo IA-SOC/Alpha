@@ -112,13 +112,17 @@ class CaseStore:
             else None
         )
 
-    def save_investigation(self, case_id: UUID, result: dict) -> None:
+    def save_investigation(
+        self, case_id: UUID, result: dict, *, complete_analysis: bool = False
+    ) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:
             connection.execute(
                 "INSERT INTO investigations (case_id, result) VALUES (?, ?) "
                 "ON CONFLICT(case_id) DO UPDATE SET result = excluded.result",
                 (str(case_id), json.dumps(result, ensure_ascii=False, allow_nan=False)),
             )
+            if complete_analysis:
+                self._write_analysis_status(connection, case_id, "completed", None)
 
     def save_instruction_revision(
         self, case_id: UUID, expected_revision: int, result: dict
@@ -173,14 +177,22 @@ class CaseStore:
             ).fetchone()
         return dict(zip(("status", "error", "updated_at"), row)) if row else None
 
-    def set_analysis_status(self, case_id: UUID, status: str, error=None) -> None:
+    @staticmethod
+    def _write_analysis_status(
+        connection: sqlite3.Connection, case_id: UUID, status: str, error: str | None
+    ) -> None:
+        connection.execute(
+            "INSERT INTO analysis_jobs (case_id, status, error) VALUES (?, ?, ?) "
+            "ON CONFLICT(case_id) DO UPDATE SET status=excluded.status, "
+            "error=excluded.error, updated_at=CURRENT_TIMESTAMP",
+            (str(case_id), status, error),
+        )
+
+    def set_analysis_status(
+        self, case_id: UUID, status: str, error: str | None = None
+    ) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:
-            connection.execute(
-                "INSERT INTO analysis_jobs (case_id, status, error) VALUES (?, ?, ?) "
-                "ON CONFLICT(case_id) DO UPDATE SET status=excluded.status, "
-                "error=excluded.error, updated_at=CURRENT_TIMESTAMP",
-                (str(case_id), status, error),
-            )
+            self._write_analysis_status(connection, case_id, status, error)
 
     def recover_jobs(self) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:

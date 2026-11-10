@@ -37,6 +37,7 @@ function CasePage({ caseId }: { caseId: string }) {
     mutationKey: runKey,
     mutationFn: (force) => withTimeLimit((signal) => api.investigate(caseId, signal, force === true)),
     onSuccess: (data) => queryClient.setQueryData(['investigation', caseId], data),
+    onError: () => void queryClient.invalidateQueries({ queryKey: ['investigation', caseId] }),
   })
   // Runs live in the shared mutation cache, so leaving the page mid-run and coming back shows the
   // same run still going instead of offering a second one.
@@ -64,9 +65,12 @@ function CasePage({ caseId }: { caseId: string }) {
     )
   }
 
+  const failure = latest?.status === 'error' && latest.error
+    ? <RunFailed error={latest.error as Error} onRetry={() => run.mutate(true)} />
+    : null
+
   let body
   if (latest?.status === 'pending') body = <RunProgress startedAt={latest.submittedAt} />
-  else if (latest?.status === 'error' && latest.error) body = <RunFailed error={latest.error as Error} onRetry={() => run.mutate(true)} />
   else if (investigation.data)
     body = (
       <ReportView
@@ -75,6 +79,7 @@ function CasePage({ caseId }: { caseId: string }) {
         onRerun={() => run.mutate(true)}
       />
     )
+  else if (failure) body = null
   else if (investigation.isPending) body = <p className="text-sm text-muted">{t('case.loading')}</p>
   else if (isMissing(investigation.error)) body = <NotInvestigated onStart={() => run.mutate(true)} />
   else body = <LoadFailed error={investigation.error} onRetry={() => void investigation.refetch()} />
@@ -82,6 +87,7 @@ function CasePage({ caseId }: { caseId: string }) {
   return (
     <div>
       <CaseHeader caseId={caseId} stored={stored.data} />
+      {failure && <div className="mb-6">{failure}</div>}
       {body}
     </div>
   )

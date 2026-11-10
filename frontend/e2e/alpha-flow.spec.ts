@@ -52,8 +52,8 @@ test('submit, investigate, read and review a case', async ({ page }) => {
 
   await tabs.getByRole('tab', { name: 'Review' }).click()
   const findings = panel.locator('article:has(fieldset)')
+  await expect(findings.first()).toBeVisible()
   const count = await findings.count()
-  expect(count).toBeGreaterThan(0)
   for (let index = 0; index < count; index++) {
     const finding = findings.nth(index)
     await finding.getByText('Validate', { exact: true }).click()
