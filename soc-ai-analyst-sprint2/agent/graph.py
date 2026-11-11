@@ -256,6 +256,7 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         model_review = await llm.build_model_review(
             state["alerts"], state["hypotheses"],
             lambda tool, arguments: call_tool("guard", tool, arguments),
+            require_gemini=case.get("require_gemini", False),
         )
     if model_review is not None:
         report["model_review"] = model_review
