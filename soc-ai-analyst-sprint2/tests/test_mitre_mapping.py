@@ -14,6 +14,7 @@ Criteria used here until #32 lands, taken from the skill protocol
 import pytest
 from fastapi.testclient import TestClient
 
+from agent.investigation import build_attack_analysis
 from app.main import create_app
 from core.logic import RULES, map_alerts_to_mitre
 from tests.helpers import investigate, tagged
@@ -211,3 +212,47 @@ def test_wazuh_mapping_source_reaches_the_report(client):
     assert mapping["technique_id"] == "T1562.001"
     assert mapping["mapping_source"] == "wazuh_rule_mitre"
     assert "Wazuh" in mapping["source_version"]
+    evidence = mapping["evidence"][0]
+    source_fields = {
+        field["path"]: field["value"] for field in evidence["source_fields"]
+    }
+    assert source_fields["/alerts/0/raw_alert/rule/mitre/id"] == ["T1562.001"]
+
+
+def test_ambiguous_wazuh_tactics_are_not_assigned_by_position():
+    rule = {"level": 12, "mitre": {
+        "id": ["T1070.004", "T1485", "T1112"],
+        "technique": ["File Deletion", "Data Destruction", "Modify Registry"],
+        "tactic": ["Defense Evasion", "Impact"],
+    }}
+    mappings = map_alerts_to_mitre([wazuh_alert("w1", rule)])
+    assert {mapping["tactic"] for mapping in mappings} == {"Defense Evasion | Impact"}
+    assert all(mapping["ambiguous"] for mapping in mappings)
+
+
+def test_mixed_sources_are_kept_per_alert_in_the_report():
+    wazuh = wazuh_alert("w1", {"level": 12, "mitre": {
+        "id": ["T1110"], "technique": ["Brute Force"],
+        "tactic": ["Credential Access"],
+    }})
+    catalog = {"id": "c1", "rule_name": "failed login", "tags": ["brute_force"],
+               "source_fields": [], "timestamp_problem": None}
+    [mapping] = map_alerts_to_mitre([wazuh, catalog])
+    assert mapping["mapping_source"] == "mixed"
+    assert mapping["alert_mapping_sources"] == {
+        "w1": "wazuh_rule_mitre", "c1": "local_catalog",
+    }
+    analysis = build_attack_analysis([wazuh, catalog], [mapping], synthetic=False)
+    [reported] = analysis["attack_mapping"]
+    assert reported["source_version"].startswith("rule.mitre nativo")
+    assert {e["alert_id"]: e["mapping_source"] for e in reported["evidence"]} == {
+        "w1": "wazuh_rule_mitre", "c1": "local_catalog",
+    }
+
+
+def test_wazuh_mitre_source_fields_reference_original_values():
+    alert = wazuh_alert("w1")
+    fields = {field["path"]: field["value"] for field in alert["source_fields"]}
+    assert fields["/alerts/0/rule/mitre/id"] == ["T1562.001"]
+    assert fields["/alerts/0/rule/mitre/technique"] == ["Disable or Modify Tools"]
+    assert fields["/alerts/0/rule/mitre/tactic"] == ["Defense Evasion"]

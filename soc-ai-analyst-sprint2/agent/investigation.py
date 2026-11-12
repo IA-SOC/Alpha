@@ -56,8 +56,9 @@ CATALOG_VERSION = "catálogo local core/logic.RULES (sin versión ATT&CK fijada)
 WAZUH_VERSION = "rule.mitre nativo de Wazuh (sin versión ATT&CK fijada)"
 
 
-def _evidence(alert: Dict[str, Any], role: str, relevance: str) -> Dict[str, Any]:
-    return {
+def _evidence(alert: Dict[str, Any], role: str, relevance: str,
+              mapping_source: str | None = None) -> Dict[str, Any]:
+    evidence = {
         "alert_id": alert["id"],
         "role": role,
         "fields": [f for f in ("rule_name", "tags", "host", "user") if alert.get(f)],
@@ -66,6 +67,9 @@ def _evidence(alert: Dict[str, Any], role: str, relevance: str) -> Dict[str, Any
         "relevance": relevance,
         "source_fields": deepcopy(alert["source_fields"]),
     }
+    if mapping_source:
+        evidence["mapping_source"] = mapping_source
+    return evidence
 
 
 def ordinal_confidence(support: List[Dict[str, Any]], against: List[Dict[str, Any]],
@@ -104,6 +108,7 @@ def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str,
     attack_mapping, hypotheses = [], []
 
     for mapping in mappings:
+        alert_sources = mapping.get("alert_mapping_sources", {})
         mapped_support = [by_id[i] for i in mapping["supporting_alert_ids"] if i in by_id]
         analyst_legitimate = [a for a in mapped_support if ANALYST_LEGITIMATE_TAG in a["tags"]]
         support = [a for a in mapped_support if a not in analyst_legitimate]
@@ -122,11 +127,15 @@ def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str,
             "technique_name": mapping["technique_name"],
             # The rule still matched every mapped alert; analyst marks only change the status.
             "status": "not_supported" if analyst_legitimate and not support else "candidate",
-            "evidence": [_evidence(a, "supporting", f"Señal que coincide con el patrón de {mapping['technique_name']}.")
+            "evidence": [_evidence(a, "supporting", f"Señal que coincide con el patrón de {mapping['technique_name']}.",
+                                   alert_sources.get(a["id"]))
                          for a in mapped_support],
             "mapping_source": mapping.get("mapping_source", "local_catalog"),
+            "alert_mapping_sources": alert_sources,
+            "ambiguous": mapping.get("ambiguous", False),
             "source_version": WAZUH_VERSION if mapping.get("mapping_source") == "wazuh_rule_mitre"
-                              else CATALOG_VERSION,
+                              else CATALOG_VERSION if mapping.get("mapping_source") == "local_catalog"
+                              else f"{WAZUH_VERSION}; {CATALOG_VERSION}",
         })
 
         confidence = ordinal_confidence(support, against, synthetic)
@@ -135,7 +144,8 @@ def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str,
                          f"({mapping['technique_id']}, táctica {tactic}) en {', '.join(sorted(h for h in hosts if h))}.",
             "tactic": tactic,
             **confidence,
-            "evidence_for": [_evidence(a, "supporting", "Alerta que coincide con el patrón de la técnica.") for a in support],
+            "evidence_for": [_evidence(a, "supporting", "Alerta que coincide con el patrón de la técnica.",
+                                         alert_sources.get(a["id"])) for a in support],
             "evidence_against": [_evidence(a, "contradicting", "Actividad legítima conocida en el mismo host y ventana.")
                                  for a in against],
             "alternatives": ALTERNATIVES.get(tactic, []),

@@ -123,11 +123,12 @@ def _source_fields(raw: Dict[str, Any], alert_id: str, prefix: str) -> List[Dict
 TECHNIQUE_ID = re.compile(r"^T\d{4}(\.\d{3})?$")
 
 
-def wazuh_mitre(raw: Dict[str, Any]) -> List[Dict[str, str]]:
+def wazuh_mitre(raw: Dict[str, Any]) -> List[Dict[str, Any]]:
     """rule.mitre de Wazuh (listas id/technique/tactic) -> técnicas con táctica.
 
-    Wazuh aplana las tácticas de todas las técnicas; si no hay una por técnica
-    se usa la primera. Los IDs con formato inválido se descartan.
+    Wazuh aplana las tácticas de todas las técnicas. Solo se emparejan por
+    posición cuando ambas listas tienen el mismo largo; de otro modo se
+    conserva explícitamente el conjunto de tácticas posibles.
     """
     mitre = get_path(raw, "rule.mitre")
     if not isinstance(mitre, dict):
@@ -137,10 +138,12 @@ def wazuh_mitre(raw: Dict[str, Any]) -> List[Dict[str, str]]:
     for i, technique_id in enumerate(ids):
         if not TECHNIQUE_ID.match(technique_id):
             continue
-        tactic = tactics[i] if len(tactics) == len(ids) else (tactics[0] if tactics else "")
+        ambiguous = len(tactics) != len(ids)
+        tactic = tactics[i] if not ambiguous else " | ".join(tactics)
         out.append({"technique_id": technique_id,
                     "technique_name": names[i] if i < len(names) else technique_id,
-                    "tactic": tactic})
+                    "tactic": tactic,
+                    "ambiguous": ambiguous})
     return out
 
 

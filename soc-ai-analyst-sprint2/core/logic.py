@@ -115,6 +115,7 @@ def _alert_signals(alert: Dict[str, Any]) -> List[str]:
 
 SOURCE_WAZUH = "wazuh_rule_mitre"
 SOURCE_CATALOG = "local_catalog"
+SOURCE_MIXED = "mixed"
 
 
 def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -124,6 +125,7 @@ def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     solo las alertas sin él caen al catálogo local de palabras clave.
     """
     evidence_by_technique: Dict[str, List[str]] = defaultdict(list)
+    source_by_technique: Dict[str, Dict[str, str]] = defaultdict(dict)
     info_by_technique: Dict[str, Dict[str, Any]] = {}
 
     for alert in alerts:
@@ -136,6 +138,7 @@ def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                           if any(p in s for p in rule["match_any"] for s in signals)]
         for item in candidates:
             evidence_by_technique[item["technique_id"]].append(alert["id"])
+            source_by_technique[item["technique_id"]][alert["id"]] = item["source"]
             # Wazuh gana si la misma técnica llega por las dos vías.
             if item["technique_id"] not in info_by_technique or item["source"] == SOURCE_WAZUH:
                 info_by_technique[item["technique_id"]] = item
@@ -143,6 +146,8 @@ def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     mappings = []
     for technique_id, alert_ids in evidence_by_technique.items():
         rule = info_by_technique[technique_id]
+        alert_sources = source_by_technique[technique_id]
+        sources = set(alert_sources.values())
         confidence = min(0.5 + 0.15 * len(alert_ids), 0.95)
         mappings.append({
             "technique_id": technique_id,
@@ -150,7 +155,9 @@ def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "tactic": rule["tactic"],
             "supporting_alert_ids": list(dict.fromkeys(alert_ids)),
             "confidence": round(confidence, 2),
-            "mapping_source": rule["source"],
+            "mapping_source": next(iter(sources)) if len(sources) == 1 else SOURCE_MIXED,
+            "alert_mapping_sources": alert_sources,
+            "ambiguous": rule.get("ambiguous", False),
         })
 
     return sorted(mappings, key=lambda m: m["confidence"], reverse=True)
