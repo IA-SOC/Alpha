@@ -63,8 +63,8 @@ export function createApi(fetchImpl: typeof fetch = (...args) => globalThis.fetc
     getCase: (caseId: string) =>
       unwrap(client.GET('/api/v1/cases/{case_id}', byId(caseId))) as Promise<StoredCase>,
 
-    investigate: (caseId: string, signal?: AbortSignal) =>
-      unwrap(client.POST('/api/v1/cases/{case_id}/investigate', { ...byId(caseId), signal })) as Promise<Investigation>,
+    investigate: (caseId: string, signal?: AbortSignal, force = false) =>
+      unwrap(client.POST('/api/v1/cases/{case_id}/investigate', { params: { path: { case_id: caseId }, query: { force } }, signal })) as Promise<Investigation>,
 
     getInvestigation: (caseId: string) =>
       unwrap(client.GET('/api/v1/cases/{case_id}/investigation', byId(caseId))) as Promise<Investigation>,

@@ -89,15 +89,6 @@ class AnalystInstruction(BaseModel):
     revision: int = Field(ge=1)
 
 
-class ChatMessageResponse(BaseModel):
-    message_id: int
-    case_id: UUID
-    revision: int
-    role: Literal["user", "assistant"]
-    content: str
-    created_at: datetime
-
-
 class InvestigationRevisionResponse(BaseModel):
     case_id: UUID
     revision: int

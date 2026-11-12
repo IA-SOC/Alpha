@@ -85,43 +85,34 @@ def test_instruction_persists_follow_up_and_rejects_stale_revision(tmp_path):
         assert stale.status_code == 409
 
     assert service.store.get_investigation(case_id)["revision"] == 2
-    messages = service.store.get_messages(case_id)
-    assert [(message.role, message.revision) for message in messages] == [
-        ("user", 2),
-        ("assistant", 2),
-    ]
-    assert messages[0].content == "Focus on the affected server"
-    revisions = service.store.get_revisions(case_id)
-    assert [revision.revision for revision in revisions] == [1, 2]
+
+    assert [item.revision for item in service.store.get_revisions(case_id)] == [1, 2]
 
 
-def test_messages_and_revisions_are_available_after_restart(tmp_path):
+def test_revisions_are_available_after_restart(tmp_path, monkeypatch):
+    monkeypatch.setenv("SOC_AUTO_INVESTIGATE", "false")
     path = tmp_path / "cases.sqlite3"
     app = create_app(database_path=path)
     with TestClient(app) as client:
         case_id = client.post(
-            "/api/v1/cases", json=make_case(case_id="chat-case")
+            "/api/v1/cases", json=make_case(case_id="revision-case")
         ).json()["case_id"]
-    case_uuid = UUID(case_id)
-    service = app.state.investigation_service
-    service.store.initialize()
-    service.store.save_investigation(case_uuid, _saved_result(case_uuid))
-    service.store.save_instruction_revision(
-        case_uuid,
-        1,
-        {
-            **_saved_result(case_uuid),
-            "revision": 2,
-            "run_id": "follow-up-run",
-        },
-        ("Review the evidence", "The evidence supports the saved findings."),
-    )
-    with TestClient(create_app(database_path=path)) as client:
-        messages = client.get(f"/api/v1/cases/{case_id}/messages")
-        revisions = client.get(f"/api/v1/cases/{case_id}/revisions")
+        case_uuid = UUID(case_id)
+        store = app.state.investigation_service.store
+        initial = _saved_result(case_uuid)
+        store.save_investigation(case_uuid, initial)
+        store.save_instruction_revision(
+            case_uuid, 1, {**initial, "revision": 2, "run_id": "follow-up-run"}
+        )
 
-    assert messages.status_code == 200
-    assert revisions.status_code == 200
-    assert [item["role"] for item in messages.json()] == ["user", "assistant"]
-    assert [item["revision"] for item in messages.json()] == [2, 2]
-    assert [item["revision"] for item in revisions.json()] == [1, 2]
+    restarted = create_app(database_path=path)
+    with TestClient(restarted) as client:
+        response = client.get(f"/api/v1/cases/{case_id}/revisions")
+        missing = client.get(f"/api/v1/cases/{uuid4()}/revisions")
+
+    assert response.status_code == 200
+    assert [(item["revision"], item["run_id"]) for item in response.json()] == [
+        (1, "initial-run"),
+        (2, "follow-up-run"),
+    ]
+    assert missing.status_code == 404

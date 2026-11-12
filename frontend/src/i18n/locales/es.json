@@ -388,6 +388,7 @@
       "unknowns": "Lo que aún no se sabe del alcance",
       "noUnknowns": "Nada indicado."
     },
+    "modelReviewUnavailable": "El informe de reglas está disponible. No se pudo completar la segunda opinión de Gemini.",
     "exportJson": "Exportar JSON"
   }
 }

@@ -73,6 +73,13 @@ deterministic source references. It uses the exact `SCHEMA` from
 instead of merging or overwriting records. The default output is
 `data/context/context.sqlite3`, which is ignored as a generated local artifact.
 
+## Representative Wazuh cases
+
+Use `python -m app.services.wazuh_cases` to select reproducible coverage cases
+from a local NDJSON/gzip/ZIP export, with a maximum of 50 alerts per case and
+recorded source locations and selection criteria. See the
+[US22 runbook and verification](docs/sprint5-US22-representative-cases.md).
+
 ## Configurable probable noise
 
 Set `BENIGN_PROCESS_RULES` to a JSON array before starting the API or direct
@@ -150,9 +157,8 @@ submitted external ID.
 | `GET /api/v1/cases/{case_id}/context` | Correlation and IoC evidence; no agent subprocess |
 | `POST /api/v1/cases/{case_id}/investigate` | Run the existing agent and save its result |
 | `GET /api/v1/cases/{case_id}/investigation` | Last saved investigation, including its timeline, ATT&CK metadata/evidence, hypotheses and IoC context after restart |
-| `GET /api/v1/cases/{case_id}/messages` | Persisted analyst and assistant chat messages for the case |
-| `GET /api/v1/cases/{case_id}/revisions` | Persisted investigation revisions for the case |
 | `GET /api/v1/cases/{case_id}/report` | Saved report, dual-audience sections and rendered Markdown |
+| `GET /api/v1/cases/{case_id}/revisions` | Saved investigation revisions in ascending order |
 | `POST /api/v1/cases/{case_id}/instructions` | Run one audited analyst-guided follow-up using the expected revision |
 | `POST /api/v1/cases/{case_id}/review` | Resume the live human-review checkpoint |
 
@@ -185,8 +191,7 @@ preserve the accepted input and any saved investigation findings.
 
 Analyst-guided follow-ups require the current `revision` and matching
 `X-Analyst-Id` header. The response increments the revision and stores the
-instruction in `instruction_history`, the chat messages in SQLite, and a
-revision snapshot. Stale revisions are rejected with 409.
+instruction in `instruction_history`; stale revisions are rejected with 409.
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/v1/cases/RETURNED_UUID/instructions \
@@ -223,8 +228,8 @@ available in their original relative paths.
 
 SQLite retains accepted inputs and the last successful report. Review checkpoints
 remain in memory: after restart, old reports can be read, but review returns 409
-until a new investigation runs. Rerunning replaces the last report and checkpoint,
-while saved chat messages and revision snapshots remain available per case.
+until a new investigation runs. Rerunning creates a revision and replaces the current report and checkpoint.
+Saved revisions remain available per case after restart.
 Use one worker. Unknown custom fields are preserved; interpreting unknown decoders
 requires verified mappings. No provider verdict is invented and no external
 intelligence query is performed. The supplied agent remains deterministic with
