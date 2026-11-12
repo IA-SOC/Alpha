@@ -25,6 +25,7 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const { report } = investigation
+  const modelStatus = report.model_review?.status
 
   const tabs: Tab[] = [
     { id: 'summary', label: t('report.tabs.summary'), content: <SummaryTab report={report} /> },
@@ -38,6 +39,11 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
   return (
     <SubmittedCaseContext value={caseState}>
       <div className="space-y-6">
+        {(modelStatus === 'error' || modelStatus === 'unavailable') && (
+          <p role="status" className="border-l-4 border-state-warn bg-surface px-4 py-3 text-sm">
+            {t('report.modelReviewUnavailable')}
+          </p>
+        )}
         <Facts report={report} />
         <a className="inline-block rounded-xl border border-control px-4 py-2 text-sm"
            href={`/api/v1/cases/${encodeURIComponent(investigation.case_id)}/export`}>
