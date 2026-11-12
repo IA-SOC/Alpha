@@ -34,7 +34,11 @@ Open `http://127.0.0.1:8000/docs` for the API.
 Por defecto `LLM_PROVIDER=none`: el reporte permanece solo determinista.
 Copie `.env.example` a `.env`, defina `LLM_PROVIDER=gemini` y configure
 `GEMINI_API_KEY` únicamente en el entorno; nunca la guarde en el repositorio.
-`GEMINI_MODEL` usa `gemini-3.8-flash` y `LLM_TIMEOUT_SECONDS` usa 30 por defecto.
+`GEMINI_MODEL` usa `gemini-3.8-flash`; `GEMINI_FALLBACK_MODELS` acepta una lista
+separada por comas para 429/500/503/504, timeout o conexiÃ³n. Cada modelo recibe
+dos reintentos por defecto (`GEMINI_RETRY_ATTEMPTS=2`), sin reintentos internos
+del SDK. `GEMINI_THINKING_LEVEL` acepta `minimal`, `low`, `medium` o `high`
+(por defecto); `LLM_TIMEOUT_SECONDS` usa 90 por defecto para toda la revisiÃ³n.
 La revisión no altera hipótesis, confianza, técnicas ni acciones; se añade como
 `model_review`. El MCP local `guard` reduce, sanea y valida los datos y citas
 antes y después de la llamada al proveedor.
