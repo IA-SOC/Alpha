@@ -1,3 +1,4 @@
+import os
 from unittest.mock import Mock
 
 import pytest
@@ -23,3 +24,6 @@ def id_factory(application):
 def client(application, id_factory):
     with TestClient(application) as test_client:
         yield test_client
+
+
+os.environ["SOC_AUTO_INVESTIGATE"] = "false"

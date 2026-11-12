@@ -308,7 +308,8 @@ def test_failure_retains_accepted_evidence_and_allows_retry(client, monkeypatch)
     assert accepted.json()["submitted_case"] == payload.model_dump(exclude_unset=True)
     assert client.get(f"{URL}/{cid}/investigation").status_code == 404
     monkeypatch.setattr(module, "investigate", original)
-    assert client.post(f"{URL}/{cid}/investigate").status_code == 200
+    assert client.post(f"{URL}/{cid}/investigate").status_code == 502
+    assert client.post(f"{URL}/{cid}/investigate?force=true").status_code == 200
 
 
 def test_review_resumes_existing_graph_and_persists_decision(real_run):
