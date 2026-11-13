@@ -35,10 +35,10 @@ Por defecto `LLM_PROVIDER=none`: el reporte permanece solo determinista.
 Copie `.env.example` a `.env`, defina `LLM_PROVIDER=gemini` y configure
 `GEMINI_API_KEY` únicamente en el entorno; nunca la guarde en el repositorio.
 `GEMINI_MODEL` usa `gemini-3.8-flash`; `GEMINI_FALLBACK_MODELS` acepta una lista
-separada por comas para 429/500/503/504, timeout o conexiÃ³n. Cada modelo recibe
+separada por comas para 429/500/503/504, timeout o conexión. Cada modelo recibe
 dos reintentos por defecto (`GEMINI_RETRY_ATTEMPTS=2`), sin reintentos internos
 del SDK. `GEMINI_THINKING_LEVEL` acepta `minimal`, `low`, `medium` o `high`
-(por defecto); `LLM_TIMEOUT_SECONDS` usa 90 por defecto para toda la revisiÃ³n.
+(por defecto); `LLM_TIMEOUT_SECONDS` usa 90 por defecto para toda la revisión.
 La revisión no altera hipótesis, confianza, técnicas ni acciones; se añade como
 `model_review`. El MCP local `guard` reduce, sanea y valida los datos y citas
 antes y después de la llamada al proveedor.
@@ -162,6 +162,7 @@ submitted external ID.
 | `POST /api/v1/cases/{case_id}/investigate` | Run the existing agent and save its result |
 | `GET /api/v1/cases/{case_id}/investigation` | Last saved investigation, including its timeline, ATT&CK metadata/evidence, hypotheses and IoC context after restart |
 | `GET /api/v1/cases/{case_id}/report` | Saved report, dual-audience sections and rendered Markdown |
+| `GET /api/v1/cases/{case_id}/revisions` | Saved investigation revisions in ascending order |
 | `POST /api/v1/cases/{case_id}/instructions` | Run one audited analyst-guided follow-up using the expected revision |
 | `POST /api/v1/cases/{case_id}/review` | Resume the live human-review checkpoint |
 
@@ -231,7 +232,8 @@ available in their original relative paths.
 
 SQLite retains accepted inputs and the last successful report. Review checkpoints
 remain in memory: after restart, old reports can be read, but review returns 409
-until a new investigation runs. Rerunning replaces the last report and checkpoint.
+until a new investigation runs. Rerunning creates a revision and replaces the current report and checkpoint.
+Saved revisions remain available per case after restart.
 Use one worker. Unknown custom fields are preserved; interpreting unknown decoders
 requires verified mappings. No provider verdict is invented and no external
 intelligence query is performed. The supplied agent remains deterministic with

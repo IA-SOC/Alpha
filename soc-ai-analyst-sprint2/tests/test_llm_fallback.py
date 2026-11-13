@@ -2,6 +2,7 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import Mock
 
+import httpx
 import pytest
 
 from agent import llm
@@ -142,3 +143,31 @@ def test_invalid_thinking_level_is_unavailable(monkeypatch):
     monkeypatch.setenv("GEMINI_THINKING_LEVEL", "maximum")
     with pytest.raises(ProviderUnavailable, match="GEMINI_THINKING_LEVEL"):
         llm.get_provider()
+
+
+def test_httpx_read_timeout_is_retried_and_logged_as_timeout(monkeypatch):
+    client = _client(monkeypatch, [httpx.ReadTimeout("slow"), _response()])
+    provider = _provider(model="primary", retry_attempts=1)
+    output, _ = provider.review({"hypotheses": []})
+    assert output["items"]
+    assert client.models.generate_content.call_count == 2
+    assert [a["outcome"] for a in provider.last_attempts] == ["timeout", "ok"]
+
+
+def test_httpx_connect_error_moves_to_the_fallback_model(monkeypatch):
+    _client(monkeypatch, [httpx.ConnectError("down"), _response()])
+    provider = _provider(model="primary", fallback_models=["backup"], retry_attempts=0)
+    provider.review({"hypotheses": []})
+    assert provider.last_model == "backup"
+    assert [a["outcome"] for a in provider.last_attempts] == ["connection", "ok"]
+
+
+def test_chat_retries_and_has_no_output_cap_by_default(monkeypatch):
+    from google.genai.errors import ServerError
+
+    answer = SimpleNamespace(text='{"answer":"ok","evidence_refs":[]}')
+    client = _client(monkeypatch, [ServerError(503, {}), answer])
+    provider = _provider(model="primary", retry_attempts=1)
+    assert provider.chat({"current_message": "hi"})["answer"] == "ok"
+    config = client.models.generate_content.call_args.kwargs["config"]
+    assert config["max_output_tokens"] is None
