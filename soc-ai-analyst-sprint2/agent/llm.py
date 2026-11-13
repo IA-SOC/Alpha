@@ -23,7 +23,7 @@ def review_timeout_seconds() -> int:
 
 
 def _gemini_models() -> list[str]:
-    primary = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+    primary = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
     fallbacks = os.getenv("GEMINI_FALLBACK_MODELS", "").split(",")
     return [primary, *(model.strip() for model in fallbacks if model.strip())]
 
@@ -61,7 +61,7 @@ class GeminiProvider:
                  fallback_models: Optional[list[str]] = None,
                  sleep: Callable[[float], None] = time.sleep):
         self.api_key = api_key
-        self.model = model or os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+        self.model = model or os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
         self.max_output_tokens = max_output_tokens
         self.retry_attempts = retry_attempts
         self.thinking_level = thinking_level
