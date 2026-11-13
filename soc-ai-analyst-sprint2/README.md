@@ -35,7 +35,8 @@ Por defecto `LLM_PROVIDER=none`: el reporte permanece solo determinista.
 Copie `.env.example` a `.env`, defina `LLM_PROVIDER=gemini` y configure
 `GEMINI_API_KEY` únicamente en el entorno; nunca la guarde en el repositorio.
 `GEMINI_MODEL` usa `gemini-3.6-flash`; `GEMINI_FALLBACK_MODELS` acepta una lista
-separada por comas para 429/500/503/504, timeout o conexión. Cada modelo recibe
+separada por comas para 408/429/500/502/503/504, respuesta vacía o inválida,
+timeout o conexión. Cada modelo recibe
 dos reintentos por defecto (`GEMINI_RETRY_ATTEMPTS=2`), sin reintentos internos
 del SDK. `GEMINI_THINKING_LEVEL` acepta `minimal`, `low`, `medium` o `high`
 (por defecto); `LLM_TIMEOUT_SECONDS` usa 90 por defecto para toda la revisión.

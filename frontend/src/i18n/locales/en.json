@@ -389,6 +389,24 @@
       "noUnknowns": "None listed."
     },
     "modelReviewUnavailable": "The rules-based report is available. Gemini’s second opinion could not be completed.",
+    "modelReview": {
+      "secondOpinion": "Second opinion: {{model}} · {{date}}",
+      "secondOpinionNoDate": "Second opinion: {{model}}",
+      "fallbackUsed": "{{model}} was used because {{primaryModel}} {{reason}}.",
+      "fallbackUsedUnknown": "{{model}} was used as a fallback.",
+      "outcomes": {
+        "http_408": "timed out (408)",
+        "http_503": "was overloaded (503)",
+        "http_504": "did not answer in time (504)",
+        "http_429": "was at its usage limit (429)",
+        "http_500": "had a server error (500)",
+        "http_502": "returned a bad gateway (502)",
+        "timeout": "timed out",
+        "connection": "could not be reached",
+        "invalid_response": "returned an empty or invalid answer",
+        "error": "was unavailable"
+      }
+    },
     "exportJson": "Export JSON"
   }
 }

@@ -110,7 +110,8 @@ class ChatService:
             provider = get_provider("gemini")
             raw = await asyncio.wait_for(
                 asyncio.to_thread(provider.chat, context),
-                timeout=review_timeout_seconds(),
+                # Margin so the provider's own deadline fires first.
+                timeout=review_timeout_seconds() + 5,
             )
             try:
                 answer = AssistantAnswer.model_validate(raw)
