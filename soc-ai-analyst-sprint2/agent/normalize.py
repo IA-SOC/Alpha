@@ -120,6 +120,38 @@ def _source_fields(raw: Dict[str, Any], alert_id: str, prefix: str) -> List[Dict
     ]
 
 
+TECHNIQUE_ID = re.compile(r"^T\d{4}(\.\d{3})?$")
+
+
+def wazuh_mitre(raw: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """rule.mitre de Wazuh (listas id/technique/tactic) -> técnicas con táctica.
+
+    Wazuh aplana (y deduplica) las tácticas de todas las técnicas, así que la
+    posición no dice a qué técnica pertenece cada una. Con una sola táctica
+    todas las técnicas la tienen; con varias se conserva el conjunto completo
+    y se marca ambiguo. shortcut: sin catálogo ATT&CK offline no se resuelve
+    la táctica exacta; añadirlo si se necesita desambiguar.
+    """
+    # Los hits de Elastic traen la alerta bajo _source.
+    if isinstance(raw.get("_source"), dict):
+        raw = raw["_source"]
+    mitre = get_path(raw, "rule.mitre")
+    if not isinstance(mitre, dict):
+        return []
+    ids, names, tactics = (_as_list(mitre.get(k)) for k in ("id", "technique", "tactic"))
+    ambiguous = len(tactics) > 1
+    tactic = " | ".join(tactics)
+    out = []
+    for i, technique_id in enumerate(ids):
+        if not TECHNIQUE_ID.match(technique_id):
+            continue
+        out.append({"technique_id": technique_id,
+                    "technique_name": names[i] if i < len(names) else technique_id,
+                    "tactic": tactic,
+                    "ambiguous": ambiguous})
+    return out
+
+
 def normalize_alert(alert: Dict[str, Any], index: int) -> Dict[str, Any]:
     source_format = detect_format(alert)
 
@@ -159,6 +191,7 @@ def normalize_alert(alert: Dict[str, Any], index: int) -> Dict[str, Any]:
         "user": user,
         "source_ip": _first(alert, "source_ip", "source.ip", "data.srcip"),
         "dest_ip": _first(alert, "dest_ip", "destination.ip", "data.dstip"),
+        "wazuh_mitre": wazuh_mitre(alert),
         "raw": alert,
     }
 
@@ -184,6 +217,7 @@ def normalize_case(case: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str
             normalized["id"] = original["alert_id"]
             normalized["id_is_native"] = True
             normalized["raw"] = original["raw_alert"]
+            normalized["wazuh_mitre"] = wazuh_mitre(original["raw_alert"])
             normalized["string_values"] = _strings(original["raw_alert"])
             # Pointers into the submitted case, not into the _source view the agent reads.
             normalized["source_fields"] = deepcopy(context["signal_evidence"][original["alert_id"]])

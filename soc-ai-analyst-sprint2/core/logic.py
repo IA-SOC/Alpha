@@ -113,28 +113,51 @@ def _alert_signals(alert: Dict[str, Any]) -> List[str]:
     return [re.sub(r"[^a-z0-9]+", "_", str(s).lower()) for s in signals]
 
 
+SOURCE_WAZUH = "wazuh_rule_mitre"
+SOURCE_CATALOG = "local_catalog"
+SOURCE_MIXED = "mixed"
+
+
 def map_alerts_to_mitre(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Alertas -> lista de técnicas MITRE ATT&CK candidatas, con evidencia."""
+    """Alertas -> lista de técnicas MITRE ATT&CK candidatas, con evidencia.
+
+    Si la alerta trae `wazuh_mitre` (rule.mitre nativo de Wazuh) se usa eso;
+    solo las alertas sin él caen al catálogo local de palabras clave.
+    """
     evidence_by_technique: Dict[str, List[str]] = defaultdict(list)
-    rule_by_technique = {}
+    source_by_technique: Dict[str, Dict[str, str]] = defaultdict(dict)
+    info_by_technique: Dict[str, Dict[str, Any]] = {}
 
     for alert in alerts:
-        signals = _alert_signals(alert)
-        for rule in RULES:
-            if any(pattern in signal for pattern in rule["match_any"] for signal in signals):
-                evidence_by_technique[rule["technique_id"]].append(alert["id"])
-                rule_by_technique[rule["technique_id"]] = rule
+        native = alert.get("wazuh_mitre") or []
+        if native:
+            candidates = [{**t, "source": SOURCE_WAZUH} for t in native]
+        else:
+            signals = _alert_signals(alert)
+            candidates = [{**rule, "source": SOURCE_CATALOG} for rule in RULES
+                          if any(p in s for p in rule["match_any"] for s in signals)]
+        for item in candidates:
+            evidence_by_technique[item["technique_id"]].append(alert["id"])
+            source_by_technique[item["technique_id"]][alert["id"]] = item["source"]
+            # Wazuh gana si la misma técnica llega por las dos vías.
+            if item["technique_id"] not in info_by_technique or item["source"] == SOURCE_WAZUH:
+                info_by_technique[item["technique_id"]] = item
 
     mappings = []
     for technique_id, alert_ids in evidence_by_technique.items():
-        rule = rule_by_technique[technique_id]
+        rule = info_by_technique[technique_id]
+        alert_sources = source_by_technique[technique_id]
+        sources = set(alert_sources.values())
         confidence = min(0.5 + 0.15 * len(alert_ids), 0.95)
         mappings.append({
             "technique_id": technique_id,
             "technique_name": rule["technique_name"],
             "tactic": rule["tactic"],
-            "supporting_alert_ids": alert_ids,
+            "supporting_alert_ids": list(dict.fromkeys(alert_ids)),
             "confidence": round(confidence, 2),
+            "mapping_source": next(iter(sources)) if len(sources) == 1 else SOURCE_MIXED,
+            "alert_mapping_sources": alert_sources,
+            "ambiguous": rule.get("ambiguous", False),
         })
 
     return sorted(mappings, key=lambda m: m["confidence"], reverse=True)
