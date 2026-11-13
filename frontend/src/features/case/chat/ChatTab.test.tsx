@@ -146,7 +146,7 @@ describe('Case chat', () => {
     await user.click(screen.getByRole('button', { name: 'Send' }))
 
     const alert = await screen.findByRole('alert')
-    expect(alert).toHaveTextContent('Gemini’s answer was rejected, so nothing was saved.')
+    expect(alert).toHaveTextContent('Gemini didn’t give a usable answer, so nothing was saved.')
     expect(alert).toHaveTextContent('Gemini cited evidence outside its context')
   })
 

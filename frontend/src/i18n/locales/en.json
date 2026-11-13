@@ -543,7 +543,7 @@
       "analyst": "The backend did not accept your analyst name. Sign out and sign in again.",
       "notReady": "The investigation is not saved yet. Wait for it to finish and try again.",
       "invalid": "The backend rejected the question.",
-      "rejected": "Gemini’s answer was rejected, so nothing was saved.",
+      "rejected": "Gemini didn’t give a usable answer, so nothing was saved. It may be busy, or its answer failed the checks.",
       "notConfigured": "Gemini is not set up on the backend, so the chat is not available.",
       "timeout": "Gemini took too long to answer. Try again, or ask something narrower.",
       "other": "The message failed with status {{status}}.",

@@ -247,7 +247,7 @@ function Composer({ caseId, attached, onDetach, onSent, suggest }: ComposerProps
 
   return (
     <form onSubmit={submit} className="mt-6 border-t border-rule pt-5" noValidate>
-      {suggest && (
+      {suggest && !send.isPending && (
         <div className="mb-4">
           <p className="text-xs text-muted">{t('chat.suggest.title')}</p>
           <ul className="mt-2 flex flex-wrap gap-2">
