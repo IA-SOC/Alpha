@@ -126,20 +126,25 @@ TECHNIQUE_ID = re.compile(r"^T\d{4}(\.\d{3})?$")
 def wazuh_mitre(raw: Dict[str, Any]) -> List[Dict[str, Any]]:
     """rule.mitre de Wazuh (listas id/technique/tactic) -> técnicas con táctica.
 
-    Wazuh aplana las tácticas de todas las técnicas. Solo se emparejan por
-    posición cuando ambas listas tienen el mismo largo; de otro modo se
-    conserva explícitamente el conjunto de tácticas posibles.
+    Wazuh aplana (y deduplica) las tácticas de todas las técnicas, así que la
+    posición no dice a qué técnica pertenece cada una. Con una sola táctica
+    todas las técnicas la tienen; con varias se conserva el conjunto completo
+    y se marca ambiguo. shortcut: sin catálogo ATT&CK offline no se resuelve
+    la táctica exacta; añadirlo si se necesita desambiguar.
     """
+    # Los hits de Elastic traen la alerta bajo _source.
+    if isinstance(raw.get("_source"), dict):
+        raw = raw["_source"]
     mitre = get_path(raw, "rule.mitre")
     if not isinstance(mitre, dict):
         return []
     ids, names, tactics = (_as_list(mitre.get(k)) for k in ("id", "technique", "tactic"))
+    ambiguous = len(tactics) > 1
+    tactic = " | ".join(tactics)
     out = []
     for i, technique_id in enumerate(ids):
         if not TECHNIQUE_ID.match(technique_id):
             continue
-        ambiguous = len(tactics) != len(ids)
-        tactic = tactics[i] if not ambiguous else " | ".join(tactics)
         out.append({"technique_id": technique_id,
                     "technique_name": names[i] if i < len(names) else technique_id,
                     "tactic": tactic,

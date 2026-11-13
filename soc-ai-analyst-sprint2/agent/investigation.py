@@ -303,7 +303,18 @@ def correlated_attack_analysis(alerts, mappings, synthetic, context):
         for mapping in mappings:
             ids = [aid for aid in mapping["supporting_alert_ids"] if aid in group]
             if ids:
-                subset.append({**mapping, "supporting_alert_ids": ids})
+                # Procedencia solo de las alertas del grupo, no de otros grupos.
+                sources = {i: s for i, s in mapping.get("alert_mapping_sources", {}).items()
+                           if i in ids}
+                kinds = set(sources.values())
+                subset.append({
+                    **mapping,
+                    "supporting_alert_ids": ids,
+                    "alert_mapping_sources": sources,
+                    "mapping_source": (next(iter(kinds)) if len(kinds) == 1
+                                       else "mixed" if kinds
+                                       else mapping.get("mapping_source", "local_catalog")),
+                })
         analysis = build_attack_analysis(selected, subset, synthetic)
         for values in analysis.values():
             for item in values:
