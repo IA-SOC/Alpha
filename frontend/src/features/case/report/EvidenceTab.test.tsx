@@ -26,7 +26,7 @@ afterEach(() => {
 describe('Evidence', () => {
   it('opens the source fields of a piece of evidence, checked against the submitted case', async () => {
     const user = userEvent.setup()
-    openReport()
+    openReport('?tab=summary')
     const card = (await screen.findByRole('heading', { name: /^1\. / })).closest('article')!
 
     await user.click(within(card).getAllByText('Show the 6 source fields')[0])
@@ -39,7 +39,7 @@ describe('Evidence', () => {
 
   it('takes an alert link to that alert on the Evidence tab', async () => {
     const user = userEvent.setup()
-    const { router } = openReport()
+    const { router } = openReport('?tab=summary')
 
     await user.click((await screen.findAllByRole('link', { name: 'Open alert wazuh-auth-002 in Evidence' }))[0])
 
@@ -74,7 +74,7 @@ describe('Evidence', () => {
       { alert_id: 'ecs-auth-001', path: '/alerts/0/raw_alert/host/name', value: 'web-99' },
     ]
     const user = userEvent.setup()
-    openReport('', copy)
+    openReport('?tab=summary', copy)
     const card = (await screen.findByRole('heading', { name: /^1\. / })).closest('article')!
 
     await user.click(within(card).getByText('Show the 2 source fields'))
