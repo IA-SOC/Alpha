@@ -96,6 +96,27 @@ describe('Investigating a case', () => {
     expect(screen.getByRole('button', { name: 'Run the investigation again' })).toBeInTheDocument()
   })
 
+  it('retrieves and shows a saved rules report after a failed run', async () => {
+    const fallback = {
+      ...sampleInvestigation,
+      report: { ...sampleInvestigation.report, model_review: { status: 'unavailable' } },
+    }
+    let report = notRun
+    const backend = fakeBackend({
+      [`GET ${base}`]: stored,
+      [`GET ${base}/investigation`]: () => report.clone(),
+      [`POST ${base}/investigate`]: () => {
+        report = json(200, fallback)
+        return agentFailed.clone()
+      },
+    })
+    openAskingToRun()
+
+    expect(await screen.findByText(sampleInvestigation.report.executive_summary)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Gemini’s second opinion could not be completed')
+    expect(backend.calls(`GET ${base}/investigation`)).toBeGreaterThanOrEqual(2)
+  })
+
   it('gives up on its own when the backend never answers, and cancels the request', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     const backend = fakeBackend({

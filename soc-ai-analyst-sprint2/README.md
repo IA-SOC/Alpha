@@ -73,6 +73,13 @@ deterministic source references. It uses the exact `SCHEMA` from
 instead of merging or overwriting records. The default output is
 `data/context/context.sqlite3`, which is ignored as a generated local artifact.
 
+## Representative Wazuh cases
+
+Use `python -m app.services.wazuh_cases` to select reproducible coverage cases
+from a local NDJSON/gzip/ZIP export, with a maximum of 50 alerts per case and
+recorded source locations and selection criteria. See the
+[US22 runbook and verification](docs/sprint5-US22-representative-cases.md).
+
 ## Configurable probable noise
 
 Set `BENIGN_PROCESS_RULES` to a JSON array before starting the API or direct

@@ -388,6 +388,7 @@
       "unknowns": "What the scope still doesn't know",
       "noUnknowns": "None listed."
     },
+    "modelReviewUnavailable": "The rules-based report is available. Gemini’s second opinion could not be completed.",
     "exportJson": "Export JSON"
   }
 }

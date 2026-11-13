@@ -8,6 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 
 from app.schemas.investigation import AnalystInstruction, ReviewDecision
+from app.services.export_redaction import redact_export
 from app.services.investigation_service import InvestigationService
 from app.services.pdf_report import build_investigation_pdf
 
@@ -42,11 +43,13 @@ def read_context(case_id: UUID, service: Service):
 
 
 @router.post("/{case_id}/investigate")
-async def investigate_case(case_id: UUID, service: Service):
+async def investigate_case(case_id: UUID, service: Service, force: bool = False):
     if service.store.get_by_id(case_id) is None:
         raise HTTPException(404, "Case not found")
     try:
-        return await service.run(case_id)
+        return await service.run(
+            case_id, force=force, require_gemini=service.require_gemini
+        )
     except TimeoutError as exc:
         raise HTTPException(
             504, "Investigation exceeded the 300-second timeout"
@@ -120,7 +123,9 @@ def export_investigation(case_id: UUID, service: Service):
     if result is None:
         raise HTTPException(404, "No completed investigation found")
     return Response(
-        content=json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2),
+        content=json.dumps(
+            redact_export(result), ensure_ascii=False, allow_nan=False, indent=2
+        ),
         media_type="application/json",
         headers={
             "Content-Disposition": (
@@ -144,3 +149,16 @@ def export_investigation_pdf(case_id: UUID, service: Service):
             )
         },
     )
+
+
+@router.get("/{case_id}/analysis-status")
+def analysis_status(case_id: UUID, service: Service):
+    if service.store.get_by_id(case_id) is None:
+        raise HTTPException(404, "Case not found")
+    return {
+        "case_id": str(case_id),
+        **(
+            service.store.analysis_status(case_id)
+            or {"status": "not_started", "error": None, "updated_at": None}
+        ),
+    }
