@@ -1,7 +1,7 @@
 import createClient from 'openapi-fetch'
 
 import type { paths } from './generated/intake'
-import type { AcceptedCase, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
+import type { AcceptedCase, CaseListItem, CaseStatus, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
 
 // status 0 means the request never got an answer, usually because the backend is down.
 export class ApiError extends Error {
@@ -59,6 +59,16 @@ export function createApi(fetchImpl: typeof fetch = (...args) => globalThis.fetc
           headers: { 'Content-Type': 'application/json' },
         }),
       ),
+
+    listCases: async () => {
+      const list = await unwrap<CaseListItem[]>(client.GET('/api/v1/cases'))
+      // A 200 that is not a list means something other than the backend answered.
+      if (!Array.isArray(list)) throw new ApiError(502, 'The case list had an unexpected shape')
+      return list
+    },
+
+    setCaseStatus: (caseId: string, status: CaseStatus) =>
+      unwrap<CaseListItem>(client.PATCH('/api/v1/cases/{case_id}', { ...byId(caseId), body: { status } })),
 
     getCase: (caseId: string) =>
       unwrap(client.GET('/api/v1/cases/{case_id}', byId(caseId))) as Promise<StoredCase>,

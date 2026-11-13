@@ -78,6 +78,68 @@
     "signedInAs": "Sesión iniciada como",
     "signOut": "Cerrar sesión"
   },
+  "cases": {
+    "title": "Casos",
+    "total_one": "{{count}} caso",
+    "total_other": "{{count}} casos",
+    "newCase": "Nuevo caso",
+    "summary": {
+      "label": "Resumen de casos",
+      "open": "Abiertos",
+      "waiting": "Pendientes de revisión",
+      "notRun": "Sin investigar"
+    },
+    "filter": {
+      "label": "Filtrar por estado",
+      "all": "Todos",
+      "open": "Abiertos",
+      "closed": "Cerrados"
+    },
+    "stage": {
+      "notInvestigated": "Sin investigar",
+      "pending": "Pendiente de revisión",
+      "validated": "Validado",
+      "corrected": "Corregido",
+      "rejected": "Rechazado"
+    },
+    "status": {
+      "open": "Abierto",
+      "closed": "Cerrado"
+    },
+    "table": {
+      "label": "Casos guardados",
+      "case": "Caso",
+      "status": "Estado",
+      "investigation": "Investigación",
+      "created": "Creado, UTC",
+      "actions": "Acciones"
+    },
+    "actions": {
+      "open": "Abrir",
+      "close": "Cerrar",
+      "reopen": "Reabrir",
+      "closeCase": "Cerrar caso",
+      "reopenCase": "Reabrir caso",
+      "failed": "No se actualizó el estado del caso. Inténtalo de nuevo."
+    },
+    "empty": {
+      "title": "Aún no hay casos",
+      "body": "Envía un caso y aparecerá aquí, listo para abrirlo más tarde.",
+      "filtered": "No hay casos {{status}}."
+    },
+    "loading": "Cargando los casos",
+    "error": {
+      "title": "No se pudo cargar los casos",
+      "body": "El backend no devolvió la lista de casos.",
+      "retry": "Reintentar"
+    },
+    "sidebar": {
+      "label": "Casos",
+      "search": "Buscar por ID de caso",
+      "none": "Ningún caso coincide.",
+      "closedMark": "Cerrado"
+    }
+  },
   "case": {
     "title": "Caso",
     "applicationId": "ID de la aplicación",

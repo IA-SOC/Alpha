@@ -19,7 +19,7 @@ export function Layout() {
         {t('app.skipToContent')}
       </a>
       <header className="border-b border-rule">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4">
           <Link to="/" className="flex items-center gap-4 sm:gap-5">
             <img src={logo} alt="ALIGO Defensores Informáticos" className="h-12 w-auto" />
             <span className="border-l border-rule pl-4 text-lg font-bold sm:pl-5">{t('app.name')}</span>
@@ -47,9 +47,7 @@ export function Layout() {
           </div>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
-        <Outlet />
-      </main>
+      <Outlet />
     </div>
   )
 }

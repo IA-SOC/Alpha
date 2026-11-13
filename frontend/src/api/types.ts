@@ -8,6 +8,8 @@ export type IncidentCase = Schemas['IncidentCase']
 export type AcceptedCase = Schemas['AcceptedCaseResponse']
 export type ValidationIssue = Schemas['ValidationIssue']
 export type ReviewDecision = Schemas['ReviewDecision']
+export type CaseListItem = Schemas['CaseListItem']
+export type CaseStatus = Schemas['CaseStatusUpdate']['status']
 
 export type Report = SOCInvestigationReport
 export type Hypothesis = Report['hypotheses'][number]

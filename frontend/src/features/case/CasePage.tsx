@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { api, ApiError } from '../../api/client'
 import type { Investigation, StoredCase } from '../../api/types'
 import { PrimaryButton, TextButton, textActionClass } from '../../ui/buttons'
+import { casesKey, useCases, useSetCaseStatus } from '../cases/useCases'
 import { ReportView } from './report/ReportView'
 import { backendLimitSeconds, formatElapsed, RunTimeout, withTimeLimit } from './runLimit'
 
@@ -36,7 +37,10 @@ function CasePage({ caseId }: { caseId: string }) {
   const run = useMutation<Investigation, Error, boolean | void>({
     mutationKey: runKey,
     mutationFn: (force) => withTimeLimit((signal) => api.investigate(caseId, signal, force === true)),
-    onSuccess: (data) => queryClient.setQueryData(['investigation', caseId], data),
+    onSuccess: (data) => {
+      queryClient.setQueryData(['investigation', caseId], data)
+      void queryClient.invalidateQueries({ queryKey: casesKey })
+    },
     onError: () => void queryClient.invalidateQueries({ queryKey: ['investigation', caseId] }),
   })
   // Runs live in the shared mutation cache, so leaving the page mid-run and coming back shows the
@@ -104,6 +108,35 @@ function CaseHeader({ caseId, stored }: { caseId: string; stored?: StoredCase })
       <p className="mt-1 text-xs text-muted">
         {t('case.applicationId')} <code className="font-mono text-[13px] break-all text-aligo-blanco">{caseId}</code>
       </p>
+      <CaseStatusRow caseId={caseId} />
+    </div>
+  )
+}
+
+// Whether the case is open or closed, with the one action that flips it. It reads the shared case
+// list, which also tells the sidebar. Closing never touches the stored findings.
+function CaseStatusRow({ caseId }: { caseId: string }) {
+  const { t } = useTranslation()
+  const cases = useCases()
+  const change = useSetCaseStatus()
+  const item = cases.data?.find((entry) => entry.case_id === caseId)
+  if (!item) return null
+  const closed = item.status === 'closed'
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+      <span className={closed ? 'text-muted' : ''}>{t(`cases.status.${item.status}`)}</span>
+      <TextButton
+        onClick={() => change.mutate({ caseId, status: closed ? 'open' : 'closed' })}
+        disabled={change.isPending}
+      >
+        {t(closed ? 'cases.actions.reopenCase' : 'cases.actions.closeCase')}
+      </TextButton>
+      {change.isError && (
+        <span role="alert" className="border-l-4 border-state-error pl-2">
+          {t('cases.actions.failed')}
+        </span>
+      )}
     </div>
   )
 }

@@ -11,7 +11,7 @@ export function EntryPage() {
   const location = useLocation()
   const [name, setName] = useState('')
   const [missing, setMissing] = useState(false)
-  const next = (location.state as { from?: string } | null)?.from ?? '/cases/new'
+  const next = (location.state as { from?: string } | null)?.from ?? '/cases'
 
   if (session) return <Navigate to={next} replace />
 
