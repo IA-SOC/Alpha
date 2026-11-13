@@ -7,7 +7,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 
-from app.schemas.investigation import AnalystInstruction, ReviewDecision
+from app.schemas.investigation import (
+    AnalystInstruction,
+    InvestigationRevisionResponse,
+    ReviewDecision,
+)
 from app.services.export_redaction import redact_export
 from app.services.investigation_service import InvestigationService
 
@@ -66,6 +70,17 @@ def read_investigation(case_id: UUID, service: Service):
     if result is None:
         raise HTTPException(404, "No completed investigation found")
     return result
+
+
+@router.get(
+    "/{case_id}/revisions",
+    response_model=list[InvestigationRevisionResponse],
+    summary="Read persisted investigation revisions",
+)
+def read_revisions(case_id: UUID, service: Service):
+    if service.store.get_by_id(case_id) is None:
+        raise HTTPException(404, "Case not found")
+    return service.store.get_revisions(case_id)
 
 
 @router.get("/{case_id}/report")
