@@ -110,3 +110,24 @@ test('recover from a rejected case and from a duplicate', async ({ page }) => {
   await paste(page, demo)
   await expect(page.getByRole('heading', { name: 'This case was already submitted' })).toBeVisible()
 })
+
+test('downloads the PDF report of the case on screen', async ({ page, request }) => {
+  // The PDF endpoint arrives with PR #174. Until it is on the backend, this says so and stops.
+  const openapi = (await (await request.get('http://127.0.0.1:8000/openapi.json')).json()) as { paths: Record<string, unknown> }
+  test.skip(!openapi.paths['/api/v1/cases/{case_id}/export/pdf'], 'The backend has no PDF export yet, see PR #174')
+
+  const demo = demoCase()
+  await signIn(page, 'E2E Analyst')
+  await paste(page, demo)
+  await page.getByRole('button', { name: 'Investigate' }).click()
+  await expect(page.getByRole('tablist', { name: 'Report sections' })).toBeVisible({ timeout: 5 * 60_000 })
+  const appId = page.url().split('/cases/')[1].split(/[?#]/)[0]
+
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Export PDF' }).click()])
+
+  expect(download.suggestedFilename()).toBe(`investigation-${appId}.pdf`)
+  const body = readFileSync(await download.path())
+  expect(body.subarray(0, 5).toString()).toBe('%PDF-')
+  // The report names its case inside, so this is the investigation that was on screen.
+  expect(body.toString('latin1')).toContain(appId)
+})

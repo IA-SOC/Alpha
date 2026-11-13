@@ -116,3 +116,10 @@ it('offers the server JSON export for the current case', async () => {
   const link = await screen.findByRole('link', { name: 'Export JSON' })
   expect(link).toHaveAttribute('href', `/api/v1/cases/${caseId}/export`)
 })
+
+it('offers the server PDF report for the current case, named after it', async () => {
+  openReport()
+  const link = await screen.findByRole('link', { name: 'Export PDF' })
+  expect(link).toHaveAttribute('href', `/api/v1/cases/${caseId}/export/pdf`)
+  expect(link).toHaveAttribute('download', `investigation-${caseId}.pdf`)
+})

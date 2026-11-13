@@ -54,10 +54,19 @@ export function ReportView({ investigation, caseState, analysis, onRerun }: Repo
           </p>
         )}
         <Facts report={report} />
-        <a className="inline-block rounded-xl border border-control px-4 py-2 text-sm"
-           href={`/api/v1/cases/${encodeURIComponent(investigation.case_id)}/export`}>
-          {t('report.exportJson')}
-        </a>
+        {/* Both files come from the backend for this case ID, named after it, so a download always
+            matches the case on screen. */}
+        <div className="flex flex-wrap gap-3">
+          <a className="inline-block rounded-xl border border-control px-4 py-2 text-sm"
+             href={`/api/v1/cases/${encodeURIComponent(investigation.case_id)}/export/pdf`}
+             download={`investigation-${investigation.case_id}.pdf`}>
+            {t('report.exportPdf')}
+          </a>
+          <a className="inline-block rounded-xl border border-control px-4 py-2 text-sm"
+             href={`/api/v1/cases/${encodeURIComponent(investigation.case_id)}/export`}>
+            {t('report.exportJson')}
+          </a>
+        </div>
         <Tabs
           label={t('report.tabs.label')}
           tabs={tabs}
