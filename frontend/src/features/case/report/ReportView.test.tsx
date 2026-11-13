@@ -49,6 +49,120 @@ describe('Case report', () => {
     expect(screen.getAllByText('Waiting for review').length).toBeGreaterThan(0)
   })
 
+  it('shows the Gemini model and UTC time for a completed second opinion', async () => {
+    const investigation = structuredClone(sampleInvestigation)
+    investigation.report.model_review = {
+      status: 'ok',
+      model: 'gemini-3.6-flash',
+      primary_model: 'gemini-3.6-flash',
+      analyzed_at: '2026-11-13T00:30:00Z',
+      fallback_used: false,
+      attempts: [{ model: 'gemini-3.6-flash', outcome: 'ok', latency_ms: 250 }],
+    }
+    openReport(investigation)
+
+    expect(await screen.findByText(/Second opinion: gemini-3\.6-flash/)).toBeInTheDocument()
+    expect(screen.getByText('Second opinion: gemini-3.6-flash · 2026-11-13 00:30:00 UTC')).toBeInTheDocument()
+    expect(screen.queryByText(/was used because/)).not.toBeInTheDocument()
+  })
+
+  it('explains a Gemini 504 fallback in the active language', async () => {
+    const investigation = structuredClone(sampleInvestigation)
+    investigation.report.model_review = {
+      status: 'ok',
+      model: 'gemini-3.5-flash',
+      primary_model: 'gemini-3.6-flash',
+      analyzed_at: '2026-11-13T15:30:00Z',
+      fallback_used: true,
+      attempts: [
+        { model: 'gemini-3.6-flash', outcome: 'http_504', latency_ms: 1000 },
+        { model: 'gemini-3.5-flash', outcome: 'ok', latency_ms: 250 },
+      ],
+    }
+    openReport(investigation)
+
+    expect(await screen.findByText('gemini-3.5-flash was used because gemini-3.6-flash did not answer in time (504).')).toBeInTheDocument()
+
+    await i18n.changeLanguage('es')
+
+    expect(screen.getByText('Se us\u00f3 gemini-3.5-flash porque gemini-3.6-flash no respondi\u00f3 a tiempo (504).')).toBeInTheDocument()
+  })
+
+  it('uses the unknown fallback copy without a failed primary attempt', async () => {
+    const investigation = structuredClone(sampleInvestigation)
+    investigation.report.model_review = {
+      status: 'ok',
+      model: 'gemini-3.5-flash',
+      primary_model: 'gemini-3.6-flash',
+      fallback_used: true,
+      attempts: [{ model: 'gemini-3.5-flash', outcome: 'ok', latency_ms: 250 }],
+    }
+    openReport(investigation)
+
+    expect(await screen.findByRole('status')).toHaveTextContent('gemini-3.5-flash was used as a fallback.')
+  })
+
+  it('explains server errors and falls back from unknown outcomes without exposing translation keys', async () => {
+    const investigation = structuredClone(sampleInvestigation)
+    investigation.report.model_review = {
+      status: 'ok',
+      model: 'gemini-3.5-flash',
+      primary_model: 'gemini-3.6-flash',
+      fallback_used: true,
+      attempts: [{ model: 'gemini-3.6-flash', outcome: 'http_500', latency_ms: 1000 }],
+    }
+    openReport(investigation)
+
+    expect(await screen.findByText('gemini-3.5-flash was used because gemini-3.6-flash had a server error (500).')).toBeInTheDocument()
+
+    investigation.report.model_review.attempts![0].outcome = 'unexpected' as never
+    openReport(investigation)
+
+    expect(await screen.findByText('gemini-3.5-flash was used because gemini-3.6-flash was unavailable.')).toBeInTheDocument()
+    expect(screen.queryByText(/report\.modelReview\.outcomes/)).not.toBeInTheDocument()
+  })
+
+  it('keeps the model visible when the second-opinion date is invalid', async () => {
+    const investigation = structuredClone(sampleInvestigation)
+    investigation.report.model_review = {
+      status: 'ok',
+      model: 'gemini-3.6-flash',
+      analyzed_at: 'not-a-date',
+      fallback_used: false,
+    }
+    openReport(investigation)
+
+    expect(await screen.findByText('Second opinion: gemini-3.6-flash')).toBeInTheDocument()
+    expect(screen.queryByText('not-a-date')).not.toBeInTheDocument()
+  })
+
+  it('does not show second-opinion details when model review is null or absent', async () => {
+    const nullReview = structuredClone(sampleInvestigation)
+    Object.assign(nullReview.report, { model_review: null }) // the API omits it, but be safe
+    openReport(nullReview)
+
+    expect(await screen.findByText('Mixed sources')).toBeInTheDocument()
+    expect(screen.queryByText(/Second opinion:/)).not.toBeInTheDocument()
+
+    const absentReview = structuredClone(sampleInvestigation)
+    delete absentReview.report.model_review
+    openReport(absentReview)
+
+    expect(await screen.findByText('Mixed sources')).toBeInTheDocument()
+    expect(screen.queryByText(/Second opinion:/)).not.toBeInTheDocument()
+  })
+
+  it('keeps the existing warning when the second opinion fails', async () => {
+    const investigation = structuredClone(sampleInvestigation)
+    investigation.report.model_review = {
+      status: 'error',
+      attempts: [{ model: 'gemini-3.6-flash', outcome: 'http_503', latency_ms: 1000 }],
+    }
+    openReport(investigation)
+
+    expect(await screen.findByRole('status')).toHaveTextContent("The rules-based report is available. Gemini’s second opinion could not be completed.")
+  })
+
   it('shows each hypothesis with its confidence word and no percentage', async () => {
     openReport()
 

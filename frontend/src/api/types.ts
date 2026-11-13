@@ -9,7 +9,27 @@ export type AcceptedCase = Schemas['AcceptedCaseResponse']
 export type ValidationIssue = Schemas['ValidationIssue']
 export type ReviewDecision = Schemas['ReviewDecision']
 
-export type Report = SOCInvestigationReport
+export interface ModelReviewAttempt {
+  model: string
+  outcome: 'ok' | 'http_408' | 'http_429' | 'http_500' | 'http_502' | 'http_503' | 'http_504' | 'timeout' | 'connection' | 'invalid_response' | 'error'
+  latency_ms: number
+}
+
+// Added by the backend after the report-schema validation, alongside other agent fields below.
+export interface ModelReview {
+  status?: 'ok' | 'error' | 'unavailable'
+  model?: string | null
+  primary_model?: string | null
+  analyzed_at?: string | null
+  fallback_used?: boolean
+  fallback_reason?: string | null
+  attempts?: ModelReviewAttempt[]
+  prompt_version?: string | null
+  latency_ms?: number | null
+  items?: unknown[]
+}
+
+export type Report = SOCInvestigationReport & { model_review?: ModelReview | null }
 export type Hypothesis = Report['hypotheses'][number]
 export type AttackTechnique = Report['attack_mapping'][number]
 export type TimelineEntry = Report['timeline'][number]

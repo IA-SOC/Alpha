@@ -389,6 +389,24 @@
       "noUnknowns": "Nada indicado."
     },
     "modelReviewUnavailable": "El informe de reglas está disponible. No se pudo completar la segunda opinión de Gemini.",
+    "modelReview": {
+      "secondOpinion": "Segunda opinión: {{model}} · {{date}}",
+      "secondOpinionNoDate": "Segunda opinión: {{model}}",
+      "fallbackUsed": "Se usó {{model}} porque {{primaryModel}} {{reason}}.",
+      "fallbackUsedUnknown": "Se usó {{model}} como respaldo.",
+      "outcomes": {
+        "http_408": "tuvo un tiempo de espera agotado (408)",
+        "http_503": "estaba saturado (503)",
+        "http_504": "no respondió a tiempo (504)",
+        "http_429": "alcanzó su límite de uso (429)",
+        "http_500": "tuvo un error del servidor (500)",
+        "http_502": "devolvió una puerta de enlace incorrecta (502)",
+        "timeout": "agotó el tiempo de espera",
+        "connection": "no tenía conexión",
+        "invalid_response": "devolvió una respuesta vacía o inválida",
+        "error": "no estuvo disponible"
+      }
+    },
     "exportJson": "Exportar JSON"
   }
 }

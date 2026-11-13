@@ -2,12 +2,12 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 
-import type { Investigation, Report } from '../../../api/types'
+import type { Investigation, ModelReview, Report } from '../../../api/types'
 import { type Tab, Tabs } from '../../../ui/Tabs'
 import { AssetsTab } from './AssetsTab'
 import { EvidenceTab } from './EvidenceTab'
 import { timeWindow } from './extras'
-import { formatUtc, formatUtcRange } from './format'
+import { formatUtc, formatUtcRange, parseUtc } from './format'
 import { MitreTab } from './MitreTab'
 import { ReviewTab } from './ReviewTab'
 import { type SubmittedCaseState, SubmittedCaseContext } from './submittedCase'
@@ -25,7 +25,8 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const { report } = investigation
-  const modelStatus = report.model_review?.status
+  const modelReview = report.model_review
+  const modelStatus = modelReview?.status
 
   const tabs: Tab[] = [
     { id: 'summary', label: t('report.tabs.summary'), content: <SummaryTab report={report} /> },
@@ -44,6 +45,7 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
             {t('report.modelReviewUnavailable')}
           </p>
         )}
+        {modelStatus === 'ok' && modelReview && <ModelReviewDetails modelReview={modelReview} />}
         <Facts report={report} />
         <a className="inline-block rounded-xl border border-control px-4 py-2 text-sm"
            href={`/api/v1/cases/${encodeURIComponent(investigation.case_id)}/export`}>
@@ -57,6 +59,36 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
         />
       </div>
     </SubmittedCaseContext>
+  )
+}
+
+function ModelReviewDetails({ modelReview }: { modelReview: ModelReview }) {
+  const { t } = useTranslation()
+  const model = modelReview.model ?? modelReview.primary_model
+  if (!model) return null
+
+  const failedAttempt = modelReview.attempts?.find((attempt) => attempt.outcome !== 'ok')
+  const primaryModel = modelReview.primary_model ?? failedAttempt?.model
+  const analyzedAt = modelReview.analyzed_at && new Date(parseUtc(modelReview.analyzed_at))
+  const date = analyzedAt && !Number.isNaN(analyzedAt.getTime()) && formatUtc(modelReview.analyzed_at)
+
+  return (
+    <div className="space-y-1 text-sm text-muted">
+      <p>{date
+        ? t('report.modelReview.secondOpinion', { model, date })
+        : t('report.modelReview.secondOpinionNoDate', { model })}</p>
+      {modelReview.fallback_used && (
+        <p role="status">
+          {failedAttempt && primaryModel && primaryModel !== model
+            ? t('report.modelReview.fallbackUsed', {
+                model,
+                primaryModel,
+                reason: t([`report.modelReview.outcomes.${failedAttempt.outcome}`, 'report.modelReview.outcomes.error']),
+              })
+            : t('report.modelReview.fallbackUsedUnknown', { model })}
+        </p>
+      )}
+    </div>
   )
 }
 
