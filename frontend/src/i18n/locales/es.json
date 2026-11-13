@@ -190,6 +190,7 @@
     "tabs": {
       "label": "Secciones del informe",
       "agent": "Análisis del agente",
+      "chat": "Chat",
       "summary": "Resumen",
       "mitre": "MITRE ATT&CK",
       "review": "Revisión",
@@ -506,5 +507,72 @@
     },
     "modelReviewUnavailable": "El informe de reglas está disponible. No se pudo completar la segunda opinión de Gemini.",
     "exportJson": "Exportar JSON"
+  },
+  "chat": {
+    "title": "Pregunta a Gemini sobre este caso",
+    "intro": "Gemini ve este caso, su informe y los últimos 20 mensajes. Adjunta evidencia de la lista para señalarle algo. No puede cerrar el caso ni actuar sobre nada, y cada respuesta necesita tu criterio.",
+    "thread": "Conversación",
+    "loading": "Cargando la conversación",
+    "historyFailed": "No se pudo cargar la conversación.",
+    "empty": "Aún no hay mensajes. La conversación se guarda con el caso, así que quien lo abra después verá el mismo hilo.",
+    "you": "Tú",
+    "gemini": "Gemini",
+    "answering": "Gemini está respondiendo. Puede tardar hasta 45 segundos.",
+    "askedAbout_one": "Pregunta sobre {{count}} evidencia",
+    "askedAbout_other": "Pregunta sobre {{count}} evidencias",
+    "cites_one": "Cita {{count}} evidencia",
+    "cites_other": "Cita {{count}} evidencias",
+    "inspect": "Ver {{label}}",
+    "attach": "Adjuntar {{label}} a la pregunta",
+    "detach": "Quitar {{label}} de la pregunta",
+    "attached_one": "{{count}} evidencia adjunta",
+    "attached_other": "{{count}} evidencias adjuntas",
+    "question": "Tu pregunta",
+    "hint": "{{count}} de {{max}} caracteres. Ctrl+Enter envía.",
+    "blank": "Escribe una pregunta primero.",
+    "send": "Enviar",
+    "sending": "Enviando",
+    "suggest": {
+      "title": "O empieza con",
+      "support": "¿Qué evidencia respalda la hipótesis principal y qué falta?",
+      "change": "¿Qué cambiaría la conclusión de este informe?",
+      "next": "¿Qué alertas debería mirar ahora y por qué?"
+    },
+    "failed": {
+      "offline": "El backend no respondió. Comprueba que está en marcha y vuelve a intentarlo.",
+      "analyst": "El backend no aceptó tu nombre de analista. Cierra sesión y vuelve a entrar.",
+      "notReady": "La investigación aún no está guardada. Espera a que termine y vuelve a intentarlo.",
+      "invalid": "El backend rechazó la pregunta.",
+      "rejected": "Se rechazó la respuesta de Gemini, así que no se guardó nada.",
+      "notConfigured": "Gemini no está configurado en el backend, así que el chat no está disponible.",
+      "timeout": "Gemini tardó demasiado en responder. Vuelve a intentarlo o pregunta algo más concreto.",
+      "other": "El mensaje falló con el estado {{status}}.",
+      "kept": "Tu pregunta sigue en el cuadro."
+    },
+    "ref": {
+      "alert": "Alerta {{id}}",
+      "hypothesis": "Hipótesis {{rank}}",
+      "event": "Evento {{number}} de la cronología",
+      "technique": "ATT&CK {{name}}",
+      "techniqueNumber": "Técnica de ATT&CK {{number}}",
+      "ioc": "IoC {{value}}",
+      "iocNumber": "IoC {{number}}"
+    },
+    "evidence": {
+      "title": "Evidencia del caso",
+      "intro": "Revisa todo lo que Gemini puede ver o márcalo para preguntar por ello.",
+      "loading": "Cargando la evidencia",
+      "failed": "No se pudo cargar la lista de evidencia.",
+      "groups": {
+        "alert": "Alertas enviadas",
+        "hypotheses": "Hipótesis",
+        "timeline": "Cronología",
+        "attack_mapping": "Técnicas de ATT&CK",
+        "ioc": "IoC"
+      },
+      "fromCase": "Del caso enviado",
+      "fromRun": "De la investigación guardada",
+      "stale": "Esto viene de una ejecución anterior de la investigación y ya no forma parte de ella."
+    }
   }
 }

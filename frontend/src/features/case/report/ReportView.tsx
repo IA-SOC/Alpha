@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router'
 
 import type { AnalysisStatus, Investigation, Report } from '../../../api/types'
 import { type Tab, Tabs } from '../../../ui/Tabs'
+import { ChatTab } from '../chat/ChatTab'
 import { AgentTab } from './AgentTab'
 import { AssetsTab } from './AssetsTab'
 import { EvidenceTab } from './EvidenceTab'
@@ -34,6 +35,7 @@ export function ReportView({ investigation, caseState, analysis, onRerun }: Repo
 
   const tabs: Tab[] = [
     { id: 'agent', label: t('report.tabs.agent'), content: <AgentTab investigation={investigation} analysis={analysis} /> },
+    { id: 'chat', label: t('report.tabs.chat'), content: <ChatTab investigation={investigation} /> },
     { id: 'summary', label: t('report.tabs.summary'), content: <SummaryTab report={report} /> },
     { id: 'timeline', label: t('report.tabs.timeline'), content: <TimelineTab investigation={investigation} /> },
     { id: 'evidence', label: t('report.tabs.evidence'), content: <EvidenceTab investigation={investigation} /> },

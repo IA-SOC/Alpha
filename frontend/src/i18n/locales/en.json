@@ -190,6 +190,7 @@
     "tabs": {
       "label": "Report sections",
       "agent": "Agent analysis",
+      "chat": "Chat",
       "summary": "Summary",
       "mitre": "MITRE ATT&CK",
       "review": "Review",
@@ -506,5 +507,72 @@
     },
     "modelReviewUnavailable": "The rules-based report is available. Gemini’s second opinion could not be completed.",
     "exportJson": "Export JSON"
+  },
+  "chat": {
+    "title": "Ask Gemini about this case",
+    "intro": "Gemini sees this case, its report and the last 20 messages. Attach evidence from the list to point it at something. It cannot close the case or act on anything, and every answer still needs your judgement.",
+    "thread": "Conversation",
+    "loading": "Loading the conversation",
+    "historyFailed": "Couldn’t load the conversation.",
+    "empty": "No messages yet. The conversation is saved with the case, so anyone opening it later sees the same thread.",
+    "you": "You",
+    "gemini": "Gemini",
+    "answering": "Gemini is answering. It can take up to 45 seconds.",
+    "askedAbout_one": "Asked about {{count}} piece of evidence",
+    "askedAbout_other": "Asked about {{count}} pieces of evidence",
+    "cites_one": "Cites {{count}} piece of evidence",
+    "cites_other": "Cites {{count}} pieces of evidence",
+    "inspect": "Inspect {{label}}",
+    "attach": "Attach {{label}} to the question",
+    "detach": "Remove {{label}} from the question",
+    "attached_one": "{{count}} piece of evidence attached",
+    "attached_other": "{{count}} pieces of evidence attached",
+    "question": "Your question",
+    "hint": "{{count}} of {{max}} characters. Ctrl+Enter sends.",
+    "blank": "Write a question first.",
+    "send": "Send",
+    "sending": "Sending",
+    "suggest": {
+      "title": "Or start with",
+      "support": "What evidence supports the main hypothesis, and what is missing?",
+      "change": "What would change the conclusion of this report?",
+      "next": "Which alerts should I look at next, and why?"
+    },
+    "failed": {
+      "offline": "The backend didn’t answer. Check that it is running and try again.",
+      "analyst": "The backend did not accept your analyst name. Sign out and sign in again.",
+      "notReady": "The investigation is not saved yet. Wait for it to finish and try again.",
+      "invalid": "The backend rejected the question.",
+      "rejected": "Gemini’s answer was rejected, so nothing was saved.",
+      "notConfigured": "Gemini is not set up on the backend, so the chat is not available.",
+      "timeout": "Gemini took too long to answer. Try again, or ask something narrower.",
+      "other": "The message failed with status {{status}}.",
+      "kept": "Your question is still in the box."
+    },
+    "ref": {
+      "alert": "Alert {{id}}",
+      "hypothesis": "Hypothesis {{rank}}",
+      "event": "Timeline event {{number}}",
+      "technique": "ATT&CK {{name}}",
+      "techniqueNumber": "ATT&CK technique {{number}}",
+      "ioc": "IoC {{value}}",
+      "iocNumber": "IoC {{number}}"
+    },
+    "evidence": {
+      "title": "Case evidence",
+      "intro": "Inspect anything Gemini can see, or tick it to ask about it.",
+      "loading": "Loading the evidence",
+      "failed": "Couldn’t load the evidence list.",
+      "groups": {
+        "alert": "Submitted alerts",
+        "hypotheses": "Hypotheses",
+        "timeline": "Timeline",
+        "attack_mapping": "ATT&CK techniques",
+        "ioc": "IoCs"
+      },
+      "fromCase": "From the submitted case",
+      "fromRun": "From the saved investigation",
+      "stale": "This comes from an earlier run of the investigation and is no longer part of it."
+    }
   }
 }
