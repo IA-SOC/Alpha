@@ -1,9 +1,9 @@
-import { act, screen, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { AnalysisStatus, Investigation, ModelReview } from '../../../api/types'
-import { type Answer, fakeBackend, json } from '../../../test/backend'
+import { type Answer, fakeBackend, json, pending } from '../../../test/backend'
 import { sampleCase, sampleInvestigation } from '../../../test/fixtures'
 import { renderApp } from '../../../test/render'
 import { analysisPollMs, formatJobTime } from '../analysis'
@@ -179,6 +179,40 @@ describe('Automatic analysis on the case page', () => {
 
     expect(await screen.findByText(okReview.items![0].explanation)).toBeInTheDocument()
     expect(backend.calls(`POST ${base}/investigate`)).toBe(0)
+  })
+
+  it('loads the report when the job finished between the first report and status answers', async () => {
+    // The report answers 404 first. The job ends right after, so the first status already says
+    // completed and the page never sees it queued or running.
+    const firstStatus = pending()
+    let statusCalls = 0
+    let report = notRun
+    const { backend } = open(
+      () => report.clone(),
+      () => (++statusCalls === 1 ? firstStatus.promise : status('completed')),
+    )
+    expect(await screen.findByRole('heading', { name: 'Not investigated yet' })).toBeInTheDocument()
+
+    report = json(200, withReview(okReview))
+    await act(async () => firstStatus.settle(status('completed')))
+
+    expect(await screen.findByText(okReview.items![0].explanation)).toBeInTheDocument()
+    expect(backend.calls(`GET ${base}/investigation`)).toBe(2)
+  })
+
+  it('loads the report when the status says completed before the first report answer arrives', async () => {
+    const firstReport = pending()
+    let reportCalls = 0
+    const { backend } = open(
+      () => (++reportCalls === 1 ? firstReport.promise : json(200, withReview(okReview))),
+      status('completed'),
+    )
+    await waitFor(() => expect(backend.calls(`GET ${base}/analysis-status`)).toBe(1))
+
+    await act(async () => firstReport.settle(notRun.clone()))
+
+    expect(await screen.findByText(okReview.items![0].explanation)).toBeInTheDocument()
+    expect(backend.calls(`GET ${base}/investigation`)).toBe(2)
   })
 
   it('says the automatic analysis failed and retries it on request', async () => {
