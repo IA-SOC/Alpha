@@ -38,6 +38,46 @@ export interface Investigation {
   audit_log: { phase: number; node: string; finished_at: string; duration_ms: number; detail: string }[]
 }
 
+// GET /cases/{id}/analysis-status, from app/api/routes/investigations.py. Another plain dict.
+// not_started is a case stored before automatic analysis existed. updated_at is SQLite's
+// CURRENT_TIMESTAMP, UTC written as "YYYY-MM-DD HH:MM:SS".
+export type AnalysisState = 'queued' | 'running' | 'completed' | 'error' | 'not_started'
+
+export interface AnalysisStatus {
+  case_id: string
+  status: AnalysisState
+  error: string | null
+  updated_at: string | null
+}
+
+// Gemini's second opinion, added by agent/llm.py build_model_review. The schema only fixes status.
+export interface ModelReviewItem {
+  rank: number
+  assessment: 'supports' | 'weak' | 'contradicts'
+  explanation: string
+  cited_alert_ids: string[]
+}
+
+export interface ModelAttempt {
+  model: string
+  outcome: string
+  latency_ms?: number
+}
+
+export interface ModelReview {
+  status: 'ok' | 'error' | 'unavailable'
+  provider?: string
+  model?: string
+  prompt_version?: string
+  error?: string
+  latency_ms?: number
+  context_stats?: { alerts_sent?: number; iocs_sent?: number; redacted_fields?: number }
+  items?: ModelReviewItem[]
+  rejected_count?: number
+  // Only once the model fallback lands, see PR #179.
+  attempts?: ModelAttempt[]
+}
+
 // Fields the agent adds on top of report-schema.json, which allows extra properties. They come
 // from agent/investigation.py and app/services/agent_adapter.py in the backend.
 export interface SourceField {

@@ -153,6 +153,15 @@
       "title": "Todavía sin investigar",
       "body": "El caso está guardado. Lanza el agente para obtener su informe."
     },
+    "auto": {
+      "queued": "Esperando al agente",
+      "running": "El agente está analizando este caso",
+      "body": "El análisis empezó solo al aceptar el caso. Esta página muestra el informe en cuanto se guarde.",
+      "since": "Última actualización {{time}}",
+      "failed": "Falló el análisis automático",
+      "failedReason": "El backend se detuvo con {{reason}}.",
+      "failedNoReason": "El backend no dio el motivo."
+    },
     "run": {
       "title": "Investigando el caso",
       "body": "El agente correlaciona las alertas, asigna técnicas de ATT&CK, arma la cronología y revisa los IoC adjuntos. El caso de demo tarda unos segundos. Los casos más grandes pueden tardar unos minutos.",
@@ -180,6 +189,7 @@
   "report": {
     "tabs": {
       "label": "Secciones del informe",
+      "agent": "Análisis del agente",
       "summary": "Resumen",
       "mitre": "MITRE ATT&CK",
       "review": "Revisión",
@@ -224,6 +234,50 @@
     },
     "summary": {
       "title": "Qué encontró el agente"
+    },
+    "agent": {
+      "counts": "{{hypotheses}}, {{techniques}} y {{actions}}.",
+      "hypotheses_one": "{{count}} hipótesis",
+      "hypotheses_other": "{{count}} hipótesis",
+      "techniques_one": "{{count}} técnica de ATT&CK",
+      "techniques_other": "{{count}} técnicas de ATT&CK",
+      "actions_one": "{{count}} acción recomendada",
+      "actions_other": "{{count}} acciones recomendadas",
+      "openSummary": "Verlas en Resumen",
+      "opinionTitle": "Segunda opinión de Gemini",
+      "opinionIntro": "Gemini revisa cada hipótesis contra las alertas que cita. Puede respaldarla, verla débil o contradecirla. El informe de reglas no cambia en ningún caso.",
+      "noReview": "Esta ejecución no pidió segunda opinión a Gemini.",
+      "reason": "Motivo:",
+      "nothingToAssess": "Las reglas no plantearon hipótesis, así que Gemini no tenía nada que evaluar.",
+      "noItems": "Gemini no dio ninguna valoración respaldada por la evidencia del caso.",
+      "rejected_one": "Se descartó {{count}} respuesta de Gemini porque citaba evidencia fuera de su hipótesis o no seguía el formato esperado.",
+      "rejected_other": "Se descartaron {{count}} respuestas de Gemini porque citaban evidencia fuera de su hipótesis o no seguían el formato esperado.",
+      "unknownHypothesis": "Hipótesis que no está en el informe",
+      "assessment": {
+        "supports": "La respalda",
+        "weak": "Débil",
+        "contradicts": "La contradice"
+      },
+      "cited_one": "{{count}} alerta citada",
+      "cited_other": "{{count}} alertas citadas",
+      "processingTitle": "Procesamiento",
+      "rerunning": "Hay una ejecución nueva en curso. Este informe es de la anterior y se recarga cuando termine la nueva.",
+      "state": "Análisis",
+      "updated": "Última actualización",
+      "model": "Modelo",
+      "prompt": "Versión del prompt",
+      "latency": "Tiempo de respuesta de Gemini",
+      "seconds": "{{value}} s",
+      "alertsSent": "Alertas enviadas a Gemini",
+      "states": {
+        "queued": "En cola",
+        "running": "En curso",
+        "completed": "Completado",
+        "error": "Falló",
+        "not_started": "No automático"
+      },
+      "attempts_one": "{{count}} intento",
+      "attempts_other": "{{count}} intentos"
     },
     "hypotheses": {
       "title_one": "{{count}} hipótesis",

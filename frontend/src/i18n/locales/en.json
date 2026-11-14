@@ -153,6 +153,15 @@
       "title": "Not investigated yet",
       "body": "The case is stored. Run the agent to get its report."
     },
+    "auto": {
+      "queued": "Waiting for the agent",
+      "running": "The agent is analysing this case",
+      "body": "The analysis started on its own when the case was accepted. This page shows the report as soon as it is saved.",
+      "since": "Last update {{time}}",
+      "failed": "The automatic analysis failed",
+      "failedReason": "The backend stopped with {{reason}}.",
+      "failedNoReason": "The backend gave no reason."
+    },
     "run": {
       "title": "Investigating the case",
       "body": "The agent correlates the alerts, maps ATT&CK techniques, builds the timeline and checks the attached IoCs. The demo case takes a few seconds. Larger cases can take a few minutes.",
@@ -180,6 +189,7 @@
   "report": {
     "tabs": {
       "label": "Report sections",
+      "agent": "Agent analysis",
       "summary": "Summary",
       "mitre": "MITRE ATT&CK",
       "review": "Review",
@@ -224,6 +234,50 @@
     },
     "summary": {
       "title": "What the agent found"
+    },
+    "agent": {
+      "counts": "{{hypotheses}}, {{techniques}} and {{actions}}.",
+      "hypotheses_one": "{{count}} hypothesis",
+      "hypotheses_other": "{{count}} hypotheses",
+      "techniques_one": "{{count}} ATT&CK technique",
+      "techniques_other": "{{count}} ATT&CK techniques",
+      "actions_one": "{{count}} recommended action",
+      "actions_other": "{{count}} recommended actions",
+      "openSummary": "Read them in Summary",
+      "opinionTitle": "Gemini’s second opinion",
+      "opinionIntro": "Gemini checks each hypothesis against the alerts it cites. It can back a hypothesis, call it weak or contradict it. The rules-based report stays as it is either way.",
+      "noReview": "This run did not ask Gemini for a second opinion.",
+      "reason": "Reason:",
+      "nothingToAssess": "The rules raised no hypotheses, so Gemini had nothing to assess.",
+      "noItems": "Gemini gave no assessment backed by the case evidence.",
+      "rejected_one": "{{count}} answer from Gemini was dropped because it cited evidence outside its hypothesis or broke the expected format.",
+      "rejected_other": "{{count}} answers from Gemini were dropped because they cited evidence outside their hypothesis or broke the expected format.",
+      "unknownHypothesis": "Hypothesis not found in the report",
+      "assessment": {
+        "supports": "Backs it",
+        "weak": "Weak",
+        "contradicts": "Contradicts it"
+      },
+      "cited_one": "{{count}} alert cited",
+      "cited_other": "{{count}} alerts cited",
+      "processingTitle": "Processing",
+      "rerunning": "A new run is in progress. This report is from the previous one and reloads when the new one ends.",
+      "state": "Analysis",
+      "updated": "Last update",
+      "model": "Model",
+      "prompt": "Prompt version",
+      "latency": "Gemini response time",
+      "seconds": "{{value}} s",
+      "alertsSent": "Alerts sent to Gemini",
+      "states": {
+        "queued": "Queued",
+        "running": "Running",
+        "completed": "Completed",
+        "error": "Failed",
+        "not_started": "Not automatic"
+      },
+      "attempts_one": "{{count}} attempt",
+      "attempts_other": "{{count}} attempts"
     },
     "hypotheses": {
       "title_one": "{{count}} hypothesis",

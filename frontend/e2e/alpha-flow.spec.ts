@@ -40,7 +40,13 @@ test('submit, investigate, read and review a case', async ({ page }) => {
   await expect(tabs).toBeVisible({ timeout: 5 * 60_000 })
   await expect(page.getByRole('heading', { level: 1, name: demo.case_id as string })).toBeVisible()
 
+  // The agent's tab opens first. Gemini may or may not answer on a laptop, the tab shows either.
   const panel = page.getByRole('tabpanel')
+  await expect(tabs.getByRole('tab', { name: 'Agent analysis' })).toHaveAttribute('aria-selected', 'true')
+  await expect(panel.getByRole('heading', { name: 'Gemini’s second opinion' })).toBeVisible()
+  await expect(panel.getByRole('heading', { name: 'Processing' })).toBeVisible()
+
+  await tabs.getByRole('tab', { name: 'Summary' }).click()
   await expect(panel.getByRole('heading', { name: /hypothes[ie]s/ })).toBeVisible()
   for (const [tab, heading] of [
     ['Timeline', /event/i],

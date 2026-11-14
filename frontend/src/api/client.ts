@@ -1,7 +1,7 @@
 import createClient from 'openapi-fetch'
 
 import type { paths } from './generated/intake'
-import type { AcceptedCase, CaseListItem, CaseStatus, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
+import type { AcceptedCase, AnalysisStatus, CaseListItem, CaseStatus, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
 
 // status 0 means the request never got an answer, usually because the backend is down.
 export class ApiError extends Error {
@@ -78,6 +78,9 @@ export function createApi(fetchImpl: typeof fetch = (...args) => globalThis.fetc
 
     getInvestigation: (caseId: string) =>
       unwrap(client.GET('/api/v1/cases/{case_id}/investigation', byId(caseId))) as Promise<Investigation>,
+
+    getAnalysisStatus: (caseId: string) =>
+      unwrap(client.GET('/api/v1/cases/{case_id}/analysis-status', byId(caseId))) as Promise<AnalysisStatus>,
 
     review: (caseId: string, decision: ReviewDecision) =>
       unwrap(client.POST('/api/v1/cases/{case_id}/review', { ...byId(caseId), body: decision })) as Promise<Investigation>,
