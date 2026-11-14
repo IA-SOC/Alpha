@@ -78,6 +78,68 @@
     "signedInAs": "Signed in as",
     "signOut": "Sign out"
   },
+  "cases": {
+    "title": "Cases",
+    "total_one": "{{count}} case",
+    "total_other": "{{count}} cases",
+    "newCase": "New case",
+    "summary": {
+      "label": "Case summary",
+      "open": "Open",
+      "waiting": "Waiting for review",
+      "notRun": "Not investigated"
+    },
+    "filter": {
+      "label": "Filter by status",
+      "all": "All",
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "stage": {
+      "notInvestigated": "Not investigated",
+      "pending": "Waiting for review",
+      "validated": "Validated",
+      "corrected": "Corrected",
+      "rejected": "Rejected"
+    },
+    "status": {
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "table": {
+      "label": "Stored cases",
+      "case": "Case",
+      "status": "Status",
+      "investigation": "Investigation",
+      "created": "Created, UTC",
+      "actions": "Actions"
+    },
+    "actions": {
+      "open": "Open",
+      "close": "Close",
+      "reopen": "Reopen",
+      "closeCase": "Close case",
+      "reopenCase": "Reopen case",
+      "failed": "The case status was not updated. Try again."
+    },
+    "empty": {
+      "title": "No cases yet",
+      "body": "Submit a case and it will show up here, ready to open again later.",
+      "filtered": "No {{status}} cases."
+    },
+    "loading": "Loading the cases",
+    "error": {
+      "title": "Couldn't load the cases",
+      "body": "The backend did not return the case list.",
+      "retry": "Retry"
+    },
+    "sidebar": {
+      "label": "Cases",
+      "search": "Search by case ID",
+      "none": "No cases match.",
+      "closedMark": "Closed"
+    }
+  },
   "case": {
     "title": "Case",
     "applicationId": "Application ID",

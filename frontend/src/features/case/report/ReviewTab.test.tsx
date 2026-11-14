@@ -67,7 +67,8 @@ describe('Analyst review', () => {
       expect(within(card).getByRole('textbox', { name: 'Note' })).toBeInTheDocument()
     }
     expect(screen.getByText(/Each finding decision is stored separately/)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /close/i })).not.toBeInTheDocument()
+    // Closing a case lives in the case header, not in the review form.
+    expect(within(screen.getByRole('tabpanel')).queryByRole('button', { name: /close/i })).not.toBeInTheDocument()
   })
 
   it('saves nothing until every finding has a decision and a note', async () => {

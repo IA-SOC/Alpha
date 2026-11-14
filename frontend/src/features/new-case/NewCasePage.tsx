@@ -1,9 +1,10 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { type DragEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { api, ApiError } from '../../api/client'
+import { casesKey } from '../cases/useCases'
 import type { AcceptedCase } from '../../api/types'
 import { PrimaryButton, TextButton } from '../../ui/buttons'
 import { caseContract } from './caseContract'
@@ -19,7 +20,12 @@ export function NewCasePage() {
   const [problem, setProblem] = useState<LocalProblem>()
   const editor = useRef<HTMLTextAreaElement>(null)
   const resultHeading = useRef<HTMLHeadingElement>(null)
-  const submit = useMutation<AcceptedCase, Error, string>({ mutationFn: (json) => api.submitCase(json) })
+  const queryClient = useQueryClient()
+  const submit = useMutation<AcceptedCase, Error, string>({
+    mutationFn: (json) => api.submitCase(json),
+    // The sidebar and the dashboard list the stored cases, and there is a new one.
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: casesKey }),
+  })
   const summary = useMemo(() => summarize(text), [text])
   // A 422 list stays while the analyst fixes it, flagged as older than the text. Any other
   // result is dropped on the first edit, since it no longer describes what is in the editor.

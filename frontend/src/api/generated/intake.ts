@@ -43,7 +43,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List stored cases */
+        get: operations["list_cases_api_v1_cases_get"];
         put?: never;
         /** Validate and accept an incident case */
         post: operations["submit_case_api_v1_cases_post"];
@@ -67,7 +68,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Open or close a case */
+        patch: operations["update_case_status_api_v1_cases__case_id__patch"];
         trace?: never;
     };
     "/api/v1/cases/{case_id}/context": {
@@ -266,6 +268,35 @@ export interface components {
             /** Evidence Refs */
             evidence_refs?: string[];
         };
+        /** CaseListItem */
+        CaseListItem: {
+            /**
+             * Case Id
+             * Format: uuid4
+             */
+            case_id: string;
+            /** Submitted Case Id */
+            submitted_case_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "closed";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            investigation?: components["schemas"]["InvestigationSummary"] | null;
+        };
+        /** CaseStatusUpdate */
+        CaseStatusUpdate: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "closed";
+        };
         /** Correlation */
         Correlation: {
             /** Fields */
@@ -328,6 +359,17 @@ export interface components {
             correlation?: components["schemas"]["Correlation"];
             /** Enrichments */
             enrichments?: components["schemas"]["Enrichment"][];
+        };
+        /** InvestigationSummary */
+        InvestigationSummary: {
+            /** Status */
+            status: string;
+            /** Revision */
+            revision: number;
+            /** Run Id */
+            run_id: string;
+            /** Review Status */
+            review_status: string;
         };
         JsonValue: unknown;
         /** Observable */
@@ -485,6 +527,26 @@ export interface operations {
             };
         };
     };
+    list_cases_api_v1_cases_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseListItem"][];
+                };
+            };
+        };
+    };
     submit_case_api_v1_cases_post: {
         parameters: {
             query?: never;
@@ -516,7 +578,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Unprocessable Entity */
+            /** @description Unprocessable Content */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -545,6 +607,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_case_status_api_v1_cases__case_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CaseStatusUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseListItem"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Validation Error */
