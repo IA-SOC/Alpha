@@ -158,6 +158,7 @@ submitted external ID.
 | `POST /api/v1/cases/{case_id}/investigate` | Run the existing agent and save its result |
 | `GET /api/v1/cases/{case_id}/investigation` | Last saved investigation, including its timeline, ATT&CK metadata/evidence, hypotheses and IoC context after restart |
 | `GET /api/v1/cases/{case_id}/report` | Saved report, dual-audience sections and rendered Markdown |
+| `GET /api/v1/cases/{case_id}/export/pdf` | Download the investigation findings as a PDF |
 | `GET /api/v1/cases/{case_id}/revisions` | Saved investigation revisions in ascending order |
 | `POST /api/v1/cases/{case_id}/instructions` | Run one audited analyst-guided follow-up using the expected revision |
 | `POST /api/v1/cases/{case_id}/review` | Resume the live human-review checkpoint |
