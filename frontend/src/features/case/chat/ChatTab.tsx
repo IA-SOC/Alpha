@@ -219,10 +219,14 @@ function Composer({ caseId, attached, onDetach, onSent, suggest }: ComposerProps
     // The backend stores the question and the answer together, so the history is read again.
     onSuccess: () => queryClient.invalidateQueries({ queryKey: chatKey(caseId) }),
   })
+  // Opening another tab unmounts this form, but a question sent before stays pending in the shared
+  // cache. Coming back, this form's own mutation starts idle, so the case's pending send counts too.
+  const shared = useSendState(caseId)
+  const sending = send.isPending || shared !== undefined
 
   function submit(event?: FormEvent) {
     event?.preventDefault()
-    if (send.isPending) return
+    if (sending) return
     if (!draft.trim()) {
       setBlank(true)
       return
@@ -247,7 +251,7 @@ function Composer({ caseId, attached, onDetach, onSent, suggest }: ComposerProps
 
   return (
     <form onSubmit={submit} className="mt-6 border-t border-rule pt-5" noValidate>
-      {suggest && !send.isPending && (
+      {suggest && !sending && (
         <div className="mb-4">
           <p className="text-xs text-muted">{t('chat.suggest.title')}</p>
           <ul className="mt-2 flex flex-wrap gap-2">
@@ -309,8 +313,8 @@ function Composer({ caseId, attached, onDetach, onSent, suggest }: ComposerProps
 
       {send.isError && <SendFailed error={send.error} />}
 
-      <PrimaryButton type="submit" disabled={send.isPending} className="mt-4">
-        {send.isPending ? t('chat.sending') : t('chat.send')}
+      <PrimaryButton type="submit" disabled={sending} className="mt-4">
+        {sending ? t('chat.sending') : t('chat.send')}
       </PrimaryButton>
     </form>
   )
