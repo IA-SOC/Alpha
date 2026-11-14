@@ -29,7 +29,13 @@ export function useAnalysisStatus(caseId: string) {
   const state = query.data?.status
   const previous = useRef(state)
   useEffect(() => {
-    if (isWorking(previous.current) && !isWorking(state)) {
+    const finished = isWorking(previous.current) && !isWorking(state)
+    // The report and the status are asked for at the same time, so the report can answer 404 just
+    // before the job ends and the first status already say completed. The page never saw the job
+    // working then, so a completed job with no report in hand reloads it too.
+    const completedUnseen =
+      state === 'completed' && previous.current !== 'completed' && !queryClient.getQueryData(['investigation', caseId])
+    if (finished || completedUnseen) {
       void queryClient.invalidateQueries({ queryKey: ['investigation', caseId] })
       void queryClient.invalidateQueries({ queryKey: casesKey })
     }
