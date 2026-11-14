@@ -49,6 +49,8 @@ test('submit, investigate, read and review a case', async ({ page }) => {
   await tabs.getByRole('tab', { name: 'Summary' }).click()
   await expect(panel.getByRole('heading', { name: /hypothes[ie]s/ })).toBeVisible()
   for (const [tab, heading] of [
+    // The chat loads its history and the evidence list. Sending needs Gemini, so it is not done here.
+    ['Chat', /Ask Gemini/],
     ['Timeline', /event/i],
     ['Evidence', /alert/i],
     ['MITRE ATT&CK', /T\d{4}/],

@@ -1,7 +1,7 @@
 import createClient from 'openapi-fetch'
 
 import type { paths } from './generated/intake'
-import type { AcceptedCase, AnalysisStatus, CaseListItem, CaseStatus, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
+import type { AcceptedCase, AnalysisStatus, CaseListItem, ChatEvidence, ChatHistory, ChatReply, CaseStatus, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
 
 // status 0 means the request never got an answer, usually because the backend is down.
 export class ApiError extends Error {
@@ -81,6 +81,21 @@ export function createApi(fetchImpl: typeof fetch = (...args) => globalThis.fetc
 
     getAnalysisStatus: (caseId: string) =>
       unwrap(client.GET('/api/v1/cases/{case_id}/analysis-status', byId(caseId))) as Promise<AnalysisStatus>,
+
+    getMessages: (caseId: string) =>
+      unwrap(client.GET('/api/v1/cases/{case_id}/messages', byId(caseId))) as Promise<ChatHistory>,
+
+    getChatEvidence: (caseId: string) =>
+      unwrap(client.GET('/api/v1/cases/{case_id}/chat-evidence', byId(caseId))) as Promise<ChatEvidence>,
+
+    // The backend checks that the header and the body name the same analyst.
+    sendMessage: (caseId: string, analyst: string, message: string, evidenceRefs: string[]) =>
+      unwrap(
+        client.POST('/api/v1/cases/{case_id}/messages', {
+          params: { path: { case_id: caseId }, header: { 'X-Analyst-Id': analyst } },
+          body: { analyst_id: analyst, message, evidence_refs: evidenceRefs },
+        }),
+      ) as Promise<ChatReply>,
 
     review: (caseId: string, decision: ReviewDecision) =>
       unwrap(client.POST('/api/v1/cases/{case_id}/review', { ...byId(caseId), body: decision })) as Promise<Investigation>,

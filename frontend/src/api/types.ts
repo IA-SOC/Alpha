@@ -78,6 +78,36 @@ export interface ModelReview {
   attempts?: ModelAttempt[]
 }
 
+// The case chat from app/api/routes/chat.py and app/services/chat_service.py. No response models
+// in OpenAPI either. Evidence keys are "alert:<alert_id>" for a submitted alert and
+// "mcp:<run_id>:<section>:<index>" for a part of the saved investigation, which a rerun retires.
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  analyst_id?: string
+  content: string
+  evidence_refs: string[]
+  created_at: string
+}
+
+export interface ChatHistory {
+  case_id: string
+  messages: ChatMessage[]
+}
+
+export interface ChatReply {
+  case_id: string
+  message: ChatMessage
+}
+
+export type ChatEvidenceItem =
+  | { source: 'submitted_case'; alert_id: string; data: Record<string, unknown> }
+  | { source: 'investigation'; section: 'hypotheses' | 'timeline' | 'attack_mapping' | 'ioc'; data: Record<string, unknown> }
+
+export interface ChatEvidence {
+  case_id: string
+  evidence: Record<string, ChatEvidenceItem>
+}
+
 // Fields the agent adds on top of report-schema.json, which allows extra properties. They come
 // from agent/investigation.py and app/services/agent_adapter.py in the backend.
 export interface SourceField {
