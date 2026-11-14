@@ -127,6 +127,27 @@ describe('Case chat', () => {
     expect(screen.queryByText('1 piece of evidence attached')).not.toBeInTheDocument()
   })
 
+  it('does not send twice after leaving the chat and coming back while Gemini answers', async () => {
+    const answer = pending()
+    const { backend } = open(history(), { [`POST ${base}/messages`]: () => answer.promise })
+    const user = userEvent.setup()
+
+    await user.type(await screen.findByLabelText('Your question'), 'Is this really a brute force?')
+    await user.click(screen.getByRole('button', { name: 'Send' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('Gemini is answering')
+
+    await user.click(screen.getByRole('tab', { name: 'Summary' }))
+    await user.click(await screen.findByRole('tab', { name: 'Chat' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Gemini is answering')
+    expect(screen.getByRole('button', { name: 'Sending' })).toBeDisabled()
+    await user.type(screen.getByLabelText('Your question'), 'Is this really a brute force?{Control>}{Enter}{/Control}')
+    expect(backend.calls(`POST ${base}/messages`)).toBe(1)
+
+    answer.settle(json(200, { case_id: caseId, message: reply }))
+    expect(await screen.findByRole('button', { name: 'Send' })).toBeEnabled()
+  })
+
   it('keeps the question when Gemini is not set up', async () => {
     open(history(), { [`POST ${base}/messages`]: json(503, { detail: 'Gemini is not configured' }) })
     const user = userEvent.setup()
