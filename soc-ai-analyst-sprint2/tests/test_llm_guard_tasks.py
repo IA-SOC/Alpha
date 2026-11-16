@@ -155,6 +155,28 @@ def test_rejected_item_does_not_discard_valid_sibling():
     assert result["rejected"] == [{"index": 0, "reason": "prioridad inválida"}]
 
 
+def test_non_evidence_rank_extra_does_not_crash_or_discard_valid_siblings():
+    result = check_task_output(
+        "suggested_actions", {"items": [action(rank=[]), action()]}, context()
+    )
+    assert result == {"items": [action(), action()], "rejected": []}
+
+
+def test_evidence_field_must_be_resolvable_in_the_cited_alert_view():
+    assert reasons(
+        "evidence",
+        {
+            "items": [
+                evidence(
+                    field="nonexistent.exfiltrated_bytes",
+                    observation="All customer data was stolen.",
+                )
+            ]
+        },
+    ) == ["campo no resoluble"]
+    assert not reasons("evidence", {"items": [evidence(field="rule_name")]})
+
+
 def test_techniques_must_already_be_in_the_hypotheses():
     assert not reasons(
         "initial_assessment", assessment(assessment="Compatible with T1110 on a.")
@@ -209,6 +231,33 @@ def test_confirmed_compromise_claims_are_rejected_in_every_text_field(text):
 )
 def test_negated_or_observational_wording_is_accepted(text):
     assert not reasons("initial_assessment", assessment(assessment=text))
+
+
+@pytest.mark.parametrize(
+    ("text", "is_rejected"),
+    [
+        ("There is no confirmed compromise", False),
+        ("No confirmed theft was observed", False),
+        ("sin compromiso confirmado", False),
+        ("No MFA. Confirmed theft of all customer records.", True),
+        ("Confirmed theft of all customer records.", True),
+    ],
+)
+def test_overclaim_negation_must_be_in_the_same_clause(text, is_rejected):
+    result = check_model_output(
+        {
+            "items": [
+                {
+                    "rank": 1,
+                    "assessment": "supports",
+                    "explanation": text,
+                    "cited_alert_ids": ["a"],
+                }
+            ]
+        },
+        context(),
+    )
+    assert bool(result["rejected"]) is is_rejected
 
 
 def test_injected_instructions_are_rejected():

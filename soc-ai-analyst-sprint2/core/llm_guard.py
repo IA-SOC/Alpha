@@ -76,7 +76,12 @@ def build_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str,
 
 def _overclaims(text: str) -> bool:
     """True when the text states a confirmed compromise that was not negated just before it."""
-    return any(not NEGATION.search(text[max(0, m.start() - 30):m.start()]) for m in OVERCLAIM.finditer(text))
+    for match in OVERCLAIM.finditer(text):
+        window = text[max(0, match.start() - 30):match.start()]
+        clause = re.split(r"[.;!?\n]", window)[-1]
+        if not NEGATION.search(clause):
+            return True
+    return False
 
 
 def _techniques(context: Dict[str, Any]) -> set:
@@ -140,7 +145,8 @@ def _refs_ok(refs: Any, allowed: set) -> bool:
     return isinstance(refs, list) and bool(refs) and all(isinstance(r, str) and r in allowed for r in refs)
 
 
-def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict) -> Optional[str]:
+def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict,
+                        fields: dict) -> Optional[str]:
     if not isinstance(entry, dict):
         return "salida no es objeto"
     gaps = entry.get("gaps")
@@ -151,7 +157,8 @@ def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict) 
     return next(filter(None, (_text(t, techniques, 300) for t in [entry.get("assessment"), *gaps])), None)
 
 
-def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict) -> Optional[str]:
+def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict,
+              fields: dict) -> Optional[str]:
     if not isinstance(entry, dict):
         return "item no es objeto"
     rank = entry.get("rank")
@@ -165,13 +172,16 @@ def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict) -> Optiona
             return "referencias inválidas"
         if not isinstance(ref.get("field"), str) or not ref["field"].strip():
             return "campo inválido"
+        if ref["field"] not in fields.get(ref["alert_id"], set()):
+            return "campo no resoluble"
         problem = _text(ref.get("observation"), techniques, 300)
         if problem:
             return problem
     return None
 
 
-def _action(entry: Any, techniques: set, allowed: set, ranks: dict) -> Optional[str]:
+def _action(entry: Any, techniques: set, allowed: set, ranks: dict,
+            fields: dict) -> Optional[str]:
     if not isinstance(entry, dict):
         return "item no es objeto"
     if not isinstance(entry.get("priority"), str) or entry["priority"] not in PRIORITIES:
@@ -200,6 +210,14 @@ def check_task_output(task: str, output: Any, context: Dict[str, Any]) -> Dict[s
     ranks = {h.get("rank"): set(h.get("evidence_for_ids", [])) | set(h.get("evidence_against_ids", []))
              for h in context.get("hypotheses", []) if isinstance(h, dict)}
     allowed = {str(a.get("id")) for a in context.get("alerts", []) if isinstance(a, dict)}.union(*ranks.values())
+    alert_views = [a for a in context.get("alerts", []) if isinstance(a, dict)]
+    alert_views.extend(
+        a for h in context.get("hypotheses", []) if isinstance(h, dict)
+        for a in h.get("alerts", []) if isinstance(a, dict)
+    )
+    fields = {}
+    for alert in alert_views:
+        fields.setdefault(str(alert.get("id")), set()).update(alert)
     techniques = _techniques(context)
     valid, rejected, seen = [], [], set()
     for index, entry in enumerate(entries):
@@ -207,10 +225,11 @@ def check_task_output(task: str, output: Any, context: Dict[str, Any]) -> Dict[s
         if task == "evidence" and type(rank) is int and rank in seen:
             reason = "rango duplicado"
         else:
-            reason = check(entry, techniques, allowed, ranks)
+            reason = check(entry, techniques, allowed, ranks, fields)
         if reason:
             rejected.append({"index": index, "reason": reason})
             continue
-        seen.add(rank)
+        if task == "evidence" and type(rank) is int:
+            seen.add(rank)
         valid.append({key: entry[key] for key in TASK_KEYS[task]})
     return {"items": valid, "rejected": rejected}
