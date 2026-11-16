@@ -48,6 +48,7 @@ from agent.render import render_markdown
 from app.services.agent_adapter import correlate_direct
 from app.services.report_formatter import format_report, validate_audience_sections
 from core.report_contract import SCHEMA_ID, serialize_report
+from core.i18n import language, tr
 from orchestrator.client import SERVERS, McpToolClient
 
 SKILL_DIR = ROOT / "skills" / "soc-case-investigator"
@@ -109,14 +110,20 @@ def recibir_validar(state: InvestigationState) -> Dict[str, Any]:
     started = time.perf_counter()
     alerts, summary = normalize_case(state["case"])
     instruction = state.get("analyst_instruction")
-    detail = f"{summary['processed_alert_count']} alertas, formato {summary['source_format']}"
+    detail = tr(
+        f"{summary['processed_alert_count']} alertas, formato {summary['source_format']}",
+        f"{summary['processed_alert_count']} alerts, format {summary['source_format']}",
+    )
     if instruction is not None:
         instruction = validate_instruction(instruction, alerts)
         selected = set(instruction["alert_ids"])
         for alert in alerts:
             if alert["id"] in selected:
                 alert["tags"].append(inv.ANALYST_LEGITIMATE_TAG)
-        detail += f"; {len(selected)} alerta(s) marcada(s) como legitimas por el analista"
+        detail += tr(
+            f"; {len(selected)} alerta(s) marcada(s) como legitimas por el analista",
+            f"; {len(selected)} alert(s) marked legitimate by the analyst",
+        )
     return {
         "alerts": alerts,
         "input_summary": summary,
@@ -139,20 +146,31 @@ async def investigar_hipotesis(state: InvestigationState) -> Dict[str, Any]:
     # never present that as an established attack sequence.
     if correlation:
         analysis = inv.correlated_attack_analysis(alerts, mappings, synthetic, {"correlation": correlation})
-        chain = {**chain, "summary": "Técnicas candidatas evaluadas por grupos de alertas; "
-                 "la correlación no demuestra causalidad ni una secuencia de ataque."}
+        chain = {**chain, "summary": tr(
+            "Técnicas candidatas evaluadas por grupos de alertas; "
+            "la correlación no demuestra causalidad ni una secuencia de ataque.",
+            "Candidate techniques were evaluated by alert groups; correlation does not "
+            "demonstrate causality or an attack sequence.",
+        )}
     else:
         analysis = inv.build_attack_analysis(alerts, mappings, synthetic)
         if mappings:
-            chain = {**chain, "summary": "Técnicas candidatas evaluadas sin correlación de alertas; "
-                     "no se afirma una secuencia de ataque."}
+            chain = {**chain, "summary": tr(
+                "Técnicas candidatas evaluadas sin correlación de alertas; "
+                "no se afirma una secuencia de ataque.",
+                "Candidate techniques were evaluated without alert correlation; no attack "
+                "sequence is asserted.",
+            )}
     return {
         "mitre_mappings": mappings,
         "chain": chain,
         "correlation": correlation,
         **analysis,
         "audit_log": [_audit("investigar_hipotesis", started,
-                             f"{len(mappings)} técnicas candidatas, {len(analysis['hypotheses'])} hipótesis")],
+                             tr(
+                                 f"{len(mappings)} técnicas candidatas, {len(analysis['hypotheses'])} hipótesis",
+                                 f"{len(mappings)} candidate techniques, {len(analysis['hypotheses'])} hypotheses",
+                             ))],
     }
 
 
@@ -169,7 +187,10 @@ async def cronologia_alcance(state: InvestigationState) -> Dict[str, Any]:
         "timeline": inv.build_timeline(alerts, mcp_timeline),
         "blast_radius": blast,
         "audit_log": [_audit("cronologia_alcance", started,
-                             f"{len(mcp_timeline)} eventos, {len(blast['observed_assets'])} activos observados")],
+                             tr(
+                                 f"{len(mcp_timeline)} eventos, {len(blast['observed_assets'])} activos observados",
+                                 f"{len(mcp_timeline)} events, {len(blast['observed_assets'])} observed assets",
+                             ))],
     }
 
 
@@ -181,7 +202,10 @@ def consumir_ioc(state: InvestigationState) -> Dict[str, Any]:
         "enrichment": enrichment,
         "hypotheses": inv.attach_ioc_references(state["hypotheses"], enrichment),
         "audit_log": [_audit("consumir_ioc", started,
-                             f"estado {enrichment['status']}, {len(enrichment['items'])} IoC")],
+                             tr(
+                                 f"estado {enrichment['status']}, {len(enrichment['items'])} IoC",
+                                 f"status {enrichment['status']}, {len(enrichment['items'])} IoCs",
+                             ))],
     }
 
 
@@ -213,12 +237,15 @@ def run_skill_validator(case: Dict[str, Any], report: Dict[str, Any]) -> Dict[st
 async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
     started = time.perf_counter()
     case, summary = state["case"], state["input_summary"]
+    catalog_version = inv.CATALOG_VERSION
+    if callable(catalog_version):
+        catalog_version = catalog_version()
     report = {
-        "case_id": str(case.get("case_id") or "sin-id"),
+        "case_id": str(case.get("case_id") or tr("sin-id", "no-id")),
         "generated_at": _now(),
         "methodology": {"skill": SKILL_NAME, "report_schema": SCHEMA_ID,
                         "engine": "LangGraph + MCP servers (reglas deterministas)",
-                        "attack_catalog": inv.CATALOG_VERSION},
+                        "attack_catalog": catalog_version},
         "input": {k: v for k, v in summary.items() if k != "untrusted_instruction_fields"},
         "analyst_guidance": case.get("analyst_guidance"),
         "executive_summary": inv.executive_summary(case, state["chain"], state["hypotheses"],
@@ -241,15 +268,24 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         report["limitations"] += state["correlation"]["limitations"]
     elif state["alerts"]:
         report["limitations"].append(
-            "No se pudo correlacionar las alertas (IDs duplicados o alertas fuera del contrato v1.0); "
-            "las hipótesis agrupan por técnica y pueden mezclar actividad no relacionada.")
+            tr(
+                "No se pudo correlacionar las alertas (IDs duplicados o alertas fuera del contrato v1.0); "
+                "las hipótesis agrupan por técnica y pueden mezclar actividad no relacionada.",
+                "Alerts could not be correlated (duplicate IDs or alerts outside the v1.0 contract); "
+                "hypotheses group by technique and may combine unrelated activity.",
+            ))
     if state.get("analyst_instruction"):
         instruction = state["analyst_instruction"]
         report["follow_up"] = build_follow_up(state["previous_report"], report, instruction)
         report["limitations"].append(
-            "Reporte revisado por instruccion del analista: "
-            f"{len(instruction['alert_ids'])} alerta(s) marcadas como legitimas; "
-            "la instruccion no confirma ni descarta el incidente."
+            tr(
+                "Reporte revisado por instruccion del analista: "
+                f"{len(instruction['alert_ids'])} alerta(s) marcadas como legitimas; "
+                "la instruccion no confirma ni descarta el incidente.",
+                "Report revised following analyst instruction: "
+                f"{len(instruction['alert_ids'])} alert(s) marked legitimate; "
+                "the instruction neither confirms nor rules out the incident.",
+            )
         )
     model_review = None
     if not state.get("analyst_instruction"):
@@ -263,10 +299,13 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         report["model_review"] = model_review
         if model_review["status"] in {"error", "unavailable"}:
             report["limitations"].append(
-                "La segunda opinion del modelo no estuvo disponible; el reporte usa solo el motor determinista.")
+                tr(
+                    "La segunda opinion del modelo no estuvo disponible; el reporte usa solo el motor determinista.",
+                    "The model's second opinion was unavailable; the report uses only the deterministic engine.",
+                ))
         elif model_review.get("fallback_used"):
             report["limitations"].append(llm.fallback_reason(
-                model_review["attempts"], model_review["model"], "es"))
+                model_review["attempts"], model_review["model"], language()))
     report["audience_sections"] = format_report(report)
     validation = run_skill_validator(case, report)
     return {
@@ -274,9 +313,10 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         "report_markdown": render_markdown(report),
         "validation": validation,
         "audit_log": [_audit("generar_validar_reporte", started,
-                             ("validador OK" if validation["ok"] else "validador FALLÓ")
-                             + (f"; modelo {model_review['status']} ({model_review.get('model')}"
-                                + (", respaldo" if model_review.get("fallback_used") else "") + ")"
+                             (tr("validador OK", "validator OK") if validation["ok"]
+                              else tr("validador FALLÓ", "validator FAILED"))
+                             + (f"; {tr('modelo', 'model')} {model_review['status']} ({model_review.get('model')}"
+                                + (tr(", respaldo", ", fallback") if model_review.get("fallback_used") else "") + ")"
                                 if model_review else ""))],
     }
 
@@ -290,7 +330,10 @@ def revision_humana(state: InvestigationState) -> Dict[str, Any]:
     started = time.perf_counter()
     decision = interrupt({
         "case_id": state["report"]["case_id"],
-        "message": "Borrador listo. Valide, corrija o rechace los hallazgos.",
+        "message": tr(
+            "Borrador listo. Valide, corrija o rechace los hallazgos.",
+            "Draft ready. Validate, correct, or reject the findings.",
+        ),
         "report_markdown": state["report_markdown"],
     })
     status = decision.get("status")
@@ -303,7 +346,10 @@ def revision_humana(state: InvestigationState) -> Dict[str, Any]:
     return {
         "report": report,
         "report_markdown": render_markdown(report),
-        "audit_log": [_audit("revision_humana", started, f"decisión del analista: {status}")],
+        "audit_log": [_audit(
+            "revision_humana", started,
+            tr(f"decisión del analista: {status}", f"analyst decision: {status}"),
+        )],
     }
 
 

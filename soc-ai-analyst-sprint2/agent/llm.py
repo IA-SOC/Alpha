@@ -8,7 +8,8 @@ from typing import Any, Callable, Dict, Optional, Tuple
 
 import httpx
 
-from agent.prompts import prompt_version, system_instruction
+from agent.prompts import language_instruction, prompt_version, system_instruction
+from core.i18n import tr
 
 # The SDK uses httpx, whose timeout/connect errors do not inherit from OSError.
 _TRANSIENT = (httpx.TransportError, TimeoutError, ConnectionError)
@@ -67,9 +68,10 @@ def _gemini_models() -> list[str]:
 def _gemini_thinking_level() -> str:
     level = os.getenv("GEMINI_THINKING_LEVEL", "high").lower()
     if level not in {"minimal", "low", "medium", "high"}:
-        raise ProviderUnavailable(
-            "GEMINI_THINKING_LEVEL debe ser minimal, low, medium o high"
-        )
+        raise ProviderUnavailable(tr(
+            "GEMINI_THINKING_LEVEL debe ser minimal, low, medium o high",
+            "GEMINI_THINKING_LEVEL must be minimal, low, medium or high",
+        ))
     return level
 
 
@@ -83,14 +85,23 @@ class MockProvider:
             refs = hypothesis["evidence_for_ids"]
             items.append({"rank": hypothesis["rank"],
                           "assessment": "supports" if len(refs) >= 2 else "weak",
-                          "explanation": "La evidencia disponible requiere revisión humana.",
+                          "explanation": tr(
+                              "La evidencia disponible requiere revisión humana.",
+                              "The available evidence requires human review.",
+                          ),
                           "cited_alert_ids": refs})
         output = {"items": items}
         if context["alerts"]:
             output["initial_assessment"] = {
-                "assessment": "Evaluación determinista: los datos requieren revisión humana.",
+                "assessment": tr(
+                    "Evaluación determinista: los datos requieren revisión humana.",
+                    "Deterministic assessment: the data requires human review.",
+                ),
                 "cited_alert_ids": [alert["id"] for alert in context["alerts"][:3]],
-                "gaps": ["Falta confirmar el contexto del host con la persona analista."],
+                "gaps": [tr(
+                    "Falta confirmar el contexto del host con la persona analista.",
+                    "The host context still needs analyst confirmation.",
+                )],
             }
         return output, {"input_tokens": 0, "output_tokens": 0}
 
@@ -204,6 +215,10 @@ class GeminiProvider:
         # Pin the official Developer API even if SDK endpoint/Vertex env vars exist.
         client = genai.Client(api_key=self.api_key, vertexai=False,
                               http_options={"base_url": "https://generativelanguage.googleapis.com"})
+        instruction = system_instruction("review")
+        localized = language_instruction()
+        if localized:
+            instruction += "\n" + localized
         try:
             response = self._generate(
                 client, f"<case_data>{json.dumps(context, ensure_ascii=False)}</case_data>",
@@ -211,7 +226,7 @@ class GeminiProvider:
                         "max_output_tokens": self.max_output_tokens,
                         "thinking_config": self._thinking_config(),
                         "response_schema": {"type": "OBJECT", "properties": {"items": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {"rank": {"type": "INTEGER"}, "assessment": {"type": "STRING", "enum": ["supports", "weak", "contradicts"]}, "explanation": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["rank", "assessment", "explanation", "cited_alert_ids"]}}, "initial_assessment": {"type": "OBJECT", "properties": {"assessment": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}, "gaps": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["assessment", "cited_alert_ids", "gaps"]}}, "required": ["items", "initial_assessment"]},
-                        "system_instruction": system_instruction("review"),
+                        "system_instruction": instruction,
                         "http_options": {"timeout": review_timeout_seconds() * 1000}},
             )
         finally:
@@ -269,12 +284,14 @@ def get_provider(provider_name: Optional[str] = None) -> Optional[Any]:
     if provider == "gemini":
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise ProviderUnavailable("GEMINI_API_KEY es obligatoria para Gemini")
+            raise ProviderUnavailable(tr("GEMINI_API_KEY es obligatoria para Gemini",
+                                         "GEMINI_API_KEY is required for Gemini"))
         cap = os.getenv("GEMINI_MAX_OUTPUT_TOKENS")
         max_output_tokens = int(cap) if cap else None
         retry_attempts = int(os.getenv("GEMINI_RETRY_ATTEMPTS", "2"))
         if retry_attempts < 0:
-            raise ProviderUnavailable("GEMINI_RETRY_ATTEMPTS debe ser mayor o igual a 0")
+            raise ProviderUnavailable(tr("GEMINI_RETRY_ATTEMPTS debe ser mayor o igual a 0",
+                                         "GEMINI_RETRY_ATTEMPTS must be 0 or greater"))
         models = _gemini_models()
         return GeminiProvider(
             api_key, model=models[0], fallback_models=models[1:],
