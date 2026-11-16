@@ -34,7 +34,8 @@ def test_unsupported_model_claim_cannot_rewrite_canonical_findings(monkeypatch):
     monkeypatch.setattr(llm, "get_provider", lambda: UnsupportedClaimProvider())
     reviewed = _run("security-unsupported-claim")
     assert reviewed["report"]["model_review"]["status"] == "ok"
-    assert reviewed["report"]["model_review"]["items"]
+    assert not reviewed["report"]["model_review"]["items"]
+    assert reviewed["report"]["model_review"]["rejected_count"] == 1
     for field in ("hypotheses", "attack_mapping", "recommended_actions", "review"):
         assert reviewed["report"][field] == baseline["report"][field]
     assert reviewed["report"]["review"]["status"] == "pending"
@@ -100,9 +101,6 @@ def test_rejected_item_does_not_discard_valid_sibling_or_mutate_context():
     assert supplied == original
 
 
-@pytest.mark.xfail(
-    strict=True, reason="#154: valid references do not validate semantic claims"
-)
 def test_unsupported_compromise_claim_is_not_accepted_as_evidence_backed():
     result = check_model_output(
         {
