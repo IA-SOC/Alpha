@@ -41,8 +41,9 @@ _FIELD_SUFFIXES = {
     "credentials",
 }
 _ASSIGNMENT = re.compile(
-    r"""(?ix)\b(password|passwd|pwd|client[_-]?secret|api[_-]?key|"""
-    r"""access[_-]?token|refresh[_-]?token|secret|token)["']?\s*[=:]\s*"""
+    # Keys may carry a prefix (api_token, db-password): \b alone misses the "_".
+    r"""(?ix)\b([\w.-]*(?:password|passwd|pwd|secret|token|api[_-]?key))"""
+    r"""["']?\s*[=:]\s*"""
     r"""("[^"\r\n]*"|'[^'\r\n]*'|[^\s&,;]+)"""
 )
 _AUTH = re.compile(r"(?i)\b(Bearer|Basic)\s+[A-Za-z0-9+/_.=~-]+")

@@ -48,6 +48,26 @@ def test_suffix_restricted_fields(field):
     assert redact_export({"terminalSessionId": "safe"})["terminalSessionId"] == "safe"
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "login api_token=ABCDEFGH12345678 failed",
+        "db-password: ABCDEFGH12345678",
+        "clientSecret=ABCDEFGH12345678&x=1",
+        '"auth_token": "ABCDEFGH12345678"',
+    ],
+)
+def test_prefixed_credential_names_in_free_text(text):
+    result = redact_export({"msg": text})["msg"]
+    assert "ABCDEFGH12345678" not in result
+    assert REDACTED in result
+
+
+def test_free_text_without_credentials_is_untouched():
+    text = "Process cwd changed; token expired for the user"
+    assert redact_export({"msg": text}) == {"msg": text}
+
+
 def test_short_restricted_secret_does_not_corrupt_copied_text():
     result = redact_export({"x": {"password": "a"}, "msg": "a cat sat"})
     assert result == {"x": {"password": REDACTED}, "msg": "a cat sat"}
