@@ -152,6 +152,82 @@ describe('Agent analysis tab', () => {
 
     expect(await screen.findByText(/A new run is in progress/)).toBeInTheDocument()
   })
+
+  it('shows Gemini’s initial assessment with gaps and cited alerts', async () => {
+    const review: ModelReview = {
+      ...okReview,
+      initial_assessment: {
+        assessment: 'Preliminary analysis indicates potential brute force activity.',
+        gaps: ['Need proxy logs', 'Check firewall rules'],
+        cited_alert_ids: ['ecs-auth-001', 'wazuh-auth-002'],
+      },
+    }
+    open(json(200, withReview(review)))
+
+    const card = (await screen.findByRole('heading', { name: 'Initial assessment' })).closest('article')!
+    expect(within(card).getByText('Preliminary analysis indicates potential brute force activity.')).toBeInTheDocument()
+    expect(within(card).getByRole('heading', { name: 'What is still unknown' })).toBeInTheDocument()
+    expect(within(card).getByText('Need proxy logs')).toBeInTheDocument()
+    expect(within(card).getByText('Check firewall rules')).toBeInTheDocument()
+    expect(within(card).getByRole('heading', { name: '2 alerts cited' })).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: 'Open alert ecs-auth-001 in Evidence' })).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: 'Open alert wazuh-auth-002 in Evidence' })).toBeInTheDocument()
+  })
+
+  it('omits nothingToAssess when 0 hypotheses exist but initial assessment is present', async () => {
+    const review: ModelReview = {
+      ...okReview,
+      items: [],
+      rejected_count: 0,
+      initial_assessment: {
+        assessment: 'Initial triage found suspicious anomalies despite lack of confirmed hypotheses.',
+        gaps: ['Need endpoint telemetry'],
+        cited_alert_ids: ['ecs-auth-001'],
+      },
+    }
+    open(
+      json(
+        200,
+        withReview(review, (copy) => {
+          copy.report.hypotheses = []
+        }),
+      ),
+    )
+
+    expect(await screen.findByRole('heading', { name: 'Initial assessment' })).toBeInTheDocument()
+    expect(screen.getByText('Initial triage found suspicious anomalies despite lack of confirmed hypotheses.')).toBeInTheDocument()
+    expect(screen.queryByText('The rules raised no hypotheses, so Gemini had nothing to assess.')).not.toBeInTheDocument()
+  })
+
+  it('displays a warning when initial assessment was rejected and no assessment is available', async () => {
+    const review: ModelReview = {
+      ...okReview,
+      initial_assessment: null,
+      initial_assessment_rejected: true,
+    }
+    open(json(200, withReview(review)))
+
+    expect(
+      await screen.findByText("Gemini's initial assessment was discarded because it did not pass validation."),
+    ).toBeInTheDocument()
+  })
+
+  it('preserves existing behavior when initial_assessment is absent', async () => {
+    open(
+      json(
+        200,
+        withReview({ ...okReview, items: [], rejected_count: 0 }, (copy) => {
+          copy.report.hypotheses = []
+        }),
+      ),
+    )
+
+    expect(await screen.findByText('The rules raised no hypotheses, so Gemini had nothing to assess.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Initial assessment' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("Gemini's initial assessment was discarded because it did not pass validation."),
+    ).not.toBeInTheDocument()
+  })
 })
 
 describe('Automatic analysis on the case page', () => {

@@ -50,10 +50,13 @@ def _ioc_view(item: Dict[str, Any], max_chars: int, stats: Dict[str, int]) -> Di
 
 
 def build_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str, Any]],
-                        max_alerts_per_hypothesis: int = 10, max_chars: int = 300) -> Dict[str, Any]:
+                        max_alerts_per_hypothesis: int = 10, max_chars: int = 300,
+                        correlation: Optional[Dict[str, Any]] = None,
+                        mappings: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """Reduce y sanea datos no confiables antes de entregarlos a un proveedor."""
     by_id = {str(alert.get("id")): alert for alert in alerts}
-    stats = {"alerts_sent": 0, "iocs_sent": 0, "redacted_fields": 0}
+    stats = {"alerts_sent": 0, "iocs_sent": 0, "redacted_fields": 0,
+             "groups_sent": 0, "mitre_sent": 0}
     items = []
     for hypothesis in hypotheses:
         evidence_for = [str(item.get("alert_id")) for item in hypothesis.get("evidence_for", [])]
@@ -67,11 +70,68 @@ def build_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str,
                             "confidence": hypothesis.get("confidence"), "evidence_for_ids": evidence_for,
                             "evidence_against_ids": evidence_against, "alerts": selected, "iocs": iocs},
                            max_chars, stats))
-    stats["chars"] = len(json.dumps(items, ensure_ascii=False))
     case_alerts = [_alert_view(alert, max_chars, stats) for alert in alerts[:50]]
+    case_alert_ids = {str(alert.get("id")) for alert in alerts[:50]}
+    groups = {}
+    for alert in alerts[:50]:
+        key = (alert.get("rule_name"), alert.get("host"))
+        group = groups.setdefault(key, {"rule_name": key[0], "host": key[1], "count": 0,
+                                        "alert_ids": [], "tags": [], "timestamps": []})
+        group["count"] += 1
+        if len(group["alert_ids"]) < 5:
+            group["alert_ids"].append(str(alert.get("id")))
+        for tag in alert.get("tags", []) if isinstance(alert.get("tags"), list) else []:
+            if tag not in group["tags"] and len(group["tags"]) < 8:
+                group["tags"].append(tag)
+        timestamp = alert.get("timestamp")
+        if isinstance(timestamp, str) and timestamp:
+            group["timestamps"].append(timestamp)
+    alert_groups = []
+    for group in groups.values():
+        timestamps = group.pop("timestamps")
+        group["first_seen"] = min(timestamps) if timestamps else None
+        group["last_seen"] = max(timestamps) if timestamps else None
+        alert_groups.append(group)
+    alert_groups.sort(key=lambda group: (-group["count"], str(group["rule_name"])))
+    alert_groups = [_safe(group, max_chars, stats) for group in alert_groups[:20]]
+
+    mapping_items = mappings if isinstance(mappings, list) else []
+    mapped_ids = {
+        str(alert_id) for mapping in mapping_items if isinstance(mapping, dict)
+        for alert_id in mapping.get("supporting_alert_ids", [])
+    }
+    unmapped_alert_ids = _safe(
+        [str(alert.get("id")) for alert in alerts[:50]
+         if str(alert.get("id")) not in mapped_ids], max_chars, stats
+    ) if mappings is not None else []
+    correlation_groups = []
+    if isinstance(correlation, dict):
+        for group in correlation.get("related_groups", []):
+            if not isinstance(group, list):
+                continue
+            ids = [str(alert_id) for alert_id in group if str(alert_id) in case_alert_ids]
+            if len(ids) >= 2:
+                correlation_groups.append(_safe(ids, max_chars, stats))
+    correlation_groups = correlation_groups[:10]
+    mitre = []
+    for mapping in mapping_items[:20]:
+        if not isinstance(mapping, dict):
+            continue
+        entry = {"technique_id": mapping.get("technique_id"),
+                 "technique_name": mapping.get("technique_name"),
+                 "tactic": mapping.get("tactic"), "ambiguous": mapping.get("ambiguous"),
+                 "mapping_source": mapping.get("mapping_source"),
+                 "alert_ids": [str(alert_id) for alert_id in mapping.get("supporting_alert_ids", [])
+                               if str(alert_id) in case_alert_ids][:10]}
+        mitre.append(_safe(entry, max_chars, stats))
+    stats["groups_sent"] = len(alert_groups)
+    stats["mitre_sent"] = len(mitre)
     stats["case_alerts_sent"] = len(case_alerts)
-    stats["chars"] = len(json.dumps({"hypotheses": items, "alerts": case_alerts}, ensure_ascii=False))
-    return {"hypotheses": items, "alerts": case_alerts, "stats": stats}
+    context = {"hypotheses": items, "alerts": case_alerts, "alert_groups": alert_groups,
+               "unmapped_alert_ids": unmapped_alert_ids,
+               "correlation_groups": correlation_groups, "mitre": mitre}
+    stats["chars"] = len(json.dumps(context, ensure_ascii=False))
+    return {**context, "stats": stats}
 
 
 def _overclaims(text: str) -> bool:
@@ -85,8 +145,11 @@ def _overclaims(text: str) -> bool:
 
 
 def _techniques(context: Dict[str, Any]) -> set:
-    """Technique IDs the model may mention: those already in the hypothesis statements."""
-    return set(TECHNIQUE.findall(" ".join(str(h.get("statement")) for h in context.get("hypotheses", []))))
+    """Technique IDs the model may mention from hypotheses or mapped MITRE data."""
+    statements = " ".join(str(h.get("statement")) for h in context.get("hypotheses", []))
+    mapped = (str(item.get("technique_id")) for item in context.get("mitre", [])
+              if isinstance(item, dict))
+    return set(TECHNIQUE.findall(statements)).union(mapped)
 
 
 def check_model_output(output: Any, context: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
@@ -154,7 +217,9 @@ def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict,
         return "gaps inválidos"
     if not _refs_ok(entry.get("cited_alert_ids"), allowed):
         return "referencias inválidas"
-    return next(filter(None, (_text(t, techniques, 300) for t in [entry.get("assessment"), *gaps])), None)
+    # 3 to 5 sentences (what the prompt asks for) need more room than a gap line.
+    checks = [(entry.get("assessment"), 900), *((gap, 300) for gap in gaps)]
+    return next(filter(None, (_text(text, techniques, limit) for text, limit in checks)), None)
 
 
 def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict,

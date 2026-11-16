@@ -101,8 +101,32 @@ def test_assessment_and_action_references_must_exist_in_the_case(refs):
     ]
 
 
+def test_assessment_allows_three_to_five_sentences_but_not_an_essay():
+    # Live run (#156): a normal 4-sentence assessment was rejected by a 300-char cap.
+    four_sentences = "Failed logins were observed on a and b. " * 8
+    assert not reasons("initial_assessment", assessment(assessment=four_sentences))
+    assert reasons("initial_assessment", assessment(assessment="x" * 901)) == [
+        "texto inválido"
+    ]
+    assert reasons("initial_assessment", assessment(gaps=["x" * 301])) == [
+        "texto inválido"
+    ]
+
+
 def test_assessment_may_cite_any_alert_sent_in_the_case():
     assert not reasons("initial_assessment", assessment(cited_alert_ids=["c"]))
+
+
+def test_assessment_may_only_mention_mitre_techniques_sent_in_context():
+    enriched = build_model_context(
+        [{"id": "a", "rule_name": "Failed login", "tags": []}], [],
+        mappings=[{"technique_id": "T1059", "technique_name": "Command",
+                   "tactic": "Execution", "supporting_alert_ids": ["a"]}],
+    )
+    accepted = assessment(assessment="Observed activity compatible with T1059.")
+    rejected = assessment(assessment="Observed activity compatible with T9999.")
+    assert not check_task_output("initial_assessment", accepted, enriched)["rejected"]
+    assert check_task_output("initial_assessment", rejected, enriched)["rejected"]
 
 
 def test_evidence_must_cite_alerts_of_that_hypothesis():

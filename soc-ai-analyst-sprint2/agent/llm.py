@@ -85,7 +85,14 @@ class MockProvider:
                           "assessment": "supports" if len(refs) >= 2 else "weak",
                           "explanation": "La evidencia disponible requiere revisión humana.",
                           "cited_alert_ids": refs})
-        return {"items": items}, {"input_tokens": 0, "output_tokens": 0}
+        output = {"items": items}
+        if context["alerts"]:
+            output["initial_assessment"] = {
+                "assessment": "Evaluación determinista: los datos requieren revisión humana.",
+                "cited_alert_ids": [alert["id"] for alert in context["alerts"][:3]],
+                "gaps": ["Falta confirmar el contexto del host con la persona analista."],
+            }
+        return output, {"input_tokens": 0, "output_tokens": 0}
 
 
 class GeminiProvider:
@@ -203,7 +210,7 @@ class GeminiProvider:
                 {"temperature": 0, "response_mime_type": "application/json",
                         "max_output_tokens": self.max_output_tokens,
                         "thinking_config": self._thinking_config(),
-                        "response_schema": {"type": "OBJECT", "properties": {"items": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {"rank": {"type": "INTEGER"}, "assessment": {"type": "STRING", "enum": ["supports", "weak", "contradicts"]}, "explanation": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["rank", "assessment", "explanation", "cited_alert_ids"]}}}, "required": ["items"]},
+                        "response_schema": {"type": "OBJECT", "properties": {"items": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {"rank": {"type": "INTEGER"}, "assessment": {"type": "STRING", "enum": ["supports", "weak", "contradicts"]}, "explanation": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["rank", "assessment", "explanation", "cited_alert_ids"]}}, "initial_assessment": {"type": "OBJECT", "properties": {"assessment": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}, "gaps": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["assessment", "cited_alert_ids", "gaps"]}}, "required": ["items", "initial_assessment"]},
                         "system_instruction": system_instruction("review"),
                         "http_options": {"timeout": review_timeout_seconds() * 1000}},
             )
@@ -277,7 +284,9 @@ def get_provider(provider_name: Optional[str] = None) -> Optional[Any]:
     raise ProviderUnavailable(f"Proveedor LLM desconocido: {provider}")
 
 
-async def build_model_review(alerts: list, hypotheses: list, guard_call: Callable[..., Any], *, require_gemini: bool = False) -> Optional[Dict[str, Any]]:
+async def build_model_review(alerts: list, hypotheses: list, guard_call: Callable[..., Any], *,
+                             require_gemini: bool = False, mappings: Optional[list] = None,
+                             correlation: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
     provider_name = "gemini" if require_gemini else os.getenv("LLM_PROVIDER", "none").lower()
     try:
         provider = get_provider("gemini") if require_gemini else get_provider()
@@ -287,7 +296,12 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
         return None
     started = time.perf_counter()
     try:
-        context = await guard_call("prepare_model_context", {"alerts": alerts, "hypotheses": hypotheses})
+        context_args = {"alerts": alerts, "hypotheses": hypotheses}
+        if mappings is not None:
+            context_args["mappings"] = mappings
+        if correlation is not None:
+            context_args["correlation"] = correlation
+        context = await guard_call("prepare_model_context", context_args)
         # Blocking HTTP call: run it off the event loop that serves the MCP sessions.
         # Margin so the provider's own deadline fires first and records why.
         timeout = review_timeout_seconds() + 5 if provider.name == "gemini" else None
@@ -308,6 +322,24 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
                 "analyzed_at": datetime.now(timezone.utc).isoformat(),
                 "attempts": attempts, "fallback_used": False, "fallback_reason": None,
                 "error": error, "latency_ms": round((time.perf_counter() - started) * 1000)}
+    initial_assessment = None
+    initial_assessment_rejected = False
+    initial_assessment_reason = None
+    if isinstance(output, dict) and isinstance(output.get("initial_assessment"), dict):
+        try:
+            assessment_check = await guard_call(
+                "check_task_output",
+                {"task": "initial_assessment", "output": output["initial_assessment"], "context": context},
+            )
+            initial_assessment = next(iter(assessment_check.get("items", [])), None)
+            initial_assessment_rejected = initial_assessment is None
+            if initial_assessment_rejected:
+                # Only the validator's reason code, never the model's text.
+                initial_assessment_reason = next(
+                    (item.get("reason") for item in assessment_check.get("rejected", [])), None)
+        except Exception:
+            initial_assessment_rejected = True
+            initial_assessment_reason = "validation_error"
     answered_by = getattr(provider, "last_model", None)
     attempts = list(getattr(provider, "last_attempts", []))
     fallback_used = answered_by not in (None, provider.model)
@@ -321,4 +353,7 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
             "fallback_reason": fallback_reason(attempts, answered_by),
             "latency_ms": round((time.perf_counter() - started) * 1000), "usage": usage,
             "context_stats": context["stats"], "items": checked["items"],
-            "rejected_count": len(checked["rejected"])}
+            "rejected_count": len(checked["rejected"]),
+            "initial_assessment": initial_assessment,
+            "initial_assessment_rejected": initial_assessment_rejected,
+            "initial_assessment_reason": initial_assessment_reason}
