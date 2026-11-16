@@ -11,7 +11,8 @@ export const enrichmentItems = (report: Report) => report.enrichment.items as En
 
 export const stage = (entry: TimelineEntry) => (typeof entry.stage === 'string' ? entry.stage : undefined)
 
-export const asEvidence = (items: Report['hypotheses'][number]['evidence_for']) => items as Evidence[]
+// The v1.1 report schema types evidence per role and as non-empty tuples; the lists read the same.
+export const asEvidence = (items: readonly unknown[]) => items as Evidence[]
 
 export function timeWindow(report: Report) {
   const window = report.input.time_window_utc as { start?: string | null; end?: string | null } | null | undefined

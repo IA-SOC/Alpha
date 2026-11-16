@@ -1,7 +1,7 @@
 import createClient from 'openapi-fetch'
 
 import type { paths } from './generated/intake'
-import type { AcceptedCase, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
+import type { AcceptedCase, AnalysisStatus, CaseListItem, ChatEvidence, ChatHistory, ChatReply, CaseStatus, IncidentCase, Investigation, ReviewDecision, StoredCase, ValidationIssue } from './types'
 
 // status 0 means the request never got an answer, usually because the backend is down.
 export class ApiError extends Error {
@@ -60,6 +60,16 @@ export function createApi(fetchImpl: typeof fetch = (...args) => globalThis.fetc
         }),
       ),
 
+    listCases: async () => {
+      const list = await unwrap<CaseListItem[]>(client.GET('/api/v1/cases'))
+      // A 200 that is not a list means something other than the backend answered.
+      if (!Array.isArray(list)) throw new ApiError(502, 'The case list had an unexpected shape')
+      return list
+    },
+
+    setCaseStatus: (caseId: string, status: CaseStatus) =>
+      unwrap<CaseListItem>(client.PATCH('/api/v1/cases/{case_id}', { ...byId(caseId), body: { status } })),
+
     getCase: (caseId: string) =>
       unwrap(client.GET('/api/v1/cases/{case_id}', byId(caseId))) as Promise<StoredCase>,
 
@@ -68,6 +78,24 @@ export function createApi(fetchImpl: typeof fetch = (...args) => globalThis.fetc
 
     getInvestigation: (caseId: string) =>
       unwrap(client.GET('/api/v1/cases/{case_id}/investigation', byId(caseId))) as Promise<Investigation>,
+
+    getAnalysisStatus: (caseId: string) =>
+      unwrap(client.GET('/api/v1/cases/{case_id}/analysis-status', byId(caseId))) as Promise<AnalysisStatus>,
+
+    getMessages: (caseId: string) =>
+      unwrap(client.GET('/api/v1/cases/{case_id}/messages', byId(caseId))) as Promise<ChatHistory>,
+
+    getChatEvidence: (caseId: string) =>
+      unwrap(client.GET('/api/v1/cases/{case_id}/chat-evidence', byId(caseId))) as Promise<ChatEvidence>,
+
+    // The backend checks that the header and the body name the same analyst.
+    sendMessage: (caseId: string, analyst: string, message: string, evidenceRefs: string[]) =>
+      unwrap(
+        client.POST('/api/v1/cases/{case_id}/messages', {
+          params: { path: { case_id: caseId }, header: { 'X-Analyst-Id': analyst } },
+          body: { analyst_id: analyst, message, evidence_refs: evidenceRefs },
+        }),
+      ) as Promise<ChatReply>,
 
     review: (caseId: string, decision: ReviewDecision) =>
       unwrap(client.POST('/api/v1/cases/{case_id}/review', { ...byId(caseId), body: decision })) as Promise<Investigation>,
