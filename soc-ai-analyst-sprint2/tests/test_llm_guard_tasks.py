@@ -105,6 +105,18 @@ def test_assessment_may_cite_any_alert_sent_in_the_case():
     assert not reasons("initial_assessment", assessment(cited_alert_ids=["c"]))
 
 
+def test_assessment_may_only_mention_mitre_techniques_sent_in_context():
+    enriched = build_model_context(
+        [{"id": "a", "rule_name": "Failed login", "tags": []}], [],
+        mappings=[{"technique_id": "T1059", "technique_name": "Command",
+                   "tactic": "Execution", "supporting_alert_ids": ["a"]}],
+    )
+    accepted = assessment(assessment="Observed activity compatible with T1059.")
+    rejected = assessment(assessment="Observed activity compatible with T9999.")
+    assert not check_task_output("initial_assessment", accepted, enriched)["rejected"]
+    assert check_task_output("initial_assessment", rejected, enriched)["rejected"]
+
+
 def test_evidence_must_cite_alerts_of_that_hypothesis():
     assert not reasons("evidence", {"items": [evidence(alert_id="b")]})
     assert reasons("evidence", {"items": [evidence(alert_id="c")]}) == [

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from agent import llm
 from agent.graph import build_graph
-from core.llm_guard import build_model_context, check_model_output
+from core.llm_guard import build_model_context, check_model_output, check_task_output
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -61,6 +61,60 @@ def test_build_model_context_reduces_y_sanea_datos():
         }
     ]
     assert context["stats"]["redacted_fields"] >= 1
+
+
+def test_build_model_context_includes_sanitized_case_groups_and_mitre():
+    alerts = [
+        {"id": f"a-{index}", "timestamp": f"2026-01-01T00:{index:02d}:00Z",
+         "host": "h1" if index < 7 else "h2",
+         "rule_name": "rule-a" if index < 7 else ("rule-b" if index < 10 else "rule-c"),
+         "tags": ["shared", f"tag-{index}"]}
+        for index in range(12)
+    ]
+    mappings = [
+        {"technique_id": "T1059", "technique_name": "Command and Scripting Interpreter",
+         "tactic": "Execution", "ambiguous": False, "mapping_source": "local_catalog",
+         "supporting_alert_ids": [f"a-{index}" for index in range(7)]}
+    ]
+    context = build_model_context(
+        alerts, [], mappings=mappings,
+        correlation={
+            "related_groups": [["a-0", "a-1", "outside"], ["a-2"], ["outside"]]
+        },
+    )
+    assert context["alert_groups"][0]["count"] == 7
+    assert context["alert_groups"][0]["alert_ids"] == [
+        f"a-{index}" for index in range(5)
+    ]
+    assert context["alert_groups"][0]["first_seen"] == "2026-01-01T00:00:00Z"
+    assert context["alert_groups"][0]["last_seen"] == "2026-01-01T00:06:00Z"
+    assert context["unmapped_alert_ids"] == [f"a-{index}" for index in range(7, 12)]
+    assert context["correlation_groups"] == [["a-0", "a-1"]]
+    assert context["mitre"] == [{
+        "technique_id": "T1059", "technique_name": "Command and Scripting Interpreter",
+        "tactic": "Execution", "ambiguous": False, "mapping_source": "local_catalog",
+        "alert_ids": [f"a-{index}" for index in range(7)],
+    }]
+    assert context["stats"]["groups_sent"] == 3
+    assert context["stats"]["mitre_sent"] == 1
+
+
+def test_build_model_context_new_optional_data_is_empty_and_sanitized():
+    context = build_model_context(_alerts(), _hypotheses())
+    assert context["alert_groups"][0]["rule_name"] == "[contenido no confiable omitido]"
+    assert context["unmapped_alert_ids"] == []
+    assert context["correlation_groups"] == []
+    assert context["mitre"] == []
+    assert context["stats"]["alerts_sent"] == 1
+    assert context["stats"]["case_alerts_sent"] == 2
+
+
+def test_build_model_context_limits_alert_groups_to_twenty():
+    alerts = [
+        {"id": str(index), "rule_name": f"rule-{index}", "host": "host", "tags": []}
+        for index in range(25)
+    ]
+    assert len(build_model_context(alerts, [])["alert_groups"]) == 20
 
 
 def test_check_model_output_rechaza_salida_no_confiable():
@@ -146,3 +200,38 @@ def test_gemini_sin_clave_permanece_valido(monkeypatch):
     state = _run("llm-unavailable")
     assert state["report"]["model_review"]["status"] == "unavailable"
     assert state["validation"]["ok"]
+
+
+async def _guard_call(tool, arguments):
+    if tool == "prepare_model_context":
+        return build_model_context(**arguments)
+    if tool == "check_model_output":
+        return check_model_output(**arguments)
+    if tool == "check_task_output":
+        return check_task_output(**arguments)
+    raise AssertionError(f"herramienta inesperada: {tool}")
+
+
+def test_mock_review_includes_valid_initial_assessment_without_hypotheses(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "mock")
+    review = asyncio.run(llm.build_model_review(_alerts(), [], _guard_call))
+    assert review["status"] == "ok"
+    assert review["initial_assessment"]["cited_alert_ids"] == ["a-1", "a-2"]
+    assert review["initial_assessment_rejected"] is False
+
+
+def test_rejected_initial_assessment_does_not_fail_the_review(monkeypatch):
+    class InvalidAssessmentProvider:
+        name = "mock"
+        model = "fake"
+
+        def review(self, context):
+            return {"items": [], "initial_assessment": {"assessment": "Observed T1059.",
+                    "cited_alert_ids": ["missing"], "gaps": ["Need more data"]}}, {}
+
+    monkeypatch.setenv("LLM_PROVIDER", "mock")
+    monkeypatch.setattr(llm, "get_provider", lambda: InvalidAssessmentProvider())
+    review = asyncio.run(llm.build_model_review(_alerts(), [], _guard_call))
+    assert review["status"] == "ok"
+    assert review["initial_assessment"] is None
+    assert review["initial_assessment_rejected"] is True

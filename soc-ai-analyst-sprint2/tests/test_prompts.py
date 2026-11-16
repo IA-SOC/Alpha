@@ -11,6 +11,7 @@ TASKS = ["review", "initial_assessment", "hypotheses", "evidence", "suggested_ac
 
 def test_prompt_set_is_versioned():
     assert re.fullmatch(r"\d+\.\d+\.\d+", prompt_version())
+    assert prompt_version() == "1.1.0"
     assert load_prompts()["skill"] == "soc-case-investigator"
 
 
@@ -22,6 +23,12 @@ def test_every_task_has_an_instruction(task):
 @pytest.mark.parametrize("task", TASKS[1:])
 def test_output_tasks_declare_their_shape(task):
     assert output_shape(task)
+
+
+def test_review_declares_the_initial_assessment_shape():
+    assert output_shape("review")["initial_assessment"] == {
+        "assessment": "string", "cited_alert_ids": ["string"], "gaps": ["string"]
+    }
 
 
 @pytest.mark.parametrize("task", ["system", *TASKS])

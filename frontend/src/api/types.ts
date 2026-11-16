@@ -80,6 +80,8 @@ export interface ModelReview {
   context_stats?: { alerts_sent?: number; iocs_sent?: number; redacted_fields?: number }
   items?: ModelReviewItem[]
   rejected_count?: number
+  initial_assessment?: { assessment: string; cited_alert_ids: string[]; gaps: string[] } | null
+  initial_assessment_rejected?: boolean
 }
 
 // The case chat from app/api/routes/chat.py and app/services/chat_service.py. No response models

@@ -6,7 +6,7 @@ import type { AnalysisStatus, Hypothesis, Investigation, ModelReview, ModelRevie
 import { textActionClass } from '../../../ui/buttons'
 import { formatJobTime, isWorking } from '../analysis'
 import { asEvidence } from './extras'
-import { AlertIds, Chip, Empty, EvidenceList, Panel } from './parts'
+import { AlertIds, Chip, Empty, EvidenceList, Panel, TextList } from './parts'
 
 interface AgentTabProps {
   investigation: Investigation
@@ -63,9 +63,20 @@ function SecondOpinion({ review, hypotheses }: { review?: ModelReview; hypothese
     const items = [...(review.items ?? [])].sort((a, b) => a.rank - b.rank)
     body = (
       <>
-        {items.length === 0 && (
-          <Empty>{hypotheses.length === 0 ? t('report.agent.nothingToAssess') : t('report.agent.noItems')}</Empty>
-        )}
+        {review.initial_assessment ? (
+          <InitialAssessmentCard initial={review.initial_assessment} />
+        ) : null}
+        {review.initial_assessment_rejected && !review.initial_assessment ? (
+          <p className="mt-4 border-l-4 border-state-warn pl-3 text-sm">
+            {t('report.agent.initialRejected')}
+          </p>
+        ) : null}
+        {items.length === 0 && hypotheses.length === 0 && !review.initial_assessment ? (
+          <Empty>{t('report.agent.nothingToAssess')}</Empty>
+        ) : null}
+        {items.length === 0 && hypotheses.length > 0 ? (
+          <Empty>{t('report.agent.noItems')}</Empty>
+        ) : null}
         {items.length > 0 && (
           <div className="mt-4 space-y-4">
             {items.map((item) => (
@@ -90,6 +101,31 @@ function SecondOpinion({ review, hypotheses }: { review?: ModelReview; hypothese
       <p className="mt-1 text-sm text-muted">{t('report.agent.opinionIntro')}</p>
       {body}
     </section>
+  )
+}
+
+function InitialAssessmentCard({ initial }: { initial: NonNullable<ModelReview['initial_assessment']> }) {
+  const { t } = useTranslation()
+
+  return (
+    <article className="mt-4 rounded-xl border border-control p-4">
+      <h3 className="text-sm font-medium">{t('report.agent.initialAssessment')}</h3>
+      <p className="mt-2 text-sm">{initial.assessment}</p>
+      {initial.gaps && initial.gaps.length > 0 ? (
+        <div className="mt-4">
+          <h4 className="text-xs text-muted">{t('report.agent.initialGaps')}</h4>
+          <TextList items={initial.gaps} empty="" />
+        </div>
+      ) : null}
+      {initial.cited_alert_ids && initial.cited_alert_ids.length > 0 ? (
+        <div className="mt-4">
+          <h4 className="text-xs text-muted">{t('report.agent.cited', { count: initial.cited_alert_ids.length })}</h4>
+          <p className="mt-2 text-sm">
+            <AlertIds ids={initial.cited_alert_ids} />
+          </p>
+        </div>
+      ) : null}
+    </article>
   )
 }
 

@@ -13,8 +13,10 @@ mcp = MCPServer("guard")
 
 
 @mcp.tool()
-def prepare_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str, Any]]) -> Dict[str, Any]:
-    return build_model_context(alerts, hypotheses)
+def prepare_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str, Any]],
+                          correlation: Dict[str, Any] | None = None,
+                          mappings: List[Dict[str, Any]] | None = None) -> Dict[str, Any]:
+    return build_model_context(alerts, hypotheses, correlation=correlation, mappings=mappings)
 
 
 @mcp.tool()
