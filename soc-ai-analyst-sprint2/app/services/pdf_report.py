@@ -138,7 +138,7 @@ def build_investigation_pdf(result: dict) -> bytes:
         evidence_rows.append([_paragraph("—", small)] * 4)
     story.append(_table(evidence_rows, styles))
 
-    story.append(Paragraph("MITRE ATT&CK mappings", styles["Heading1"]))
+    story.append(Paragraph("MITRE ATT&amp;CK mappings", styles["Heading1"]))
     mappings = report.get("attack_mapping", [])
     mapping_rows = [[
         _paragraph("Tactic", small),

@@ -71,6 +71,19 @@ def test_pdf_export_returns_downloadable_pdf(tmp_path):
     assert response.content.startswith(b"%PDF-")
 
 
+def test_pdf_export_redacts_secrets(tmp_path):
+    case_id = uuid4()
+    result = _result(case_id)
+    result["report"]["review"]["notes"] = "password=" + "hunter" + str(2)
+    app = create_app(database_path=tmp_path / "cases.sqlite3")
+    with TestClient(app) as client:
+        app.state.investigation_service.store.save_investigation(case_id, result)
+        response = client.get(f"/api/v1/cases/{case_id}/export/pdf")
+
+    assert response.status_code == 200
+    assert b"hunter2" not in response.content
+
+
 def test_pdf_export_requires_saved_investigation(client):
     response = client.get(f"/api/v1/cases/{uuid4()}/export/pdf")
 

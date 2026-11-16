@@ -156,7 +156,7 @@ def export_investigation_pdf(case_id: UUID, service: Service):
     if result is None:
         raise HTTPException(404, "No completed investigation found")
     return Response(
-        content=build_investigation_pdf(result),
+        content=build_investigation_pdf(redact_export(result)),
         media_type="application/pdf",
         headers={
             "Content-Disposition": (
