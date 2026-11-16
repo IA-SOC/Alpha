@@ -217,7 +217,9 @@ def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict,
         return "gaps inválidos"
     if not _refs_ok(entry.get("cited_alert_ids"), allowed):
         return "referencias inválidas"
-    return next(filter(None, (_text(t, techniques, 300) for t in [entry.get("assessment"), *gaps])), None)
+    # 3 to 5 sentences (what the prompt asks for) need more room than a gap line.
+    checks = [(entry.get("assessment"), 900), *((gap, 300) for gap in gaps)]
+    return next(filter(None, (_text(text, techniques, limit) for text, limit in checks)), None)
 
 
 def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict,

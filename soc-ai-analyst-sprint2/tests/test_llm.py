@@ -235,3 +235,4 @@ def test_rejected_initial_assessment_does_not_fail_the_review(monkeypatch):
     assert review["status"] == "ok"
     assert review["initial_assessment"] is None
     assert review["initial_assessment_rejected"] is True
+    assert review["initial_assessment_reason"] == "referencias inválidas"

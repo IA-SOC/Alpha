@@ -324,6 +324,7 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
                 "error": error, "latency_ms": round((time.perf_counter() - started) * 1000)}
     initial_assessment = None
     initial_assessment_rejected = False
+    initial_assessment_reason = None
     if isinstance(output, dict) and isinstance(output.get("initial_assessment"), dict):
         try:
             assessment_check = await guard_call(
@@ -332,8 +333,13 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
             )
             initial_assessment = next(iter(assessment_check.get("items", [])), None)
             initial_assessment_rejected = initial_assessment is None
+            if initial_assessment_rejected:
+                # Only the validator's reason code, never the model's text.
+                initial_assessment_reason = next(
+                    (item.get("reason") for item in assessment_check.get("rejected", [])), None)
         except Exception:
             initial_assessment_rejected = True
+            initial_assessment_reason = "validation_error"
     answered_by = getattr(provider, "last_model", None)
     attempts = list(getattr(provider, "last_attempts", []))
     fallback_used = answered_by not in (None, provider.model)
@@ -349,4 +355,5 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
             "context_stats": context["stats"], "items": checked["items"],
             "rejected_count": len(checked["rejected"]),
             "initial_assessment": initial_assessment,
-            "initial_assessment_rejected": initial_assessment_rejected}
+            "initial_assessment_rejected": initial_assessment_rejected,
+            "initial_assessment_reason": initial_assessment_reason}

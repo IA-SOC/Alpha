@@ -101,6 +101,18 @@ def test_assessment_and_action_references_must_exist_in_the_case(refs):
     ]
 
 
+def test_assessment_allows_three_to_five_sentences_but_not_an_essay():
+    # Live run (#156): a normal 4-sentence assessment was rejected by a 300-char cap.
+    four_sentences = "Failed logins were observed on a and b. " * 8
+    assert not reasons("initial_assessment", assessment(assessment=four_sentences))
+    assert reasons("initial_assessment", assessment(assessment="x" * 901)) == [
+        "texto inválido"
+    ]
+    assert reasons("initial_assessment", assessment(gaps=["x" * 301])) == [
+        "texto inválido"
+    ]
+
+
 def test_assessment_may_cite_any_alert_sent_in_the_case():
     assert not reasons("initial_assessment", assessment(cited_alert_ids=["c"]))
 
