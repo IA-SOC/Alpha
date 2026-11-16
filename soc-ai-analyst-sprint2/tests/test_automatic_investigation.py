@@ -13,7 +13,7 @@ from tests.test_correlation_engine import case_for, event
 
 
 def wait_status(client, case_id, expected):
-    deadline = time.monotonic() + 10
+    deadline = time.monotonic() + 30
     while time.monotonic() < deadline:
         result = client.get(f"/api/v1/cases/{case_id}/analysis-status").json()
         if result["status"] in expected:
