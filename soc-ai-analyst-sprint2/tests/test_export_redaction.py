@@ -37,6 +37,51 @@ def test_nested_restricted_fields_and_copies(field):
 
 
 @pytest.mark.parametrize(
+    "field", ["apiToken", "api_token", "clientToken", "bearerToken", "dbPassword"]
+)
+def test_suffix_restricted_fields(field):
+    result = redact_export(
+        {"data": {field: "synthetic-secret-176"}, "confidence": "high"}
+    )
+    assert result["data"][field] == REDACTED
+    assert result["confidence"] == "high"
+    assert redact_export({"terminalSessionId": "safe"})["terminalSessionId"] == "safe"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "login api_token=ABCDEFGH12345678 failed",
+        "db-password: ABCDEFGH12345678",
+        "clientSecret=ABCDEFGH12345678&x=1",
+        '"auth_token": "ABCDEFGH12345678"',
+    ],
+)
+def test_prefixed_credential_names_in_free_text(text):
+    result = redact_export({"msg": text})["msg"]
+    assert "ABCDEFGH12345678" not in result
+    assert REDACTED in result
+
+
+def test_free_text_without_credentials_is_untouched():
+    text = "Process cwd changed; token expired for the user"
+    assert redact_export({"msg": text}) == {"msg": text}
+
+
+def test_short_restricted_secret_does_not_corrupt_copied_text():
+    result = redact_export({"x": {"password": "a"}, "msg": "a cat sat"})
+    assert result == {"x": {"password": REDACTED}, "msg": "a cat sat"}
+
+
+def test_long_restricted_secret_redacts_copies_without_corrupting_short_text():
+    result = redact_export(
+        {"data": {"apiToken": "abcd1234secret", "note": "pwd=ab then abc"}}
+    )
+    assert "abcd1234secret" not in json.dumps(result)
+    assert result["data"]["note"] == "pwd=" + REDACTED + " then abc"
+
+
+@pytest.mark.parametrize(
     "text",
     [
         "password=synthetic-secret-151",
