@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timezone
 from uuid import UUID
 
-from agent.llm import get_provider
+from agent.llm import get_provider, review_timeout_seconds
 from app.schemas.chat import AnalystMessage, AssistantAnswer
 from core.llm_guard import _safe
 
@@ -109,7 +109,9 @@ class ChatService:
                 raise ValueError("Context too large; select fewer evidence references")
             provider = get_provider("gemini")
             raw = await asyncio.wait_for(
-                asyncio.to_thread(provider.chat, context), timeout=45
+                asyncio.to_thread(provider.chat, context),
+                # Margin so the provider's own deadline fires first.
+                timeout=review_timeout_seconds() + 5,
             )
             try:
                 answer = AssistantAnswer.model_validate(raw)

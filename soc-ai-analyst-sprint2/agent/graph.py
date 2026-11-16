@@ -263,6 +263,9 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         if model_review["status"] in {"error", "unavailable"}:
             report["limitations"].append(
                 "La segunda opinion del modelo no estuvo disponible; el reporte usa solo el motor determinista.")
+        elif model_review.get("fallback_used"):
+            report["limitations"].append(llm.fallback_reason(
+                model_review["attempts"], model_review["model"], "es"))
     report["audience_sections"] = format_report(report)
     validation = run_skill_validator(case, report)
     return {
@@ -271,7 +274,9 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         "validation": validation,
         "audit_log": [_audit("generar_validar_reporte", started,
                              ("validador OK" if validation["ok"] else "validador FALLÓ")
-                             + (f"; modelo {model_review['status']}" if model_review else ""))],
+                             + (f"; modelo {model_review['status']} ({model_review.get('model')}"
+                                + (", respaldo" if model_review.get("fallback_used") else "") + ")"
+                                if model_review else ""))],
     }
 
 

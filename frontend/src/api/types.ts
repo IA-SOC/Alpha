@@ -11,7 +11,7 @@ export type ReviewDecision = Schemas['ReviewDecision']
 export type CaseListItem = Schemas['CaseListItem']
 export type CaseStatus = Schemas['CaseStatusUpdate']['status']
 
-export type Report = SOCInvestigationReport
+export type Report = SOCInvestigationReport & { model_review?: ModelReview | null }
 export type Hypothesis = Report['hypotheses'][number]
 export type AttackTechnique = Report['attack_mapping'][number]
 export type TimelineEntry = Report['timeline'][number]
@@ -58,7 +58,8 @@ export interface ModelReviewItem {
   cited_alert_ids: string[]
 }
 
-export interface ModelAttempt {
+// One call to a Gemini model; outcome is ok, http_<status>, timeout, connection, invalid_response or error.
+export interface ModelReviewAttempt {
   model: string
   outcome: string
   latency_ms?: number
@@ -67,15 +68,18 @@ export interface ModelAttempt {
 export interface ModelReview {
   status: 'ok' | 'error' | 'unavailable'
   provider?: string
-  model?: string
-  prompt_version?: string
+  model?: string | null
+  primary_model?: string | null
+  analyzed_at?: string | null
+  fallback_used?: boolean
+  fallback_reason?: string | null
+  attempts?: ModelReviewAttempt[]
+  prompt_version?: string | null
   error?: string
   latency_ms?: number
   context_stats?: { alerts_sent?: number; iocs_sent?: number; redacted_fields?: number }
   items?: ModelReviewItem[]
   rejected_count?: number
-  // Only once the model fallback lands, see PR #179.
-  attempts?: ModelAttempt[]
 }
 
 // The case chat from app/api/routes/chat.py and app/services/chat_service.py. No response models
