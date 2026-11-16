@@ -48,6 +48,35 @@ def action(**changes):
     }
 
 
+def candidate(**changes):
+    return {
+        "statement": "Actividad candidata sin técnica confirmada.",
+        "rationale": "La alerta no tiene mapeo MITRE.",
+        "cited_alert_ids": ["b"],
+        **changes,
+    }
+
+
+def unmapped_context():
+    return build_model_context(
+        [
+            {"id": "a", "rule_name": "Failed login", "tags": []},
+            {"id": "b", "rule_name": "Remote service", "tags": []},
+            {"id": "c", "rule_name": "Unrelated", "tags": []},
+        ],
+        [
+            {
+                "rank": 1,
+                "statement": "Activity compatible with T1110",
+                "confidence": "media",
+                "evidence_for": [{"alert_id": "a"}],
+                "evidence_against": [],
+            }
+        ],
+        mappings=[{"technique_id": "T1110", "supporting_alert_ids": ["a"]}],
+    )
+
+
 def reasons(task, output):
     return [
         item["reason"]
@@ -66,6 +95,9 @@ def test_valid_outputs_are_accepted_with_only_the_expected_keys():
     assert check_task_output("suggested_actions", {"items": [action()]}, context())[
         "items"
     ] == [action()]
+    assert check_task_output(
+        "candidate_hypotheses", {"items": [candidate()]}, unmapped_context()
+    )["items"] == [candidate()]
 
 
 def test_hypotheses_task_uses_the_existing_check():
@@ -117,11 +149,41 @@ def test_assessment_may_cite_any_alert_sent_in_the_case():
     assert not reasons("initial_assessment", assessment(cited_alert_ids=["c"]))
 
 
+def test_candidate_hypothesis_requires_an_unmapped_alert_and_safe_text():
+    allowed = unmapped_context()
+    assert not check_task_output(
+        "candidate_hypotheses", {"items": [candidate()]}, allowed
+    )["rejected"]
+    assert check_task_output(
+        "candidate_hypotheses", {"items": [candidate(cited_alert_ids=["a"])]}, allowed
+    )["rejected"] == [{"index": 0, "reason": "sin alertas sin mapear"}]
+    assert reasons("candidate_hypotheses", {"items": [candidate()]}) == [
+        "sin alertas sin mapear"
+    ]
+    assert check_task_output(
+        "candidate_hypotheses",
+        {"items": [candidate(statement="Candidate T9999 activity")]},
+        allowed,
+    )["rejected"] == [{"index": 0, "reason": "técnica no disponible"}]
+    assert check_task_output(
+        "candidate_hypotheses",
+        {"items": [candidate(rationale="Confirmed compromise of host.")]},
+        allowed,
+    )["rejected"] == [{"index": 0, "reason": "conclusión no respaldada"}]
+
+
 def test_assessment_may_only_mention_mitre_techniques_sent_in_context():
     enriched = build_model_context(
-        [{"id": "a", "rule_name": "Failed login", "tags": []}], [],
-        mappings=[{"technique_id": "T1059", "technique_name": "Command",
-                   "tactic": "Execution", "supporting_alert_ids": ["a"]}],
+        [{"id": "a", "rule_name": "Failed login", "tags": []}],
+        [],
+        mappings=[
+            {
+                "technique_id": "T1059",
+                "technique_name": "Command",
+                "tactic": "Execution",
+                "supporting_alert_ids": ["a"],
+            }
+        ],
     )
     accepted = assessment(assessment="Observed activity compatible with T1059.")
     rejected = assessment(assessment="Observed activity compatible with T9999.")
