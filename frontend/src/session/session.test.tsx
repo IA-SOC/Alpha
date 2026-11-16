@@ -33,7 +33,7 @@ describe('session module', () => {
 })
 
 describe('entry screen', () => {
-  it('asks for a name when there is no session and then opens New Case', async () => {
+  it('asks for a name when there is no session and then opens the case list', async () => {
     const user = userEvent.setup()
     const { router } = renderApp('/', { analyst: null })
 
@@ -43,7 +43,7 @@ describe('entry screen', () => {
     await user.type(screen.getByLabelText('Your name'), 'Ana Pérez')
     await user.click(screen.getByRole('button', { name: 'Continue' }))
 
-    expect(router.state.location.pathname).toBe('/cases/new')
+    expect(router.state.location.pathname).toBe('/cases')
     expect(screen.getByText('Ana Pérez')).toBeInTheDocument()
   })
 
@@ -72,7 +72,7 @@ describe('entry screen', () => {
 
   it('skips the entry screen when a session already exists', () => {
     const { router } = renderApp('/', { analyst: 'Ana' })
-    expect(router.state.location.pathname).toBe('/cases/new')
+    expect(router.state.location.pathname).toBe('/cases')
   })
 
   it('signs out from the header and goes back to the entry screen', async () => {

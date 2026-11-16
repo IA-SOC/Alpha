@@ -2,8 +2,10 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 
-import type { Investigation, ModelReview, Report } from '../../../api/types'
+import type { AnalysisStatus, Investigation, ModelReview, Report } from '../../../api/types'
 import { type Tab, Tabs } from '../../../ui/Tabs'
+import { ChatTab } from '../chat/ChatTab'
+import { AgentTab } from './AgentTab'
 import { AssetsTab } from './AssetsTab'
 import { EvidenceTab } from './EvidenceTab'
 import { timeWindow } from './extras'
@@ -17,18 +19,24 @@ import { TimelineTab } from './TimelineTab'
 interface ReportViewProps {
   investigation: Investigation
   caseState: SubmittedCaseState
+  // The backend job behind the report, when the backend reports one.
+  analysis?: AnalysisStatus
   // Starts a new run of the agent, for a review the current run can no longer take.
   onRerun: () => void
 }
 
-export function ReportView({ investigation, caseState, onRerun }: ReportViewProps) {
+export function ReportView({ investigation, caseState, analysis, onRerun }: ReportViewProps) {
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const { report } = investigation
   const modelReview = report.model_review
   const modelStatus = modelReview?.status
+  // The agent's own tab opens first, since that is what the automatic run produced.
+  const selected = params.get('tab') ?? 'agent'
 
   const tabs: Tab[] = [
+    { id: 'agent', label: t('report.tabs.agent'), content: <AgentTab investigation={investigation} analysis={analysis} /> },
+    { id: 'chat', label: t('report.tabs.chat'), content: <ChatTab investigation={investigation} /> },
     { id: 'summary', label: t('report.tabs.summary'), content: <SummaryTab report={report} /> },
     { id: 'timeline', label: t('report.tabs.timeline'), content: <TimelineTab investigation={investigation} /> },
     { id: 'evidence', label: t('report.tabs.evidence'), content: <EvidenceTab investigation={investigation} /> },
@@ -40,7 +48,8 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
   return (
     <SubmittedCaseContext value={caseState}>
       <div className="space-y-6">
-        {(modelStatus === 'error' || modelStatus === 'unavailable') && (
+        {/* The agent tab explains this itself, with the reason, so the banner is for the other tabs. */}
+        {(modelStatus === 'error' || modelStatus === 'unavailable') && selected !== 'agent' && (
           <p role="status" className="border-l-4 border-state-warn bg-surface px-4 py-3 text-sm">
             {t('report.modelReviewUnavailable')}
           </p>
@@ -54,8 +63,8 @@ export function ReportView({ investigation, caseState, onRerun }: ReportViewProp
         <Tabs
           label={t('report.tabs.label')}
           tabs={tabs}
-          selected={params.get('tab') ?? 'summary'}
-          onSelect={(tab) => setParams(tab === 'summary' ? {} : { tab }, { replace: true })}
+          selected={selected}
+          onSelect={(tab) => setParams(tab === 'agent' ? {} : { tab }, { replace: true })}
         />
       </div>
     </SubmittedCaseContext>

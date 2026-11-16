@@ -113,7 +113,8 @@ describe('Investigating a case', () => {
     openAskingToRun()
 
     expect(await screen.findByText(sampleInvestigation.report.executive_summary)).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Gemini’s second opinion could not be completed')
+    // The agent tab opens first and says it in its own words.
+    expect(screen.getByText(/Gemini’s second opinion could not be completed/)).toBeInTheDocument()
     expect(backend.calls(`GET ${base}/investigation`)).toBeGreaterThanOrEqual(2)
   })
 

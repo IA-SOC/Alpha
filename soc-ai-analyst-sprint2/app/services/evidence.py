@@ -60,6 +60,9 @@ SIGNAL_PATHS = (
     "data.dstuser",
     "host",
     "user",
+    "rule.mitre.id",
+    "rule.mitre.technique",
+    "rule.mitre.tactic",
 )
 
 

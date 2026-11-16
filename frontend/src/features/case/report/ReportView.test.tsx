@@ -158,13 +158,13 @@ describe('Case report', () => {
       status: 'error',
       attempts: [{ model: 'gemini-3.6-flash', outcome: 'http_503', latency_ms: 1000 }],
     }
-    openReport(investigation)
+    openReport(investigation, '?tab=summary')
 
     expect(await screen.findByRole('status')).toHaveTextContent("The rules-based report is available. Gemini’s second opinion could not be completed.")
   })
 
   it('shows each hypothesis with its confidence word and no percentage', async () => {
-    openReport()
+    openReport(sampleInvestigation, '?tab=summary')
 
     const card = (await screen.findByRole('heading', { name: `1. ${report.hypotheses[0].statement}` })).closest('article')!
     expect(within(card).getByText('Medium')).toBeInTheDocument()
@@ -175,7 +175,7 @@ describe('Case report', () => {
   })
 
   it('never hides the evidence against', async () => {
-    openReport(withEvidenceAgainst())
+    openReport(withEvidenceAgainst(), '?tab=summary')
 
     const card = (await screen.findByRole('heading', { name: /^1\. / })).closest('article')!
     expect(within(card).getByText('Low')).toBeInTheDocument()
@@ -184,7 +184,7 @@ describe('Case report', () => {
   })
 
   it('flags every recommended action that needs human approval', async () => {
-    openReport()
+    openReport(sampleInvestigation, '?tab=summary')
 
     expect(await screen.findByRole('heading', { name: '2 recommended actions' })).toBeInTheDocument()
     expect(screen.getByText(report.recommended_actions[0].action)).toBeInTheDocument()
@@ -196,7 +196,7 @@ describe('Case report', () => {
     const { router } = openReport()
     await user.click(await screen.findByRole('tab', { name: 'Summary' }))
 
-    await user.keyboard('{Home}{ArrowRight}{ArrowRight}{ArrowRight}')
+    await user.keyboard('{Home}{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}')
 
     expect(screen.getByRole('tab', { name: 'MITRE ATT&CK' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('tab', { name: 'MITRE ATT&CK' })).toHaveFocus()
@@ -216,7 +216,7 @@ describe('Case report', () => {
 
   it('translates the labels and leaves the report text as it came', async () => {
     await i18n.changeLanguage('es')
-    openReport()
+    openReport(sampleInvestigation, '?tab=summary')
 
     expect(await screen.findByText('Qué encontró el agente')).toBeInTheDocument()
     expect(screen.getByText('Media')).toBeInTheDocument()

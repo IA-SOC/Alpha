@@ -95,7 +95,7 @@ def _audit(phase: str, started: float, detail: str) -> Dict[str, Any]:
 
 def _mcp_view(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Solo los campos que usa core/logic.py; el registro original no viaja por MCP."""
-    keys = ("id", "timestamp", "rule_name", "tags", "host", "user", "source_ip", "dest_ip")
+    keys = ("id", "timestamp", "rule_name", "tags", "host", "user", "source_ip", "dest_ip", "wazuh_mitre")
     return [{k: a.get(k) for k in keys} for a in alerts]
 
 

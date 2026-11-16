@@ -78,6 +78,68 @@
     "signedInAs": "Signed in as",
     "signOut": "Sign out"
   },
+  "cases": {
+    "title": "Cases",
+    "total_one": "{{count}} case",
+    "total_other": "{{count}} cases",
+    "newCase": "New case",
+    "summary": {
+      "label": "Case summary",
+      "open": "Open",
+      "waiting": "Waiting for review",
+      "notRun": "Not investigated"
+    },
+    "filter": {
+      "label": "Filter by status",
+      "all": "All",
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "stage": {
+      "notInvestigated": "Not investigated",
+      "pending": "Waiting for review",
+      "validated": "Validated",
+      "corrected": "Corrected",
+      "rejected": "Rejected"
+    },
+    "status": {
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "table": {
+      "label": "Stored cases",
+      "case": "Case",
+      "status": "Status",
+      "investigation": "Investigation",
+      "created": "Created, UTC",
+      "actions": "Actions"
+    },
+    "actions": {
+      "open": "Open",
+      "close": "Close",
+      "reopen": "Reopen",
+      "closeCase": "Close case",
+      "reopenCase": "Reopen case",
+      "failed": "The case status was not updated. Try again."
+    },
+    "empty": {
+      "title": "No cases yet",
+      "body": "Submit a case and it will show up here, ready to open again later.",
+      "filtered": "No {{status}} cases."
+    },
+    "loading": "Loading the cases",
+    "error": {
+      "title": "Couldn't load the cases",
+      "body": "The backend did not return the case list.",
+      "retry": "Retry"
+    },
+    "sidebar": {
+      "label": "Cases",
+      "search": "Search by case ID",
+      "none": "No cases match.",
+      "closedMark": "Closed"
+    }
+  },
   "case": {
     "title": "Case",
     "applicationId": "Application ID",
@@ -90,6 +152,15 @@
     "notRun": {
       "title": "Not investigated yet",
       "body": "The case is stored. Run the agent to get its report."
+    },
+    "auto": {
+      "queued": "Waiting for the agent",
+      "running": "The agent is analysing this case",
+      "body": "The analysis started on its own when the case was accepted. This page shows the report as soon as it is saved.",
+      "since": "Last update {{time}}",
+      "failed": "The automatic analysis failed",
+      "failedReason": "The backend stopped with {{reason}}.",
+      "failedNoReason": "The backend gave no reason."
     },
     "run": {
       "title": "Investigating the case",
@@ -118,6 +189,8 @@
   "report": {
     "tabs": {
       "label": "Report sections",
+      "agent": "Agent analysis",
+      "chat": "Chat",
       "summary": "Summary",
       "mitre": "MITRE ATT&CK",
       "review": "Review",
@@ -162,6 +235,50 @@
     },
     "summary": {
       "title": "What the agent found"
+    },
+    "agent": {
+      "counts": "{{hypotheses}}, {{techniques}} and {{actions}}.",
+      "hypotheses_one": "{{count}} hypothesis",
+      "hypotheses_other": "{{count}} hypotheses",
+      "techniques_one": "{{count}} ATT&CK technique",
+      "techniques_other": "{{count}} ATT&CK techniques",
+      "actions_one": "{{count}} recommended action",
+      "actions_other": "{{count}} recommended actions",
+      "openSummary": "Read them in Summary",
+      "opinionTitle": "Gemini’s second opinion",
+      "opinionIntro": "Gemini checks each hypothesis against the alerts it cites. It can back a hypothesis, call it weak or contradict it. The rules-based report stays as it is either way.",
+      "noReview": "This run did not ask Gemini for a second opinion.",
+      "reason": "Reason:",
+      "nothingToAssess": "The rules raised no hypotheses, so Gemini had nothing to assess.",
+      "noItems": "Gemini gave no assessment backed by the case evidence.",
+      "rejected_one": "{{count}} answer from Gemini was dropped because it cited evidence outside its hypothesis or broke the expected format.",
+      "rejected_other": "{{count}} answers from Gemini were dropped because they cited evidence outside their hypothesis or broke the expected format.",
+      "unknownHypothesis": "Hypothesis not found in the report",
+      "assessment": {
+        "supports": "Backs it",
+        "weak": "Weak",
+        "contradicts": "Contradicts it"
+      },
+      "cited_one": "{{count}} alert cited",
+      "cited_other": "{{count}} alerts cited",
+      "processingTitle": "Processing",
+      "rerunning": "A new run is in progress. This report is from the previous one and reloads when the new one ends.",
+      "state": "Analysis",
+      "updated": "Last update",
+      "model": "Model",
+      "prompt": "Prompt version",
+      "latency": "Gemini response time",
+      "seconds": "{{value}} s",
+      "alertsSent": "Alerts sent to Gemini",
+      "states": {
+        "queued": "Queued",
+        "running": "Running",
+        "completed": "Completed",
+        "error": "Failed",
+        "not_started": "Not automatic"
+      },
+      "attempts_one": "{{count}} attempt",
+      "attempts_other": "{{count}} attempts"
     },
     "hypotheses": {
       "title_one": "{{count}} hypothesis",
@@ -408,5 +525,72 @@
       }
     },
     "exportJson": "Export JSON"
+  },
+  "chat": {
+    "title": "Ask Gemini about this case",
+    "intro": "Gemini sees this case, its report and the last 20 messages. Attach evidence from the list to point it at something. It cannot close the case or act on anything, and every answer still needs your judgement.",
+    "thread": "Conversation",
+    "loading": "Loading the conversation",
+    "historyFailed": "Couldn’t load the conversation.",
+    "empty": "No messages yet. The conversation is saved with the case, so anyone opening it later sees the same thread.",
+    "you": "You",
+    "gemini": "Gemini",
+    "answering": "Gemini is answering. It can take up to 45 seconds.",
+    "askedAbout_one": "Asked about {{count}} piece of evidence",
+    "askedAbout_other": "Asked about {{count}} pieces of evidence",
+    "cites_one": "Cites {{count}} piece of evidence",
+    "cites_other": "Cites {{count}} pieces of evidence",
+    "inspect": "Inspect {{label}}",
+    "attach": "Attach {{label}} to the question",
+    "detach": "Remove {{label}} from the question",
+    "attached_one": "{{count}} piece of evidence attached",
+    "attached_other": "{{count}} pieces of evidence attached",
+    "question": "Your question",
+    "hint": "{{count}} of {{max}} characters. Ctrl+Enter sends.",
+    "blank": "Write a question first.",
+    "send": "Send",
+    "sending": "Sending",
+    "suggest": {
+      "title": "Or start with",
+      "support": "What evidence supports the main hypothesis, and what is missing?",
+      "change": "What would change the conclusion of this report?",
+      "next": "Which alerts should I look at next, and why?"
+    },
+    "failed": {
+      "offline": "The backend didn’t answer. Check that it is running and try again.",
+      "analyst": "The backend did not accept your analyst name. Sign out and sign in again.",
+      "notReady": "The investigation is not saved yet. Wait for it to finish and try again.",
+      "invalid": "The backend rejected the question.",
+      "rejected": "Gemini didn’t give a usable answer, so nothing was saved. It may be busy, or its answer failed the checks.",
+      "notConfigured": "Gemini is not set up on the backend, so the chat is not available.",
+      "timeout": "Gemini took too long to answer. Try again, or ask something narrower.",
+      "other": "The message failed with status {{status}}.",
+      "kept": "Your question is still in the box."
+    },
+    "ref": {
+      "alert": "Alert {{id}}",
+      "hypothesis": "Hypothesis {{rank}}",
+      "event": "Timeline event {{number}}",
+      "technique": "ATT&CK {{name}}",
+      "techniqueNumber": "ATT&CK technique {{number}}",
+      "ioc": "IoC {{value}}",
+      "iocNumber": "IoC {{number}}"
+    },
+    "evidence": {
+      "title": "Case evidence",
+      "intro": "Inspect anything Gemini can see, or tick it to ask about it.",
+      "loading": "Loading the evidence",
+      "failed": "Couldn’t load the evidence list.",
+      "groups": {
+        "alert": "Submitted alerts",
+        "hypotheses": "Hypotheses",
+        "timeline": "Timeline",
+        "attack_mapping": "ATT&CK techniques",
+        "ioc": "IoCs"
+      },
+      "fromCase": "From the submitted case",
+      "fromRun": "From the saved investigation",
+      "stale": "This comes from an earlier run of the investigation and is no longer part of it."
+    }
   }
 }

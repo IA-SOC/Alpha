@@ -17,11 +17,21 @@ const duplicate = {
   ],
 }
 
+const jsonHeaders = { 'Content-Type': 'application/json' }
+
+// The returned mock sees only the case requests. The sidebar's case list gets an empty list.
 function backendAnswers(status: number, body: unknown) {
-  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
-    new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }),
+  const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(
+    async () => new Response(JSON.stringify(body), { status, headers: jsonHeaders }),
   )
-  vi.stubGlobal('fetch', fetch)
+  vi.stubGlobal(
+    'fetch',
+    vi.fn<typeof globalThis.fetch>(async (input, init) => {
+      const request = input as Request
+      const isList = request.method === 'GET' && new URL(request.url).pathname === '/api/v1/cases'
+      return isList ? new Response('[]', { status: 200, headers: jsonHeaders }) : fetch(input, init)
+    }),
+  )
   return fetch
 }
 

@@ -17,6 +17,8 @@ async function signIn(page: Page, name: string) {
   await page.goto('/')
   await page.getByLabel('Your name').fill(name)
   await page.getByRole('button', { name: 'Continue' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Cases' })).toBeVisible()
+  await page.getByRole('button', { name: 'New case' }).click()
   await expect(page.getByRole('heading', { level: 1, name: 'New case' })).toBeVisible()
 }
 
@@ -38,9 +40,17 @@ test('submit, investigate, read and review a case', async ({ page }) => {
   await expect(tabs).toBeVisible({ timeout: 5 * 60_000 })
   await expect(page.getByRole('heading', { level: 1, name: demo.case_id as string })).toBeVisible()
 
+  // The agent's tab opens first. Gemini may or may not answer on a laptop, the tab shows either.
   const panel = page.getByRole('tabpanel')
+  await expect(tabs.getByRole('tab', { name: 'Agent analysis' })).toHaveAttribute('aria-selected', 'true')
+  await expect(panel.getByRole('heading', { name: 'Gemini’s second opinion' })).toBeVisible()
+  await expect(panel.getByRole('heading', { name: 'Processing' })).toBeVisible()
+
+  await tabs.getByRole('tab', { name: 'Summary' }).click()
   await expect(panel.getByRole('heading', { name: /hypothes[ie]s/ })).toBeVisible()
   for (const [tab, heading] of [
+    // The chat loads its history and the evidence list. Sending needs Gemini, so it is not done here.
+    ['Chat', /Ask Gemini/],
     ['Timeline', /event/i],
     ['Evidence', /alert/i],
     ['MITRE ATT&CK', /T\d{4}/],
@@ -69,6 +79,19 @@ test('submit, investigate, read and review a case', async ({ page }) => {
   await expect(panel.getByText(/Checked finding 1 against the raw alerts\./).first()).toBeVisible()
   // The header strip of report facts, whose last fact is the review status.
   await expect(page.locator('dl').first()).toContainText('Validated')
+
+  // The case is in the sidebar, closes from its header and shows as closed on the dashboard.
+  const caseId = demo.case_id as string
+  const sidebar = page.getByRole('navigation', { name: 'Cases' })
+  await expect(sidebar.getByRole('link', { name: new RegExp(caseId) })).toHaveAttribute('aria-current', 'page')
+  await page.getByRole('button', { name: 'Close case' }).click()
+  await expect(page.getByRole('button', { name: 'Reopen case' })).toBeVisible()
+  await sidebar.getByRole('link', { name: 'Cases', exact: true }).click()
+  const row = page.getByRole('row', { name: new RegExp(caseId) })
+  await expect(row).toContainText('Closed')
+  await expect(row).toContainText('Validated')
+  await page.getByRole('button', { name: `Reopen case: ${caseId}` }).click()
+  await expect(row).not.toContainText('Closed')
 })
 
 test('recover from a rejected case and from a duplicate', async ({ page }) => {

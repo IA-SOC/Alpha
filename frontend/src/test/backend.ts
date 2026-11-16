@@ -8,7 +8,9 @@ export function json(status: number, body: unknown): Response {
 
 // A fetch that answers by method and path, such as 'GET /api/v1/cases/abc'. Each value is the
 // answer, or a function called on every request, so a test can change it between calls.
-export function fakeBackend(routes: Record<string, Answer | (() => Answer)>) {
+export function fakeBackend(given: Record<string, Answer | (() => Answer)>) {
+  // Every signed in screen has the sidebar, which lists the stored cases. Empty unless a test says otherwise.
+  const routes: Record<string, Answer | (() => Answer)> = { 'GET /api/v1/cases': json(200, []), ...given }
   const fetch = vi.fn<typeof globalThis.fetch>(async (input) => {
     const request = input as Request
     const key = `${request.method} ${new URL(request.url).pathname}`

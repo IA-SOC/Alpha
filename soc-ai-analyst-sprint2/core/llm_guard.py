@@ -72,11 +72,11 @@ def check_model_output(output: Any, context: Dict[str, Any]) -> Dict[str, List[D
             continue
         rank, assessment = item.get("rank"), item.get("assessment")
         explanation, cited = item.get("explanation"), item.get("cited_alert_ids")
-        if rank not in allowed:
+        if type(rank) is not int or rank not in allowed:
             reason = "rango desconocido"
         elif rank in seen:
             reason = "rango duplicado"
-        elif assessment not in {"supports", "weak", "contradicts"}:
+        elif not isinstance(assessment, str) or assessment not in {"supports", "weak", "contradicts"}:
             reason = "evaluación inválida"
         elif not isinstance(explanation, str) or not explanation.strip() or len(explanation) > 600:
             reason = "explicación inválida"

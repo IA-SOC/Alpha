@@ -3,6 +3,7 @@ import { type FormEvent, type ReactNode, useEffect, useId, useMemo, useRef, useS
 import { useTranslation } from 'react-i18next'
 
 import { api, ApiError } from '../../../api/client'
+import { casesKey } from '../../cases/useCases'
 import type { Investigation, Report, ReviewDecision } from '../../../api/types'
 import { maxNameLength, useSession } from '../../../session/session'
 import { PrimaryButton } from '../../../ui/buttons'
@@ -96,6 +97,7 @@ function ReviewForm({ investigation, onRerun }: { investigation: Investigation; 
     onSuccess: (data) => {
       clearDraft(caseId)
       queryClient.setQueryData(['investigation', caseId], data)
+      void queryClient.invalidateQueries({ queryKey: casesKey })
     },
   })
 

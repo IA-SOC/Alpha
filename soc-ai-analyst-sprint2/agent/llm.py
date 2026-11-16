@@ -10,7 +10,6 @@ import httpx
 
 from agent.prompts import prompt_version, system_instruction
 
-
 # The SDK uses httpx, whose timeout/connect errors do not inherit from OSError.
 _TRANSIENT = (httpx.TransportError, TimeoutError, ConnectionError)
 
