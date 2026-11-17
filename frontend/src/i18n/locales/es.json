@@ -509,6 +509,7 @@
       "noUnknowns": "Nada indicado."
     },
     "modelReviewUnavailable": "El informe de reglas está disponible. No se pudo completar la segunda opinión de Gemini.",
+    "exportPdf": "Exportar PDF",
     "modelReview": {
       "secondOpinion": "Segunda opinión: {{model}} · {{date}}",
       "secondOpinionNoDate": "Segunda opinión: {{model}}",

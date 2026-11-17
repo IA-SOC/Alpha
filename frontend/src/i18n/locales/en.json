@@ -509,6 +509,7 @@
       "noUnknowns": "None listed."
     },
     "modelReviewUnavailable": "The rules-based report is available. Gemini’s second opinion could not be completed.",
+    "exportPdf": "Export PDF",
     "modelReview": {
       "secondOpinion": "Second opinion: {{model}} · {{date}}",
       "secondOpinionNoDate": "Second opinion: {{model}}",
