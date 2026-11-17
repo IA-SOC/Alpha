@@ -1,0 +1,17 @@
+{
+  "report": {
+    "case_id": "SYN-US22-FAILED-LOGINS",
+    "attack_mapping": [
+      {
+        "technique_id": "T1110",
+        "status": "candidate",
+        "evidence": [{"alert_id": "auth-failure-1"}]
+      },
+      {
+        "technique_id": "T1078",
+        "status": "supported",
+        "evidence": [{"alert_id": "auth-failure-1"}]
+      }
+    ]
+  }
+}

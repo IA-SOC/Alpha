@@ -1,0 +1,4 @@
+{
+  "SYN-US22-FAILED-LOGINS": {"T1110": ["auth-failure-1", "auth-failure-2"]},
+  "SYN-US22-ROUTINE": {}
+}
