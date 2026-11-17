@@ -247,6 +247,9 @@
       "openSummary": "Verlas en Resumen",
       "opinionTitle": "Segunda opinión de Gemini",
       "opinionIntro": "Gemini revisa cada hipótesis contra las alertas que cita. Puede respaldarla, verla débil o contradecirla. El informe de reglas no cambia en ningún caso.",
+      "initialAssessment": "Evaluación inicial",
+      "initialGaps": "Qué falta por saber",
+      "initialRejected": "La evaluación inicial de Gemini se descartó porque no pasó la validación.",
       "noReview": "Esta ejecución no pidió segunda opinión a Gemini.",
       "reason": "Motivo:",
       "nothingToAssess": "Las reglas no plantearon hipótesis, así que Gemini no tenía nada que evaluar.",
@@ -507,6 +510,24 @@
     },
     "modelReviewUnavailable": "El informe de reglas está disponible. No se pudo completar la segunda opinión de Gemini.",
     "exportPdf": "Exportar PDF",
+    "modelReview": {
+      "secondOpinion": "Segunda opinión: {{model}} · {{date}}",
+      "secondOpinionNoDate": "Segunda opinión: {{model}}",
+      "fallbackUsed": "Se usó {{model}} porque {{primaryModel}} {{reason}}.",
+      "fallbackUsedUnknown": "Se usó {{model}} como respaldo.",
+      "outcomes": {
+        "http_408": "tuvo un tiempo de espera agotado (408)",
+        "http_503": "estaba saturado (503)",
+        "http_504": "no respondió a tiempo (504)",
+        "http_429": "alcanzó su límite de uso (429)",
+        "http_500": "tuvo un error del servidor (500)",
+        "http_502": "devolvió una puerta de enlace incorrecta (502)",
+        "timeout": "agotó el tiempo de espera",
+        "connection": "no tenía conexión",
+        "invalid_response": "devolvió una respuesta vacía o inválida",
+        "error": "no estuvo disponible"
+      }
+    },
     "exportJson": "Exportar JSON"
   },
   "chat": {

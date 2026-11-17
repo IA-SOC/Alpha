@@ -28,6 +28,15 @@ class StoredCase:
     investigation: dict | None
 
 
+@dataclass(frozen=True)
+class StoredRevision:
+    case_id: UUID
+    revision: int
+    run_id: str
+    result: dict
+    created_at: datetime
+
+
 class CaseStore:
     """Store accepted evidence and enforce submitted-ID uniqueness atomically."""
 
@@ -78,6 +87,33 @@ class CaseStore:
                 "CREATE TABLE IF NOT EXISTS investigations ("
                 "case_id TEXT PRIMARY KEY, result TEXT NOT NULL)"
             )
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS investigation_revisions ("
+                "case_id TEXT NOT NULL, "
+                "revision INTEGER NOT NULL, "
+                "run_id TEXT NOT NULL, "
+                "result TEXT NOT NULL, "
+                "created_at TEXT NOT NULL, "
+                "PRIMARY KEY (case_id, revision), "
+                "FOREIGN KEY (case_id) REFERENCES cases(case_id))"
+            )
+            legacy = connection.execute(
+                "SELECT case_id, result FROM investigations"
+            )
+            for case_id, raw_result in legacy:
+                result = json.loads(raw_result)
+                connection.execute(
+                    "INSERT OR IGNORE INTO investigation_revisions "
+                    "(case_id, revision, run_id, result, created_at) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (
+                        case_id,
+                        int(result.get("revision", 1)),
+                        self._revision_run_id(result),
+                        raw_result,
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
+                )
 
     def create(
         self, case: IncidentCase, id_factory: Callable[[], UUID]
@@ -167,15 +203,43 @@ class CaseStore:
             else None
         )
 
+    @staticmethod
+    def _revision_run_id(result: dict) -> str:
+        run_id = result.get("run_id")
+        return run_id if isinstance(run_id, str) and run_id else "unknown"
+
+    def _write_revision(
+        self,
+        connection: sqlite3.Connection,
+        case_id: UUID,
+        result: dict,
+        serialized: str,
+    ) -> None:
+        connection.execute(
+            "INSERT INTO investigation_revisions "
+            "(case_id, revision, run_id, result, created_at) VALUES (?, ?, ?, ?, ?) "
+            "ON CONFLICT(case_id, revision) DO UPDATE SET "
+            "run_id = excluded.run_id, result = excluded.result",
+            (
+                str(case_id),
+                int(result.get("revision", 1)),
+                self._revision_run_id(result),
+                serialized,
+                datetime.now(timezone.utc).isoformat(),
+            ),
+        )
+
     def save_investigation(
         self, case_id: UUID, result: dict, *, complete_analysis: bool = False
     ) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:
+            serialized = json.dumps(result, ensure_ascii=False, allow_nan=False)
             connection.execute(
                 "INSERT INTO investigations (case_id, result) VALUES (?, ?) "
                 "ON CONFLICT(case_id) DO UPDATE SET result = excluded.result",
-                (str(case_id), json.dumps(result, ensure_ascii=False, allow_nan=False)),
+                (str(case_id), serialized),
             )
+            self._write_revision(connection, case_id, result, serialized)
             if complete_analysis:
                 self._write_analysis_status(connection, case_id, "completed", None)
 
@@ -193,13 +257,12 @@ class CaseStore:
                 raise LookupError("No completed investigation found")
             if actual_revision != expected_revision:
                 raise LookupError("The investigation revision has changed; reload")
+            serialized = json.dumps(result, ensure_ascii=False, allow_nan=False)
             connection.execute(
                 "UPDATE investigations SET result = ? WHERE case_id = ?",
-                (
-                    json.dumps(result, ensure_ascii=False, allow_nan=False),
-                    str(case_id),
-                ),
+                (serialized, str(case_id)),
             )
+            self._write_revision(connection, case_id, result, serialized)
 
     def get_investigation(self, case_id: UUID) -> dict | None:
         with closing(sqlite3.connect(self.path)) as connection:
@@ -207,6 +270,24 @@ class CaseStore:
                 "SELECT result FROM investigations WHERE case_id = ?", (str(case_id),)
             ).fetchone()
         return json.loads(row[0]) if row else None
+
+    def get_revisions(self, case_id: UUID) -> list[StoredRevision]:
+        with closing(sqlite3.connect(self.path)) as connection:
+            rows = connection.execute(
+                "SELECT case_id, revision, run_id, result, created_at "
+                "FROM investigation_revisions WHERE case_id = ? ORDER BY revision",
+                (str(case_id),),
+            ).fetchall()
+        return [
+            StoredRevision(
+                case_id=UUID(row[0]),
+                revision=row[1],
+                run_id=row[2],
+                result=json.loads(row[3]),
+                created_at=datetime.fromisoformat(row[4]),
+            )
+            for row in rows
+        ]
 
     def save_review(self, case_id: UUID, run_id: str, result: dict) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:
@@ -219,10 +300,12 @@ class CaseStore:
                 raise LookupError("The investigation run has changed; reload")
             if current["report"]["review"]["status"] != "pending":
                 raise LookupError("The investigation is not awaiting review")
+            serialized = json.dumps(result, ensure_ascii=False, allow_nan=False)
             connection.execute(
                 "UPDATE investigations SET result = ? WHERE case_id = ?",
-                (json.dumps(result, ensure_ascii=False, allow_nan=False), str(case_id)),
+                (serialized, str(case_id)),
             )
+            self._write_revision(connection, case_id, result, serialized)
 
     def analysis_status(self, case_id: UUID) -> dict | None:
         with closing(sqlite3.connect(self.path)) as connection:

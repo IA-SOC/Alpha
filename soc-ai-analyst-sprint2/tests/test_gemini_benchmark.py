@@ -132,9 +132,9 @@ def test_sdk_endpoint_budget_usage_and_client_cleanup(monkeypatch, context, outp
     assert usage["thinking_tokens"] == 30 and usage["total_tokens"] == 60
     kwargs = constructor.call_args.kwargs
     assert kwargs["vertexai"] is False
+    # Retries run in GeminiProvider._generate, not in the SDK, so they cannot multiply.
     assert kwargs["http_options"] == {
         "base_url": "https://generativelanguage.googleapis.com",
-        "retry_options": {"attempts": 1},
     }
     config = client.models.generate_content.call_args.kwargs["config"]
     assert config["max_output_tokens"] == 2048

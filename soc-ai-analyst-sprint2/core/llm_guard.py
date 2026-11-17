@@ -1,10 +1,25 @@
-"""Contexto mínimo y validación de salida para una segunda opinión de modelo."""
+"""Contexto mínimo y validación de salida de las tareas del modelo (hipótesis, evidencia, acciones)."""
 import json
-from typing import Any, Dict, List
+import re
+from typing import Any, Dict, List, Optional
 
 from agent.normalize import INJECTION_PATTERN
 
 REDACTED = "[contenido no confiable omitido]"
+TECHNIQUE = re.compile(r"\bT\d{4}(?:\.\d{3})?\b")
+# shortcut: keyword heuristic (en/es) for "confirmed compromise" wording; swap for a claim
+# classifier if it rejects legitimate text or misses paraphrases.
+_CONFIRM = r"(?:confirm\w*|definitiv\w*|proven|probado)"
+_COMPROMISE = r"(?:compromis\w*|exfiltrat\w*|exfiltrad\w*|breach\w*|brecha\w*|theft|robo)"
+OVERCLAIM = re.compile(
+    rf"\b{_CONFIRM}\W+(?:\w+\W+){{0,3}}{_COMPROMISE}|\b{_COMPROMISE}\W+(?:\w+\W+){{0,3}}{_CONFIRM}",
+    re.IGNORECASE,
+)
+NEGATION = re.compile(r"\b(?:not|no|never|without|sin|ni)\b|n't", re.IGNORECASE)
+PRIORITIES = {"low", "medium", "high", "urgent"}
+TASK_KEYS = {"initial_assessment": ("assessment", "cited_alert_ids", "gaps"),
+             "evidence": ("rank", "for", "against"),
+             "suggested_actions": ("action", "priority", "rationale", "cited_alert_ids")}
 
 
 def _safe(value: Any, max_chars: int, stats: Dict[str, int]) -> Any:
@@ -35,10 +50,13 @@ def _ioc_view(item: Dict[str, Any], max_chars: int, stats: Dict[str, int]) -> Di
 
 
 def build_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str, Any]],
-                        max_alerts_per_hypothesis: int = 10, max_chars: int = 300) -> Dict[str, Any]:
+                        max_alerts_per_hypothesis: int = 10, max_chars: int = 300,
+                        correlation: Optional[Dict[str, Any]] = None,
+                        mappings: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """Reduce y sanea datos no confiables antes de entregarlos a un proveedor."""
     by_id = {str(alert.get("id")): alert for alert in alerts}
-    stats = {"alerts_sent": 0, "iocs_sent": 0, "redacted_fields": 0}
+    stats = {"alerts_sent": 0, "iocs_sent": 0, "redacted_fields": 0,
+             "groups_sent": 0, "mitre_sent": 0}
     items = []
     for hypothesis in hypotheses:
         evidence_for = [str(item.get("alert_id")) for item in hypothesis.get("evidence_for", [])]
@@ -52,11 +70,86 @@ def build_model_context(alerts: List[Dict[str, Any]], hypotheses: List[Dict[str,
                             "confidence": hypothesis.get("confidence"), "evidence_for_ids": evidence_for,
                             "evidence_against_ids": evidence_against, "alerts": selected, "iocs": iocs},
                            max_chars, stats))
-    stats["chars"] = len(json.dumps(items, ensure_ascii=False))
     case_alerts = [_alert_view(alert, max_chars, stats) for alert in alerts[:50]]
+    case_alert_ids = {str(alert.get("id")) for alert in alerts[:50]}
+    groups = {}
+    for alert in alerts[:50]:
+        key = (alert.get("rule_name"), alert.get("host"))
+        group = groups.setdefault(key, {"rule_name": key[0], "host": key[1], "count": 0,
+                                        "alert_ids": [], "tags": [], "timestamps": []})
+        group["count"] += 1
+        if len(group["alert_ids"]) < 5:
+            group["alert_ids"].append(str(alert.get("id")))
+        for tag in alert.get("tags", []) if isinstance(alert.get("tags"), list) else []:
+            if tag not in group["tags"] and len(group["tags"]) < 8:
+                group["tags"].append(tag)
+        timestamp = alert.get("timestamp")
+        if isinstance(timestamp, str) and timestamp:
+            group["timestamps"].append(timestamp)
+    alert_groups = []
+    for group in groups.values():
+        timestamps = group.pop("timestamps")
+        group["first_seen"] = min(timestamps) if timestamps else None
+        group["last_seen"] = max(timestamps) if timestamps else None
+        alert_groups.append(group)
+    alert_groups.sort(key=lambda group: (-group["count"], str(group["rule_name"])))
+    alert_groups = [_safe(group, max_chars, stats) for group in alert_groups[:20]]
+
+    mapping_items = mappings if isinstance(mappings, list) else []
+    mapped_ids = {
+        str(alert_id) for mapping in mapping_items if isinstance(mapping, dict)
+        for alert_id in mapping.get("supporting_alert_ids", [])
+    }
+    unmapped_alert_ids = _safe(
+        [str(alert.get("id")) for alert in alerts[:50]
+         if str(alert.get("id")) not in mapped_ids], max_chars, stats
+    ) if mappings is not None else []
+    correlation_groups = []
+    if isinstance(correlation, dict):
+        for group in correlation.get("related_groups", []):
+            if not isinstance(group, list):
+                continue
+            ids = [str(alert_id) for alert_id in group if str(alert_id) in case_alert_ids]
+            if len(ids) >= 2:
+                correlation_groups.append(_safe(ids, max_chars, stats))
+    correlation_groups = correlation_groups[:10]
+    mitre = []
+    for mapping in mapping_items[:20]:
+        if not isinstance(mapping, dict):
+            continue
+        entry = {"technique_id": mapping.get("technique_id"),
+                 "technique_name": mapping.get("technique_name"),
+                 "tactic": mapping.get("tactic"), "ambiguous": mapping.get("ambiguous"),
+                 "mapping_source": mapping.get("mapping_source"),
+                 "alert_ids": [str(alert_id) for alert_id in mapping.get("supporting_alert_ids", [])
+                               if str(alert_id) in case_alert_ids][:10]}
+        mitre.append(_safe(entry, max_chars, stats))
+    stats["groups_sent"] = len(alert_groups)
+    stats["mitre_sent"] = len(mitre)
     stats["case_alerts_sent"] = len(case_alerts)
-    stats["chars"] = len(json.dumps({"hypotheses": items, "alerts": case_alerts}, ensure_ascii=False))
-    return {"hypotheses": items, "alerts": case_alerts, "stats": stats}
+    context = {"hypotheses": items, "alerts": case_alerts, "alert_groups": alert_groups,
+               "unmapped_alert_ids": unmapped_alert_ids,
+               "correlation_groups": correlation_groups, "mitre": mitre}
+    stats["chars"] = len(json.dumps(context, ensure_ascii=False))
+    return {**context, "stats": stats}
+
+
+def _overclaims(text: str) -> bool:
+    """True when the text states a confirmed compromise that was not negated just before it."""
+    for match in OVERCLAIM.finditer(text):
+        window = text[max(0, match.start() - 30):match.start()]
+        clause = re.split(r"[.;!?\n]", window)[-1]
+        if not NEGATION.search(clause):
+            return True
+    return False
+
+
+def _techniques(context: Dict[str, Any]) -> set:
+    """Technique IDs the model may mention from hypotheses or mapped MITRE data."""
+    statements = " ".join(str(h.get("statement")) for h in context.get("hypotheses", []))
+    mapped = (str(item.get("technique_id")) for item in context.get("mitre", [])
+              if isinstance(item, dict))
+    return set(TECHNIQUE.findall(statements)).union(mapped)
 
 
 def check_model_output(output: Any, context: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
@@ -65,6 +158,7 @@ def check_model_output(output: Any, context: Dict[str, Any]) -> Dict[str, List[D
         return {"items": [], "rejected": [{"index": None, "reason": "salida sin lista items"}]}
     allowed = {item.get("rank"): set(item.get("evidence_for_ids", [])) | set(item.get("evidence_against_ids", []))
                for item in context.get("hypotheses", []) if isinstance(item, dict)}
+    techniques = _techniques(context)
     valid, rejected, seen = [], [], set()
     for index, item in enumerate(output["items"]):
         if not isinstance(item, dict):
@@ -72,16 +166,20 @@ def check_model_output(output: Any, context: Dict[str, Any]) -> Dict[str, List[D
             continue
         rank, assessment = item.get("rank"), item.get("assessment")
         explanation, cited = item.get("explanation"), item.get("cited_alert_ids")
-        if rank not in allowed:
+        if type(rank) is not int or rank not in allowed:
             reason = "rango desconocido"
         elif rank in seen:
             reason = "rango duplicado"
-        elif assessment not in {"supports", "weak", "contradicts"}:
+        elif not isinstance(assessment, str) or assessment not in {"supports", "weak", "contradicts"}:
             reason = "evaluación inválida"
         elif not isinstance(explanation, str) or not explanation.strip() or len(explanation) > 600:
             reason = "explicación inválida"
         elif INJECTION_PATTERN.search(explanation):
             reason = "explicación no confiable"
+        elif _overclaims(explanation):
+            reason = "conclusión no respaldada"
+        elif set(TECHNIQUE.findall(explanation)) - techniques:
+            reason = "técnica no disponible"
         elif not isinstance(cited, list) or not cited or any(not isinstance(ref, str) or ref not in allowed[rank] for ref in cited):
             reason = "referencias inválidas"
         else:
@@ -90,4 +188,113 @@ def check_model_output(output: Any, context: Dict[str, Any]) -> Dict[str, List[D
                           "cited_alert_ids": cited})
             continue
         rejected.append({"index": index, "reason": reason})
+    return {"items": valid, "rejected": rejected}
+
+
+def _text(value: Any, techniques: set, limit: int = 600) -> Optional[str]:
+    """Reason a free-text field is not acceptable, or None."""
+    if not isinstance(value, str) or not value.strip() or len(value) > limit:
+        return "texto inválido"
+    if INJECTION_PATTERN.search(value):
+        return "texto no confiable"
+    if _overclaims(value):
+        return "conclusión no respaldada"
+    if set(TECHNIQUE.findall(value)) - techniques:
+        return "técnica no disponible"
+    return None
+
+
+def _refs_ok(refs: Any, allowed: set) -> bool:
+    return isinstance(refs, list) and bool(refs) and all(isinstance(r, str) and r in allowed for r in refs)
+
+
+def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict,
+                        fields: dict) -> Optional[str]:
+    if not isinstance(entry, dict):
+        return "salida no es objeto"
+    gaps = entry.get("gaps")
+    if not isinstance(gaps, list):
+        return "gaps inválidos"
+    if not _refs_ok(entry.get("cited_alert_ids"), allowed):
+        return "referencias inválidas"
+    # 3 to 5 sentences (what the prompt asks for) need more room than a gap line.
+    checks = [(entry.get("assessment"), 900), *((gap, 300) for gap in gaps)]
+    return next(filter(None, (_text(text, techniques, limit) for text, limit in checks)), None)
+
+
+def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict,
+              fields: dict) -> Optional[str]:
+    if not isinstance(entry, dict):
+        return "item no es objeto"
+    rank = entry.get("rank")
+    if type(rank) is not int or rank not in ranks:
+        return "rango desconocido"
+    sides = [entry.get("for"), entry.get("against")]
+    if not all(isinstance(side, list) for side in sides) or not any(sides):
+        return "evidencia inválida"
+    for ref in sides[0] + sides[1]:
+        if not isinstance(ref, dict) or not isinstance(ref.get("alert_id"), str) or ref["alert_id"] not in ranks[rank]:
+            return "referencias inválidas"
+        if not isinstance(ref.get("field"), str) or not ref["field"].strip():
+            return "campo inválido"
+        if ref["field"] not in fields.get(ref["alert_id"], set()):
+            return "campo no resoluble"
+        problem = _text(ref.get("observation"), techniques, 300)
+        if problem:
+            return problem
+    return None
+
+
+def _action(entry: Any, techniques: set, allowed: set, ranks: dict,
+            fields: dict) -> Optional[str]:
+    if not isinstance(entry, dict):
+        return "item no es objeto"
+    if not isinstance(entry.get("priority"), str) or entry["priority"] not in PRIORITIES:
+        return "prioridad inválida"
+    if not _refs_ok(entry.get("cited_alert_ids"), allowed):
+        return "referencias inválidas"
+    return _text(entry.get("action"), techniques, 300) or _text(entry.get("rationale"), techniques)
+
+
+TASK_CHECKS = {"initial_assessment": _initial_assessment, "evidence": _evidence, "suggested_actions": _action}
+
+
+def check_task_output(task: str, output: Any, context: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    """Valida la salida de una tarea del prompt: estructura, referencias y texto sin conclusiones no respaldadas."""
+    if task == "hypotheses":
+        return check_model_output(output, context)
+    check = TASK_CHECKS.get(task)
+    if check is None:
+        return {"items": [], "rejected": [{"index": None, "reason": "tarea desconocida"}]}
+    if task == "initial_assessment":
+        entries = [output]
+    elif isinstance(output, dict) and isinstance(output.get("items"), list):
+        entries = output["items"]
+    else:
+        return {"items": [], "rejected": [{"index": None, "reason": "salida sin lista items"}]}
+    ranks = {h.get("rank"): set(h.get("evidence_for_ids", [])) | set(h.get("evidence_against_ids", []))
+             for h in context.get("hypotheses", []) if isinstance(h, dict)}
+    allowed = {str(a.get("id")) for a in context.get("alerts", []) if isinstance(a, dict)}.union(*ranks.values())
+    alert_views = [a for a in context.get("alerts", []) if isinstance(a, dict)]
+    alert_views.extend(
+        a for h in context.get("hypotheses", []) if isinstance(h, dict)
+        for a in h.get("alerts", []) if isinstance(a, dict)
+    )
+    fields = {}
+    for alert in alert_views:
+        fields.setdefault(str(alert.get("id")), set()).update(alert)
+    techniques = _techniques(context)
+    valid, rejected, seen = [], [], set()
+    for index, entry in enumerate(entries):
+        rank = entry.get("rank") if isinstance(entry, dict) else None
+        if task == "evidence" and type(rank) is int and rank in seen:
+            reason = "rango duplicado"
+        else:
+            reason = check(entry, techniques, allowed, ranks, fields)
+        if reason:
+            rejected.append({"index": index, "reason": reason})
+            continue
+        if task == "evidence" and type(rank) is int:
+            seen.add(rank)
+        valid.append({key: entry[key] for key in TASK_KEYS[task]})
     return {"items": valid, "rejected": rejected}

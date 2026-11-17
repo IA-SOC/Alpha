@@ -50,7 +50,10 @@
           "technique_name": {"type": "string", "minLength": 1, "pattern": "\\S"},
           "status": {"enum": ["candidate", "supported", "not_supported", "unknown"]},
           "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}},
-          "source_version": {"type": ["string", "null"]}
+          "source_version": {"type": ["string", "null"]},
+          "mapping_source": {"enum": ["wazuh_rule_mitre", "local_catalog", "mixed"]},
+          "alert_mapping_sources": {"type": "object", "additionalProperties": {"enum": ["wazuh_rule_mitre", "local_catalog"]}},
+          "ambiguous": {"type": "boolean"}
         },
         "additionalProperties": true
       }
@@ -229,6 +232,7 @@
       "properties": {
         "alert_id": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "role": {"enum": ["supporting", "contradicting", "context"]},
+          "mapping_source": {"enum": ["wazuh_rule_mitre", "local_catalog"]},
         "fields": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
         "observation": {"type": "string", "minLength": 1, "pattern": "\\S"},
         "relevance": {"type": "string", "minLength": 1, "pattern": "\\S"}

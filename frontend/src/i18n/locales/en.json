@@ -247,6 +247,9 @@
       "openSummary": "Read them in Summary",
       "opinionTitle": "Gemini’s second opinion",
       "opinionIntro": "Gemini checks each hypothesis against the alerts it cites. It can back a hypothesis, call it weak or contradict it. The rules-based report stays as it is either way.",
+      "initialAssessment": "Initial assessment",
+      "initialGaps": "What is still unknown",
+      "initialRejected": "Gemini's initial assessment was discarded because it did not pass validation.",
       "noReview": "This run did not ask Gemini for a second opinion.",
       "reason": "Reason:",
       "nothingToAssess": "The rules raised no hypotheses, so Gemini had nothing to assess.",
@@ -507,6 +510,24 @@
     },
     "modelReviewUnavailable": "The rules-based report is available. Gemini’s second opinion could not be completed.",
     "exportPdf": "Export PDF",
+    "modelReview": {
+      "secondOpinion": "Second opinion: {{model}} · {{date}}",
+      "secondOpinionNoDate": "Second opinion: {{model}}",
+      "fallbackUsed": "{{model}} was used because {{primaryModel}} {{reason}}.",
+      "fallbackUsedUnknown": "{{model}} was used as a fallback.",
+      "outcomes": {
+        "http_408": "timed out (408)",
+        "http_503": "was overloaded (503)",
+        "http_504": "did not answer in time (504)",
+        "http_429": "was at its usage limit (429)",
+        "http_500": "had a server error (500)",
+        "http_502": "returned a bad gateway (502)",
+        "timeout": "timed out",
+        "connection": "could not be reached",
+        "invalid_response": "returned an empty or invalid answer",
+        "error": "was unavailable"
+      }
+    },
     "exportJson": "Export JSON"
   },
   "chat": {

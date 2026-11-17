@@ -1,6 +1,8 @@
 """Internal/output models. These do not change the v1.0 intake contract."""
 
+from datetime import datetime
 from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
@@ -85,3 +87,11 @@ class AnalystInstruction(BaseModel):
     context: str | None = Field(default=None, max_length=8000)
     feedback: str | None = Field(default=None, max_length=8000)
     revision: int = Field(ge=1)
+
+
+class InvestigationRevisionResponse(BaseModel):
+    case_id: UUID
+    revision: int
+    run_id: str
+    result: dict
+    created_at: datetime

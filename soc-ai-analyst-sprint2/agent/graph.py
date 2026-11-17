@@ -95,7 +95,7 @@ def _audit(phase: str, started: float, detail: str) -> Dict[str, Any]:
 
 def _mcp_view(alerts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Solo los campos que usa core/logic.py; el registro original no viaja por MCP."""
-    keys = ("id", "timestamp", "rule_name", "tags", "host", "user", "source_ip", "dest_ip")
+    keys = ("id", "timestamp", "rule_name", "tags", "host", "user", "source_ip", "dest_ip", "wazuh_mitre")
     return [{k: a.get(k) for k in keys} for a in alerts]
 
 
@@ -257,12 +257,16 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
             state["alerts"], state["hypotheses"],
             lambda tool, arguments: call_tool("guard", tool, arguments),
             require_gemini=case.get("require_gemini", False),
+            mappings=state["mitre_mappings"], correlation=state.get("correlation"),
         )
     if model_review is not None:
         report["model_review"] = model_review
         if model_review["status"] in {"error", "unavailable"}:
             report["limitations"].append(
                 "La segunda opinion del modelo no estuvo disponible; el reporte usa solo el motor determinista.")
+        elif model_review.get("fallback_used"):
+            report["limitations"].append(llm.fallback_reason(
+                model_review["attempts"], model_review["model"], "es"))
     report["audience_sections"] = format_report(report)
     validation = run_skill_validator(case, report)
     return {
@@ -271,7 +275,9 @@ async def generar_validar_reporte(state: InvestigationState) -> Dict[str, Any]:
         "validation": validation,
         "audit_log": [_audit("generar_validar_reporte", started,
                              ("validador OK" if validation["ok"] else "validador FALLÓ")
-                             + (f"; modelo {model_review['status']}" if model_review else ""))],
+                             + (f"; modelo {model_review['status']} ({model_review.get('model')}"
+                                + (", respaldo" if model_review.get("fallback_used") else "") + ")"
+                                if model_review else ""))],
     }
 
 

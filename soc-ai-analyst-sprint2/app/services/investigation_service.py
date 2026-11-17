@@ -63,8 +63,8 @@ class InvestigationService:
                 job = await asyncio.to_thread(self.store.analysis_status, case_id)
                 if job is None or job["status"] != "queued":
                     return None
+            saved = await asyncio.to_thread(self.store.get_investigation, case_id)
             if not force:
-                saved = await asyncio.to_thread(self.store.get_investigation, case_id)
                 status = await asyncio.to_thread(self.store.analysis_status, case_id)
                 if saved is not None and status:
                     if status["status"] == "completed":
@@ -94,6 +94,9 @@ class InvestigationService:
                     timeout=300,
                 )
                 result = self._result(case_id, run_id, state)
+                if saved is not None:
+                    result["revision"] = int(saved.get("revision", 1)) + 1
+                    result["instruction_history"] = saved.get("instruction_history", [])
                 await asyncio.to_thread(
                     self.store.save_investigation,
                     case_id,
