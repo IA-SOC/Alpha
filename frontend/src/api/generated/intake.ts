@@ -123,6 +123,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cases/{case_id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read persisted investigation revisions */
+        get: operations["read_revisions_api_v1_cases__case_id__revisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cases/{case_id}/report": {
         parameters: {
             query?: never;
@@ -183,6 +200,23 @@ export interface paths {
         };
         /** Export Investigation */
         get: operations["export_investigation_api_v1_cases__case_id__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{case_id}/export/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Investigation Pdf */
+        get: operations["export_investigation_pdf_api_v1_cases__case_id__export_pdf_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -359,6 +393,27 @@ export interface components {
             correlation?: components["schemas"]["Correlation"];
             /** Enrichments */
             enrichments?: components["schemas"]["Enrichment"][];
+        };
+        /** InvestigationRevisionResponse */
+        InvestigationRevisionResponse: {
+            /**
+             * Case Id
+             * Format: uuid
+             */
+            case_id: string;
+            /** Revision */
+            revision: number;
+            /** Run Id */
+            run_id: string;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** InvestigationSummary */
         InvestigationSummary: {
@@ -759,6 +814,37 @@ export interface operations {
             };
         };
     };
+    read_revisions_api_v1_cases__case_id__revisions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvestigationRevisionResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_report_api_v1_cases__case_id__report_get: {
         parameters: {
             query?: never;
@@ -863,6 +949,37 @@ export interface operations {
         };
     };
     export_investigation_api_v1_cases__case_id__export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_investigation_pdf_api_v1_cases__case_id__export_pdf_get: {
         parameters: {
             query?: never;
             header?: never;
