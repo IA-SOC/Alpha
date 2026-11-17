@@ -6,6 +6,7 @@ from uuid import UUID
 
 from agent.llm import get_provider, review_timeout_seconds
 from app.schemas.chat import AnalystMessage, AssistantAnswer
+from app.services.export_redaction import redact_export
 from core.llm_guard import _safe
 
 
@@ -80,25 +81,34 @@ class ChatService:
                 )
             )
             stats = {"redacted_fields": 0}
-            evidence = {ref: _safe(catalog[ref], 1000, stats) for ref in refs}
             saved = await asyncio.to_thread(self.store.get_investigation, case_id)
             accepted = await asyncio.to_thread(self.store.get_by_id, case_id)
-            case_context = _safe(
+            # One pass over everything that leaves: a secret found in one fragment
+            # (raw_alert.apiToken) must also be removed where it is copied elsewhere.
+            outgoing = redact_export(
                 {
-                    "title": accepted.submitted_case.title,
-                    "description": accepted.submitted_case.description,
-                    "executive_summary": saved["report"].get("executive_summary"),
-                    "limitations": saved["report"].get("limitations", []),
-                    "review": saved["report"].get("review"),
-                },
-                2000,
-                stats,
+                    "evidence": [catalog[ref] for ref in refs],
+                    "case_context": {
+                        "title": accepted.submitted_case.title,
+                        "description": accepted.submitted_case.description,
+                        "executive_summary": saved["report"].get("executive_summary"),
+                        "limitations": saved["report"].get("limitations", []),
+                        "review": saved["report"].get("review"),
+                    },
+                    "messages": history[-20:],
+                    "current_message": request.message,
+                }
             )
+            evidence = {
+                ref: _safe(item, 1000, stats)
+                for ref, item in zip(refs, outgoing["evidence"])
+            }
+            case_context = _safe(outgoing["case_context"], 2000, stats)
             context = {
                 "case_context": case_context,
                 "case_id": str(case_id),
-                "messages": history[-20:],
-                "current_message": request.message,
+                "messages": outgoing["messages"],
+                "current_message": outgoing["current_message"],
                 "requested_evidence_refs": request.evidence_refs,
                 "evidence": evidence,
                 "limitations": [

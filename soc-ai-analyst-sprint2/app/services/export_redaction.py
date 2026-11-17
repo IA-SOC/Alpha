@@ -28,9 +28,22 @@ _FIELDS = {
     "credential",
     "connectionstring",
 }
+_FIELD_SUFFIXES = {
+    "token",
+    "secret",
+    "password",
+    "passwd",
+    "apikey",
+    "privatekey",
+    "secretkey",
+    "accesskey",
+    "credential",
+    "credentials",
+}
 _ASSIGNMENT = re.compile(
-    r"""(?ix)\b(password|passwd|pwd|client[_-]?secret|api[_-]?key|"""
-    r"""access[_-]?token|refresh[_-]?token|secret|token)["']?\s*[=:]\s*"""
+    # Keys may carry a prefix (api_token, db-password): \b alone misses the "_".
+    r"""(?ix)\b([\w.-]*(?:password|passwd|pwd|secret|token|api[_-]?key))"""
+    r"""["']?\s*[=:]\s*"""
     r"""("[^"\r\n]*"|'[^'\r\n]*'|[^\s&,;]+)"""
 )
 _AUTH = re.compile(r"(?i)\b(Bearer|Basic)\s+[A-Za-z0-9+/_.=~-]+")
@@ -45,7 +58,12 @@ _URL_AUTH = re.compile(r"(\b[a-zA-Z][a-zA-Z0-9+.-]*://)[^\s/@]+:[^\s/@]+@")
 def _restricted(field: str) -> bool:
     # Support nested, dotted and JSON Pointer field names.
     parts = re.split(r"[./]", field)
-    return any(re.sub(r"[^a-z0-9]", "", part.lower()) in _FIELDS for part in parts)
+    return any(
+        normalized in _FIELDS
+        or any(normalized.endswith(suffix) for suffix in _FIELD_SUFFIXES)
+        for part in parts
+        if (normalized := re.sub(r"[^a-z0-9]", "", part.lower()))
+    )
 
 
 def redact_export(document: dict) -> dict:
@@ -72,6 +90,8 @@ def redact_export(document: dict) -> dict:
 
     collect(document)
     secrets.discard("")
+    # shortcut: short secrets avoid global replacement because it corrupts text.
+    secrets = {secret for secret in secrets if len(secret) >= 8}
     secret_pattern = (
         re.compile(
             "|".join(re.escape(s) for s in sorted(secrets, key=len, reverse=True))
