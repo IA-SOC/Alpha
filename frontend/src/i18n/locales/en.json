@@ -250,12 +250,26 @@
       "initialAssessment": "Initial assessment",
       "initialGaps": "What is still unknown",
       "initialRejected": "Gemini's initial assessment was discarded because it did not pass validation.",
+      "actionsTitle": "Suggested actions",
+      "actionsNote": "Gemini suggests these for you to review; none has been run.",
+      "needsApproval": "Needs human approval",
+      "priority": {
+        "urgent": "Urgent",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "candidatesTitle": "Candidate hypotheses",
+      "candidatesNote": "Not confirmed. Gemini proposes these from alerts the rules could not map.",
+      "candidate": "Candidate",
       "noReview": "This run did not ask Gemini for a second opinion.",
       "reason": "Reason:",
       "nothingToAssess": "The rules raised no hypotheses, so Gemini had nothing to assess.",
       "noItems": "Gemini gave no assessment backed by the case evidence.",
       "rejected_one": "{{count}} answer from Gemini was dropped because it cited evidence outside its hypothesis or broke the expected format.",
       "rejected_other": "{{count}} answers from Gemini were dropped because they cited evidence outside their hypothesis or broke the expected format.",
+      "extrasRejected_one": "{{count}} suggested item was discarded because it did not pass validation.",
+      "extrasRejected_other": "{{count}} suggested items were discarded because they did not pass validation.",
       "unknownHypothesis": "Hypothesis not found in the report",
       "assessment": {
         "supports": "Backs it",
@@ -509,6 +523,7 @@
       "noUnknowns": "None listed."
     },
     "modelReviewUnavailable": "The rules-based report is available. Gemini’s second opinion could not be completed.",
+    "exportPdf": "Export PDF",
     "modelReview": {
       "secondOpinion": "Second opinion: {{model}} · {{date}}",
       "secondOpinionNoDate": "Second opinion: {{model}}",

@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 from uuid import UUID, uuid4
 
@@ -142,6 +143,61 @@ def test_contract_evidence_catalog_and_missing_cases(chat):
         "/api/v1/cases", json=case.model_dump(exclude_unset=True)
     ).json()["case_id"]
     assert send(client, pending).status_code == 409
+
+
+def test_gemini_context_redacts_case_and_raw_alert_credentials(chat):
+    client, app, _, contexts = chat
+    alert = event("credential-alert")
+    alert["raw_alert"].update(
+        {"apiToken": "synthetic-secret-176", "password": "synthetic-pass-176"}
+    )
+    case = case_for(alert)
+    case.case_id = "credential-case"
+    case.title = "token=synthetic-secret-176"
+    case.description = "token=synthetic-secret-176"
+    case_id = client.post(
+        "/api/v1/cases", json=case.model_dump(exclude_unset=True)
+    ).json()["case_id"]
+    app.state.investigation_service.store.save_investigation(
+        UUID(case_id),
+        {"case_id": case_id, "run_id": "credential-run", "report": {}},
+    )
+    response = send(client, case_id)
+
+    assert response.status_code == 200
+    serialized = json.dumps(contexts[0])
+    assert "synthetic-secret-176" not in serialized
+    assert "synthetic-pass-176" not in serialized
+
+
+def test_secret_found_in_one_fragment_is_removed_from_all_fragments(chat):
+    client, app, _, contexts = chat
+    secret = "review-synthetic-secret-192"
+    alert = event("cross-fragment-alert")
+    alert["raw_alert"]["apiToken"] = secret
+    case = case_for(alert)
+    case.case_id = "cross-fragment-case"
+    case.description = f"Copied value {secret}"
+    case_id = client.post(
+        "/api/v1/cases", json=case.model_dump(exclude_unset=True)
+    ).json()["case_id"]
+    app.state.investigation_service.store.save_investigation(
+        UUID(case_id),
+        {
+            "case_id": case_id,
+            "run_id": "cross-fragment-run",
+            "report": {
+                "executive_summary": f"Observed value {secret}",
+                "limitations": [f"Also seen {secret}"],
+            },
+        },
+    )
+    assert send(client, case_id, message=f"Why {secret}?").status_code == 200
+    # The second turn replays the first one as history.
+    assert send(client, case_id).status_code == 200
+
+    for context in contexts[-2:]:
+        assert secret not in json.dumps(context)
 
 
 def test_history_survives_backend_restart(chat):

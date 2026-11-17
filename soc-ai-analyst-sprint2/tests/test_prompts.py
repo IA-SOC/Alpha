@@ -6,12 +6,19 @@ import pytest
 
 from agent.prompts import load_prompts, output_shape, prompt_version, system_instruction
 
-TASKS = ["review", "initial_assessment", "hypotheses", "evidence", "suggested_actions"]
+TASKS = [
+    "review",
+    "initial_assessment",
+    "hypotheses",
+    "evidence",
+    "suggested_actions",
+    "candidate_hypotheses",
+]
 
 
 def test_prompt_set_is_versioned():
     assert re.fullmatch(r"\d+\.\d+\.\d+", prompt_version())
-    assert prompt_version() == "1.1.0"
+    assert prompt_version() == "1.2.0"
     assert load_prompts()["skill"] == "soc-case-investigator"
 
 
@@ -27,8 +34,12 @@ def test_output_tasks_declare_their_shape(task):
 
 def test_review_declares_the_initial_assessment_shape():
     assert output_shape("review")["initial_assessment"] == {
-        "assessment": "string", "cited_alert_ids": ["string"], "gaps": ["string"]
+        "assessment": "string",
+        "cited_alert_ids": ["string"],
+        "gaps": ["string"],
     }
+    assert output_shape("review")["suggested_actions"]
+    assert output_shape("review")["candidate_hypotheses"]
 
 
 @pytest.mark.parametrize("task", ["system", *TASKS])

@@ -19,7 +19,8 @@ NEGATION = re.compile(r"\b(?:not|no|never|without|sin|ni)\b|n't", re.IGNORECASE)
 PRIORITIES = {"low", "medium", "high", "urgent"}
 TASK_KEYS = {"initial_assessment": ("assessment", "cited_alert_ids", "gaps"),
              "evidence": ("rank", "for", "against"),
-             "suggested_actions": ("action", "priority", "rationale", "cited_alert_ids")}
+             "suggested_actions": ("action", "priority", "rationale", "cited_alert_ids"),
+             "candidate_hypotheses": ("statement", "rationale", "cited_alert_ids")}
 
 
 def _safe(value: Any, max_chars: int, stats: Dict[str, int]) -> Any:
@@ -209,7 +210,7 @@ def _refs_ok(refs: Any, allowed: set) -> bool:
 
 
 def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict,
-                        fields: dict) -> Optional[str]:
+                        fields: dict, unmapped: set) -> Optional[str]:
     if not isinstance(entry, dict):
         return "salida no es objeto"
     gaps = entry.get("gaps")
@@ -223,7 +224,7 @@ def _initial_assessment(entry: Any, techniques: set, allowed: set, ranks: dict,
 
 
 def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict,
-              fields: dict) -> Optional[str]:
+              fields: dict, unmapped: set) -> Optional[str]:
     if not isinstance(entry, dict):
         return "item no es objeto"
     rank = entry.get("rank")
@@ -246,7 +247,7 @@ def _evidence(entry: Any, techniques: set, allowed: set, ranks: dict,
 
 
 def _action(entry: Any, techniques: set, allowed: set, ranks: dict,
-            fields: dict) -> Optional[str]:
+            fields: dict, unmapped: set) -> Optional[str]:
     if not isinstance(entry, dict):
         return "item no es objeto"
     if not isinstance(entry.get("priority"), str) or entry["priority"] not in PRIORITIES:
@@ -256,7 +257,23 @@ def _action(entry: Any, techniques: set, allowed: set, ranks: dict,
     return _text(entry.get("action"), techniques, 300) or _text(entry.get("rationale"), techniques)
 
 
-TASK_CHECKS = {"initial_assessment": _initial_assessment, "evidence": _evidence, "suggested_actions": _action}
+def _candidate_hypothesis(entry: Any, techniques: set, allowed: set, ranks: dict,
+                          fields: dict, unmapped: set) -> Optional[str]:
+    if not isinstance(entry, dict):
+        return "item no es objeto"
+    if not unmapped:
+        return "sin alertas sin mapear"
+    cited = entry.get("cited_alert_ids")
+    if not _refs_ok(cited, allowed):
+        return "referencias inválidas"
+    if not set(cited).intersection(unmapped):
+        return "sin alertas sin mapear"
+    return (_text(entry.get("statement"), techniques, 300)
+            or _text(entry.get("rationale"), techniques, 600))
+
+
+TASK_CHECKS = {"initial_assessment": _initial_assessment, "evidence": _evidence,
+               "suggested_actions": _action, "candidate_hypotheses": _candidate_hypothesis}
 
 
 def check_task_output(task: str, output: Any, context: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
@@ -284,13 +301,14 @@ def check_task_output(task: str, output: Any, context: Dict[str, Any]) -> Dict[s
     for alert in alert_views:
         fields.setdefault(str(alert.get("id")), set()).update(alert)
     techniques = _techniques(context)
+    unmapped = {str(alert_id) for alert_id in context.get("unmapped_alert_ids", [])}
     valid, rejected, seen = [], [], set()
     for index, entry in enumerate(entries):
         rank = entry.get("rank") if isinstance(entry, dict) else None
         if task == "evidence" and type(rank) is int and rank in seen:
             reason = "rango duplicado"
         else:
-            reason = check(entry, techniques, allowed, ranks, fields)
+            reason = check(entry, techniques, allowed, ranks, fields, unmapped)
         if reason:
             rejected.append({"index": index, "reason": reason})
             continue

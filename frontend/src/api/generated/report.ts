@@ -27,6 +27,11 @@ export interface SOCInvestigationReport {
      */
     evidence: [Evidence, ...Evidence[]];
     source_version?: string | null;
+    mapping_source?: "wazuh_rule_mitre" | "local_catalog" | "mixed";
+    alert_mapping_sources?: {
+      [k: string]: "wazuh_rule_mitre" | "local_catalog";
+    };
+    ambiguous?: boolean;
     [k: string]: unknown;
   }[];
   hypotheses: ((
@@ -179,6 +184,7 @@ export interface SOCInvestigationReport {
 export interface Evidence {
   alert_id: string;
   role: "supporting" | "contradicting" | "context";
+  mapping_source?: "wazuh_rule_mitre" | "local_catalog";
   fields?: string[];
   observation: string;
   relevance: string;

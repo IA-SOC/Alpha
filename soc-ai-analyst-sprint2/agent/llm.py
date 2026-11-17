@@ -9,6 +9,7 @@ from typing import Any, Callable, Dict, Optional, Tuple
 import httpx
 
 from agent.prompts import language_instruction, prompt_version, system_instruction
+from app.services.export_redaction import redact_export
 from core.i18n import tr
 
 # The SDK uses httpx, whose timeout/connect errors do not inherit from OSError.
@@ -103,6 +104,18 @@ class MockProvider:
                     "The host context still needs analyst confirmation.",
                 )],
             }
+            output["suggested_actions"] = [{
+                "action": "Revisar manualmente las alertas citadas.",
+                "priority": "low",
+                "rationale": "Acción determinista de prueba; requiere revisión humana.",
+                "cited_alert_ids": [context["alerts"][0]["id"]],
+            }]
+        if context.get("unmapped_alert_ids"):
+            output["candidate_hypotheses"] = [{
+                "statement": "Actividad sin técnica asignada que requiere revisión humana.",
+                "rationale": "Alertas sin mapeo MITRE en el contexto.",
+                "cited_alert_ids": [context["unmapped_alert_ids"][0]],
+            }]
         return output, {"input_tokens": 0, "output_tokens": 0}
 
 
@@ -225,7 +238,7 @@ class GeminiProvider:
                 {"temperature": 0, "response_mime_type": "application/json",
                         "max_output_tokens": self.max_output_tokens,
                         "thinking_config": self._thinking_config(),
-                        "response_schema": {"type": "OBJECT", "properties": {"items": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {"rank": {"type": "INTEGER"}, "assessment": {"type": "STRING", "enum": ["supports", "weak", "contradicts"]}, "explanation": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["rank", "assessment", "explanation", "cited_alert_ids"]}}, "initial_assessment": {"type": "OBJECT", "properties": {"assessment": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}, "gaps": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["assessment", "cited_alert_ids", "gaps"]}}, "required": ["items", "initial_assessment"]},
+                        "response_schema": {"type": "OBJECT", "properties": {"items": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {"rank": {"type": "INTEGER"}, "assessment": {"type": "STRING", "enum": ["supports", "weak", "contradicts"]}, "explanation": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["rank", "assessment", "explanation", "cited_alert_ids"]}}, "initial_assessment": {"type": "OBJECT", "properties": {"assessment": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}, "gaps": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["assessment", "cited_alert_ids", "gaps"]}, "suggested_actions": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {"action": {"type": "STRING"}, "priority": {"type": "STRING", "enum": ["low", "medium", "high", "urgent"]}, "rationale": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["action", "priority", "rationale", "cited_alert_ids"]}}, "candidate_hypotheses": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {"statement": {"type": "STRING"}, "rationale": {"type": "STRING"}, "cited_alert_ids": {"type": "ARRAY", "items": {"type": "STRING"}}}, "required": ["statement", "rationale", "cited_alert_ids"]}}}, "required": ["items", "initial_assessment", "suggested_actions", "candidate_hypotheses"]},
                         "system_instruction": instruction,
                         "http_options": {"timeout": review_timeout_seconds() * 1000}},
             )
@@ -319,6 +332,7 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
         if correlation is not None:
             context_args["correlation"] = correlation
         context = await guard_call("prepare_model_context", context_args)
+        context = redact_export(context)
         # Blocking HTTP call: run it off the event loop that serves the MCP sessions.
         # Margin so the provider's own deadline fires first and records why.
         timeout = review_timeout_seconds() + 5 if provider.name == "gemini" else None
@@ -357,6 +371,28 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
         except Exception:
             initial_assessment_rejected = True
             initial_assessment_reason = "validation_error"
+
+    async def checked_items(task: str, limit: int) -> Tuple[list, int]:
+        entries = output.get(task) if isinstance(output, dict) else None
+        if entries is None:
+            return [], 0  # omitted, not malformed: nothing to count as discarded
+        if not isinstance(entries, list):
+            return [], 1
+        try:
+            result = await guard_call(
+                "check_task_output",
+                {"task": task, "output": {"items": entries}, "context": context},
+            )
+            return result.get("items", [])[:limit], len(result.get("rejected", []))
+        except Exception:
+            return [], len(entries)
+
+    suggested_actions, suggested_actions_rejected = await checked_items("suggested_actions", 5)
+    candidate_hypotheses, candidate_hypotheses_rejected = await checked_items("candidate_hypotheses", 3)
+    suggested_actions = [{**action, "requires_human_approval": True, "source": "model"}
+                         for action in suggested_actions]
+    candidate_hypotheses = [{**candidate, "status": "candidate", "source": "model"}
+                            for candidate in candidate_hypotheses]
     answered_by = getattr(provider, "last_model", None)
     attempts = list(getattr(provider, "last_attempts", []))
     fallback_used = answered_by not in (None, provider.model)
@@ -373,4 +409,8 @@ async def build_model_review(alerts: list, hypotheses: list, guard_call: Callabl
             "rejected_count": len(checked["rejected"]),
             "initial_assessment": initial_assessment,
             "initial_assessment_rejected": initial_assessment_rejected,
-            "initial_assessment_reason": initial_assessment_reason}
+            "initial_assessment_reason": initial_assessment_reason,
+            "suggested_actions": suggested_actions,
+            "suggested_actions_rejected": suggested_actions_rejected,
+            "candidate_hypotheses": candidate_hypotheses,
+            "candidate_hypotheses_rejected": candidate_hypotheses_rejected}
