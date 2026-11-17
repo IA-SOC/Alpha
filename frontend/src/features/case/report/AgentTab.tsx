@@ -2,7 +2,15 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
-import type { AnalysisStatus, Hypothesis, Investigation, ModelReview, ModelReviewItem } from '../../../api/types'
+import type {
+  AnalysisStatus,
+  Hypothesis,
+  Investigation,
+  ModelCandidateHypothesis,
+  ModelReview,
+  ModelReviewItem,
+  ModelSuggestedAction,
+} from '../../../api/types'
 import { textActionClass } from '../../../ui/buttons'
 import { formatJobTime, isWorking } from '../analysis'
 import { asEvidence } from './extras'
@@ -61,6 +69,12 @@ function SecondOpinion({ review, hypotheses }: { review?: ModelReview; hypothese
     )
   } else {
     const items = [...(review.items ?? [])].sort((a, b) => a.rank - b.rank)
+    const suggestedActions = review.suggested_actions ?? []
+    const candidateHypotheses = review.candidate_hypotheses ?? []
+    const hasSuggestedActions = suggestedActions.length > 0
+    const hasCandidateHypotheses = candidateHypotheses.length > 0
+    const extrasRejectedCount = (review.suggested_actions_rejected ?? 0) + (review.candidate_hypotheses_rejected ?? 0)
+
     body = (
       <>
         {review.initial_assessment ? (
@@ -71,7 +85,7 @@ function SecondOpinion({ review, hypotheses }: { review?: ModelReview; hypothese
             {t('report.agent.initialRejected')}
           </p>
         ) : null}
-        {items.length === 0 && hypotheses.length === 0 && !review.initial_assessment ? (
+        {items.length === 0 && hypotheses.length === 0 && !review.initial_assessment && !hasSuggestedActions && !hasCandidateHypotheses ? (
           <Empty>{t('report.agent.nothingToAssess')}</Empty>
         ) : null}
         {items.length === 0 && hypotheses.length > 0 ? (
@@ -83,6 +97,33 @@ function SecondOpinion({ review, hypotheses }: { review?: ModelReview; hypothese
               <OpinionCard key={item.rank} item={item} hypothesis={hypotheses.find((entry) => entry.rank === item.rank)} />
             ))}
           </div>
+        )}
+        {hasSuggestedActions && (
+          <div className="mt-6">
+            <h3 className="text-sm font-medium">{t('report.agent.actionsTitle')}</h3>
+            <p className="mt-1 text-sm text-muted">{t('report.agent.actionsNote')}</p>
+            <div className="mt-4 space-y-4">
+              {suggestedActions.map((action, index) => (
+                <SuggestedActionCard key={`${action.action}-${index}`} item={action} />
+              ))}
+            </div>
+          </div>
+        )}
+        {hasCandidateHypotheses && (
+          <div className="mt-6">
+            <h3 className="text-sm font-medium">{t('report.agent.candidatesTitle')}</h3>
+            <p className="mt-1 text-sm text-muted">{t('report.agent.candidatesNote')}</p>
+            <div className="mt-4 space-y-4">
+              {candidateHypotheses.map((hypothesis, index) => (
+                <CandidateHypothesisCard key={`${hypothesis.statement}-${index}`} item={hypothesis} />
+              ))}
+            </div>
+          </div>
+        )}
+        {extrasRejectedCount > 0 && (
+          <p className="mt-4 border-l-4 border-state-warn pl-3 text-sm">
+            {t('report.agent.extrasRejected', { count: extrasRejectedCount })}
+          </p>
         )}
         {(review.rejected_count ?? 0) > 0 && (
           <p className="mt-4 border-l-4 border-state-warn pl-3 text-sm">
@@ -159,6 +200,53 @@ function OpinionCard({ item, hypothesis }: { item: ModelReviewItem; hypothesis?:
           <AlertIds ids={loose} />
         </p>
       )}
+    </article>
+  )
+}
+
+function SuggestedActionCard({ item }: { item: ModelSuggestedAction }) {
+  const { t } = useTranslation()
+
+  return (
+    <article className="rounded-xl border border-control p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+        <h4 className="text-sm font-bold">{item.action}</h4>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Chip>{t(`report.agent.priority.${item.priority}`)}</Chip>
+          {item.requires_human_approval && <Chip>{t('report.agent.needsApproval')}</Chip>}
+        </div>
+      </div>
+      <p className="mt-2 text-sm">{item.rationale}</p>
+      {item.cited_alert_ids && item.cited_alert_ids.length > 0 ? (
+        <div className="mt-4">
+          <h4 className="text-xs text-muted">{t('report.agent.cited', { count: item.cited_alert_ids.length })}</h4>
+          <p className="mt-2 text-sm">
+            <AlertIds ids={item.cited_alert_ids} />
+          </p>
+        </div>
+      ) : null}
+    </article>
+  )
+}
+
+function CandidateHypothesisCard({ item }: { item: ModelCandidateHypothesis }) {
+  const { t } = useTranslation()
+
+  return (
+    <article className="rounded-xl border border-control p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+        <h4 className="text-sm font-medium">{item.statement}</h4>
+        <Chip>{t('report.agent.candidate')}</Chip>
+      </div>
+      <p className="mt-2 text-sm">{item.rationale}</p>
+      {item.cited_alert_ids && item.cited_alert_ids.length > 0 ? (
+        <div className="mt-4">
+          <h4 className="text-xs text-muted">{t('report.agent.cited', { count: item.cited_alert_ids.length })}</h4>
+          <p className="mt-2 text-sm">
+            <AlertIds ids={item.cited_alert_ids} />
+          </p>
+        </div>
+      ) : null}
     </article>
   )
 }

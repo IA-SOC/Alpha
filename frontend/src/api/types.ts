@@ -58,6 +58,23 @@ export interface ModelReviewItem {
   cited_alert_ids: string[]
 }
 
+export interface ModelSuggestedAction {
+  action: string
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  rationale: string
+  cited_alert_ids: string[]
+  requires_human_approval: boolean
+  source: 'model'
+}
+
+export interface ModelCandidateHypothesis {
+  statement: string
+  rationale: string
+  cited_alert_ids: string[]
+  status: 'candidate'
+  source: 'model'
+}
+
 // One call to a Gemini model; outcome is ok, http_<status>, timeout, connection, invalid_response or error.
 export interface ModelReviewAttempt {
   model: string
@@ -82,6 +99,10 @@ export interface ModelReview {
   rejected_count?: number
   initial_assessment?: { assessment: string; cited_alert_ids: string[]; gaps: string[] } | null
   initial_assessment_rejected?: boolean
+  suggested_actions?: ModelSuggestedAction[]
+  suggested_actions_rejected?: number
+  candidate_hypotheses?: ModelCandidateHypothesis[]
+  candidate_hypotheses_rejected?: number
 }
 
 // The case chat from app/api/routes/chat.py and app/services/chat_service.py. No response models

@@ -228,6 +228,118 @@ describe('Agent analysis tab', () => {
       screen.queryByText("Gemini's initial assessment was discarded because it did not pass validation."),
     ).not.toBeInTheDocument()
   })
+
+  it('shows Gemini’s suggested actions with priority, approval chip, rationale, alert IDs and note', async () => {
+    const review: ModelReview = {
+      ...okReview,
+      suggested_actions: [
+        {
+          action: 'Isolate host web-01 from network',
+          priority: 'urgent',
+          rationale: 'Prevent lateral movement following repeated authentication failures.',
+          cited_alert_ids: ['wazuh-auth-002'],
+          requires_human_approval: true,
+          source: 'model',
+        },
+      ],
+    }
+    open(json(200, withReview(review)))
+
+    expect(await screen.findByRole('heading', { name: 'Suggested actions' })).toBeInTheDocument()
+    expect(screen.getByText('Gemini suggests these for you to review; none has been run.')).toBeInTheDocument()
+
+    const card = screen.getByText('Isolate host web-01 from network').closest('article')!
+    expect(within(card).getByText('Urgent')).toBeInTheDocument()
+    expect(within(card).getByText('Needs human approval')).toBeInTheDocument()
+    expect(within(card).getByText('Prevent lateral movement following repeated authentication failures.')).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: 'Open alert wazuh-auth-002 in Evidence' })).toBeInTheDocument()
+  })
+
+  it('shows Gemini’s candidate hypotheses with statement, note and candidate chip', async () => {
+    const review: ModelReview = {
+      ...okReview,
+      candidate_hypotheses: [
+        {
+          statement: 'Possible credential stuffing targeting web-01',
+          rationale: 'High frequency failed logins across several accounts.',
+          cited_alert_ids: ['wazuh-auth-002'],
+          status: 'candidate',
+          source: 'model',
+        },
+      ],
+    }
+    open(json(200, withReview(review)))
+
+    expect(await screen.findByRole('heading', { name: 'Candidate hypotheses' })).toBeInTheDocument()
+    expect(
+      screen.getByText('Not confirmed. Gemini proposes these from alerts the rules could not map.'),
+    ).toBeInTheDocument()
+
+    const card = screen.getByText('Possible credential stuffing targeting web-01').closest('article')!
+    expect(within(card).getByText('Candidate')).toBeInTheDocument()
+    expect(within(card).getByText('High frequency failed logins across several accounts.')).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: 'Open alert wazuh-auth-002 in Evidence' })).toBeInTheDocument()
+  })
+
+  it('shows a warning with the sum of rejected suggested actions and candidate hypotheses', async () => {
+    const review: ModelReview = {
+      ...okReview,
+      suggested_actions_rejected: 2,
+      candidate_hypotheses_rejected: 1,
+    }
+    open(json(200, withReview(review)))
+
+    expect(
+      await screen.findByText('3 suggested items were discarded because they did not pass validation.'),
+    ).toBeInTheDocument()
+  })
+
+  it('omits nothingToAssess when 0 hypotheses exist but suggested actions are present', async () => {
+    const review: ModelReview = {
+      ...okReview,
+      items: [],
+      rejected_count: 0,
+      initial_assessment: null,
+      suggested_actions: [
+        {
+          action: 'Revoke active sessions for compromised account',
+          priority: 'high',
+          rationale: 'Session anomaly detected.',
+          cited_alert_ids: ['ecs-auth-001'],
+          requires_human_approval: false,
+          source: 'model',
+        },
+      ],
+    }
+    open(
+      json(
+        200,
+        withReview(review, (copy) => {
+          copy.report.hypotheses = []
+        }),
+      ),
+    )
+
+    expect(await screen.findByRole('heading', { name: 'Suggested actions' })).toBeInTheDocument()
+    expect(screen.getByText('Revoke active sessions for compromised account')).toBeInTheDocument()
+    expect(screen.queryByText('The rules raised no hypotheses, so Gemini had nothing to assess.')).not.toBeInTheDocument()
+  })
+
+  it('preserves existing behavior when suggested actions and candidate hypotheses are absent', async () => {
+    open(
+      json(
+        200,
+        withReview({ ...okReview, items: [], rejected_count: 0 }, (copy) => {
+          copy.report.hypotheses = []
+        }),
+      ),
+    )
+
+    expect(await screen.findByText('The rules raised no hypotheses, so Gemini had nothing to assess.')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Suggested actions' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Candidate hypotheses' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/suggested item/)).not.toBeInTheDocument()
+  })
 })
 
 describe('Automatic analysis on the case page', () => {
