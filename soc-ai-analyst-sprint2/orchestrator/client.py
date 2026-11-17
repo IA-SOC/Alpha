@@ -33,7 +33,7 @@ SERVERS = {
     "context": ROOT / "servers" / "context_server.py",
 }
 # MCP subprocesses get a minimal environment; forward only non-secret settings they need.
-FORWARDED_ENV = ("CONTEXT_DB_PATH",)
+FORWARDED_ENV = ("CONTEXT_DB_PATH", "REPORT_LANGUAGE")
 
 
 class McpToolClient:

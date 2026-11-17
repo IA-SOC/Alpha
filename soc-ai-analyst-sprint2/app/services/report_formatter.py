@@ -5,6 +5,8 @@ import json
 import re
 from copy import deepcopy
 
+from core.i18n import language
+
 VERSION = "soc-audiences-rules-v1"
 CONFIDENCE = {
     "alta": "high",
@@ -192,13 +194,25 @@ def _technical_findings(report):
 
     findings = []
     for i, hypothesis in enumerate(report["hypotheses"]):
-        findings.append(
-            _claim(
+        if language() == "en":
+            text = (
+                f"Hypothesis {hypothesis['rank']}: {hypothesis['statement']} "
+                f"Confidence: {CONFIDENCE[hypothesis['confidence']]} (ordinal); basis: "
+                f"{hypothesis.get('confidence_basis', 'not recorded')} "
+            )
+        else:
+            text = (
                 f"Hypothesis {hypothesis['rank']} (original wording): "
                 f"{hypothesis['statement']} Confidence: "
                 f"{CONFIDENCE[hypothesis['confidence']]} (ordinal); basis (original "
                 f"wording): {hypothesis.get('confidence_basis', 'not recorded')} "
-                f"Supporting alerts: {ids(hypothesis['evidence_for'], 'alert_id')}. "
+            )
+        findings.append(
+            _claim(
+                text
+                + "Supporting alerts: "
+                + ids(hypothesis["evidence_for"], "alert_id")
+                + ". "
                 "Contradicting alerts: "
                 f"{ids(hypothesis['evidence_against'], 'alert_id')}. "
                 "Linked intelligence records: "
@@ -289,7 +303,7 @@ def format_report(report: dict) -> dict:
     for i, action in enumerate(report["recommended_actions"]):
         wording = ACTION_TEXT.get(action["action"])
         if wording is None:
-            wording = (
+            wording = action["action"] if language() == "en" else (
                 "Review the proposed action in the technical section "
                 "(original wording retained)"
             )
@@ -341,13 +355,17 @@ def format_report(report: dict) -> dict:
     for i, limitation in enumerate(report["limitations"]):
         wording = LIMITATION_TEXT.get(limitation)
         if wording is None:
-            wording = "Source limitation (original wording): " + limitation
+            wording = limitation if language() == "en" else (
+                "Source limitation (original wording): " + limitation
+            )
         limitations.append(_claim(wording, f"/limitations/{i}"))
     for i, hypothesis in enumerate(report["hypotheses"]):
         for j, unknown in enumerate(hypothesis["unknowns"]):
             wording = LIMITATION_TEXT.get(unknown)
             if wording is None:
-                wording = "Open question (original wording): " + unknown
+                wording = unknown if language() == "en" else (
+                    "Open question (original wording): " + unknown
+                )
             limitations.append(
                 _claim(
                     f"Hypothesis {hypothesis['rank']}: {wording}",

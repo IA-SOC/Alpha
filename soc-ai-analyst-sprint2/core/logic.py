@@ -14,6 +14,8 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from core.i18n import tr
+
 # ---------------------------------------------------------------------------
 # Catálogo de reglas MITRE ATT&CK (ampliar con la guía real del cliente)
 # ---------------------------------------------------------------------------
@@ -74,30 +76,55 @@ TACTIC_TO_STAGE = {
     "Impact": "impact",
 }
 
-ACTIONS_BY_TACTIC = {
+_ACTIONS_BY_TACTIC = {
     "Credential Access": [
-        "Forzar rotación de credenciales de las cuentas involucradas",
-        "Habilitar/reforzar MFA en los hosts afectados",
+        ("Forzar rotación de credenciales de las cuentas involucradas",
+         "Require password changes for the accounts involved"),
+        ("Habilitar/reforzar MFA en los hosts afectados",
+         "Enable or strengthen multi-factor authentication on the systems involved"),
     ],
     "Lateral Movement": [
-        "Aislar los hosts involucrados de la red",
-        "Revisar reglas de segmentación entre los hosts afectados",
+        ("Aislar los hosts involucrados de la red",
+         "Isolate the systems involved from the network"),
+        ("Revisar reglas de segmentación entre los hosts afectados",
+         "Review network segmentation rules between the systems involved"),
     ],
     "Initial Access": [
-        "Bloquear el vector de entrada identificado (IP, dominio o archivo)",
+        ("Bloquear el vector de entrada identificado (IP, dominio o archivo)",
+         "Block the identified entry vector (IP address, domain, or file)"),
     ],
     "Execution": [
-        "Revisar y deshabilitar los servicios creados recientemente en los hosts afectados",
+        ("Revisar y deshabilitar los servicios creados recientemente en los hosts afectados",
+         "Review and disable recently created services on the systems involved"),
     ],
     "Exfiltration": [
-        "Bloquear las conexiones salientes hacia los destinos identificados",
-        "Notificar al equipo de respuesta a incidentes de exfiltración",
+        ("Bloquear las conexiones salientes hacia los destinos identificados",
+         "Block outbound connections to the identified destinations"),
+        ("Notificar al equipo de respuesta a incidentes de exfiltración",
+         "Notify the incident response team about suspected data exfiltration"),
     ],
     "Impact": [
-        "Aislar inmediatamente los hosts afectados",
-        "Verificar integridad de backups antes de cualquier restauración",
+        ("Aislar inmediatamente los hosts afectados",
+         "Immediately isolate the affected systems"),
+        ("Verificar integridad de backups antes de cualquier restauración",
+         "Verify backup integrity before any restoration"),
     ],
 }
+
+
+class _LocalizedActions(dict):
+    """Dict-compatible action catalogue evaluated when a tactic is read."""
+
+    def get(self, key, default=None):
+        values = _ACTIONS_BY_TACTIC.get(key)
+        return default if values is None else [tr(es, en) for es, en in values]
+
+    def __getitem__(self, key):
+        values = _ACTIONS_BY_TACTIC[key]
+        return [tr(es, en) for es, en in values]
+
+
+ACTIONS_BY_TACTIC = _LocalizedActions(_ACTIONS_BY_TACTIC)
 
 TACTIC_ORDER = ["Initial Access", "Execution", "Credential Access", "Lateral Movement",
                 "Persistence", "Exfiltration", "Impact"]
@@ -193,9 +220,9 @@ def build_timeline(alerts: List[Dict[str, Any]], mappings: List[Dict[str, Any]])
         stage = TACTIC_TO_STAGE.get(tactic, "progression")
         description = alert.get("rule_name", "")
         if alert.get("host"):
-            description += f" en host {alert['host']}"
+            description += tr(f" en host {alert['host']}", f" on host {alert['host']}")
         if alert.get("user"):
-            description += f" (usuario: {alert['user']})"
+            description += tr(f" (usuario: {alert['user']})", f" (user: {alert['user']})")
 
         events.append({
             "alert_id": alert["id"],
@@ -211,7 +238,10 @@ def generate_hypothesis(mappings: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Técnicas MITRE -> hipótesis de ataque rankeada con confianza agregada."""
     if not mappings:
         return {
-            "summary": "No se detectaron patrones que coincidan con técnicas MITRE ATT&CK conocidas.",
+            "summary": tr(
+                "No se detectaron patrones que coincidan con técnicas MITRE ATT&CK conocidas.",
+                "No patterns matching known MITRE ATT&CK techniques were detected.",
+            ),
             "mitre_techniques": [],
             "confidence": 0.0,
             "evidence_alert_ids": [],
@@ -221,8 +251,14 @@ def generate_hypothesis(mappings: List[Dict[str, Any]]) -> Dict[str, Any]:
         mappings,
         key=lambda m: TACTIC_ORDER.index(m["tactic"]) if m["tactic"] in TACTIC_ORDER else 99,
     )
-    steps = [f"{m['technique_name']} ({m['technique_id']}, táctica: {m['tactic']})" for m in ordered]
-    summary = "Secuencia de ataque sugerida: " + " → ".join(steps) + "."
+    steps = [
+        tr(
+            f"{m['technique_name']} ({m['technique_id']}, táctica: {m['tactic']})",
+            f"{m['technique_name']} ({m['technique_id']}, tactic: {m['tactic']})",
+        )
+        for m in ordered
+    ]
+    summary = tr("Secuencia de ataque sugerida: ", "Suggested attack sequence: ") + " → ".join(steps) + "."
 
     all_evidence = sorted({aid for m in mappings for aid in m["supporting_alert_ids"]})
     confidence = round(sum(m["confidence"] for m in mappings) / len(mappings), 2)
@@ -245,7 +281,7 @@ def _blast_radius(alerts_by_id: Dict[str, Dict[str, Any]], evidence_alert_ids: L
             hosts.add(alert["host"])
         if alert.get("user"):
             users.add(alert["user"])
-    return sorted(hosts) + sorted(f"usuario:{u}" for u in users)
+    return sorted(hosts) + sorted(tr(f"usuario:{u}", f"user:{u}") for u in users)
 
 
 def _recommended_actions(hypothesis: Dict[str, Any]) -> List[str]:
@@ -263,8 +299,12 @@ def generate_report(case: Dict[str, Any], timeline: List[Dict[str, Any]],
     alerts_by_id = {a["id"]: a for a in case["alerts"]}
 
     case_summary = (
-        f"Caso {case['case_id']}: {len(case['alerts'])} alertas correlacionadas analizadas. "
-        f"Confianza de la hipótesis principal: {hypothesis['confidence']:.0%}."
+        tr(
+            f"Caso {case['case_id']}: {len(case['alerts'])} alertas correlacionadas analizadas. "
+            f"Confianza de la hipótesis principal: {hypothesis['confidence']:.0%}.",
+            f"Case {case['case_id']}: {len(case['alerts'])} correlated alerts analyzed. "
+            f"Top hypothesis confidence: {hypothesis['confidence']:.0%}.",
+        )
     )
 
     return {

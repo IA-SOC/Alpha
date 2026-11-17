@@ -4,6 +4,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict
 
+from core.i18n import language
+
 PROMPT_FILE = Path(__file__).with_name("soc_investigation_v1.json")
 
 
@@ -19,6 +21,16 @@ def prompt_version() -> str:
 def system_instruction(task: str) -> str:
     """Instrucción de sistema para una tarea; KeyError si la tarea no existe."""
     return load_prompts()["tasks"][task]["instruction"]
+
+
+def language_instruction() -> str:
+    if language() == "es":
+        return ""
+    return (
+        "Write every free-text field of your answer in English (assessment, gaps, "
+        "explanations, actions, rationales, statements), even though the instructions "
+        "above are in Spanish."
+    )
 
 
 def output_shape(task: str) -> Dict[str, Any]:
