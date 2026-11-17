@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.services.evidence import SIGNAL_PATHS, read_field
+from core.i18n import tr
 
 MAX_ALERTS = 50
 
@@ -247,26 +248,40 @@ def normalize_case(case: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str
     if context.get("adapter_version") == "backend-v1":
         warnings.extend(f"{e['alert_id']}: {w}" for e in context["events"] for w in e["warnings"])
     if not alerts:
-        warnings.append("El caso no contiene alertas procesables.")
+        warnings.append(tr("El caso no contiene alertas procesables.", "The case has no processable alerts."))
     if len(alerts) > MAX_ALERTS:
-        warnings.append(
+        warnings.append(tr(
             f"El caso tiene {len(alerts)} alertas (> {MAX_ALERTS}); se procesan todas, "
-            "pero queda fuera del requisito de rendimiento del prototipo."
-        )
+            "pero queda fuera del requisito de rendimiento del prototipo.",
+            f"The case has {len(alerts)} alerts (> {MAX_ALERTS}); all are processed, "
+            "but this exceeds the prototype's performance requirement.",
+        ))
     seen, duplicates = set(), set()
     for a in alerts:
         (duplicates if a["id"] in seen else seen).add(a["id"])
     if duplicates:
-        warnings.append(f"IDs de alerta duplicados: {sorted(duplicates)}")
+        warnings.append(tr(f"IDs de alerta duplicados: {sorted(duplicates)}", f"Duplicate alert IDs: {sorted(duplicates)}"))
     for a in alerts:
         if a["timestamp_problem"] == "timezone_unknown":
-            warnings.append(f"{a['id']}: timestamp sin zona horaria ({a['timestamp_original']}); no se asume UTC.")
+            warnings.append(tr(
+                f"{a['id']}: timestamp sin zona horaria ({a['timestamp_original']}); no se asume UTC.",
+                f"{a['id']}: timestamp without a time zone ({a['timestamp_original']}); UTC is not assumed.",
+            ))
         elif a["timestamp_problem"] == "invalid":
-            warnings.append(f"{a['id']}: timestamp inválido ({a['timestamp_original']}).")
+            warnings.append(tr(
+                f"{a['id']}: timestamp inválido ({a['timestamp_original']}).",
+                f"{a['id']}: invalid timestamp ({a['timestamp_original']}).",
+            ))
         if not a["id_is_native"]:
-            warnings.append(f"{a['id']}: sin ID nativo; se asignó una referencia local.")
+            warnings.append(tr(
+                f"{a['id']}: sin ID nativo; se asignó una referencia local.",
+                f"{a['id']}: no native ID; a local reference was assigned.",
+            ))
     if source_format == "unknown" and alerts:
-        warnings.append("Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo).")
+        warnings.append(tr(
+            "Formato interno simplificado del scaffold (no es ECS ni Wazuh nativo).",
+            "Simplified internal scaffold format (neither ECS nor native Wazuh).",
+        ))
 
     injections = [
         f"{a['id']}.{path}" for a in alerts for path, value in a["string_values"] if INJECTION_PATTERN.search(value)

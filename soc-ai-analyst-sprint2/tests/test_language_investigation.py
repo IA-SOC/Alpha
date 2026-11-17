@@ -67,3 +67,21 @@ def test_executive_summary_defaults_to_spanish(monkeypatch):
     monkeypatch.delenv("REPORT_LANGUAGE", raising=False)
     summary = executive_summary({"case_id": "LANG-ES"}, {"summary": ""}, [], 0)
     assert summary.startswith("Caso LANG-ES: 0 alertas procesadas.")
+
+
+def test_input_warnings_follow_the_report_language(monkeypatch):
+    from agent.normalize import normalize_case
+
+    case = {"alerts": [
+        {"timestamp": "2026-05-10T10:00:00", "rule_name": "x", "host": "h"},
+        {"id": "dup", "timestamp": "not a date", "rule_name": "x"},
+        {"id": "dup", "timestamp": "2026-05-10T10:00:00Z", "rule_name": "x"},
+    ]}
+    monkeypatch.setenv("REPORT_LANGUAGE", "en")
+    warnings = normalize_case(case)[1]["warnings"]
+    assert len(warnings) >= 4
+    for text in warnings:
+        assert not any(marker in text.lower() for marker in SPANISH_MARKERS), text
+    monkeypatch.setenv("REPORT_LANGUAGE", "es")
+    spanish = normalize_case(case)[1]["warnings"]
+    assert any("sin zona horaria" in text for text in spanish)
