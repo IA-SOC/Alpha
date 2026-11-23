@@ -11,6 +11,7 @@ ataque) y lo llevan al contrato de salida de la skill
 - IoC tomados solo del enriquecimiento adjunto al caso.
 """
 from copy import deepcopy
+from datetime import datetime
 from typing import Any, Dict, List
 
 from core.logic import ACTIONS_BY_TACTIC, TACTIC_ORDER
@@ -20,7 +21,7 @@ LEVELS = ["insuficiente", "baja", "media", "alta"]
 
 ANALYST_LEGITIMATE_TAG = "analyst_legitimate"
 # Etiquetas que describen actividad legítima conocida. Si aparecen en el mismo
-# host que la evidencia de una hipótesis, cuentan como evidencia en contra.
+# host y ventana que la evidencia de una hipótesis, cuentan como evidencia en contra.
 # The analyst tag only affects hypotheses whose evidence included that alert; it is
 # deliberately not a same-host benign tag, so one mark cannot lower unrelated hypotheses.
 BENIGN_TAGS = {"backup", "scheduled_task", "maintenance", "change_approved"}
@@ -115,8 +116,27 @@ def ordinal_confidence(support: List[Dict[str, Any]], against: List[Dict[str, An
     return {"confidence": LEVELS[level], "confidence_basis": text[0].upper() + text[1:]}
 
 
-def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str, Any]],
-                          synthetic: bool) -> Dict[str, List[Dict[str, Any]]]:
+def _same_host_and_window(
+    alert: Dict[str, Any], support: List[Dict[str, Any]], window_seconds: int
+) -> bool:
+    """Connected groups can span longer than the pairwise correlation window."""
+    if not alert.get("host") or not alert.get("timestamp_utc"):
+        return False
+    event_time = datetime.fromisoformat(alert["timestamp_utc"])
+    return any(
+        other.get("host") == alert["host"]
+        and other.get("timestamp_utc")
+        and abs(
+            (event_time - datetime.fromisoformat(other["timestamp_utc"])).total_seconds()
+        ) <= window_seconds
+        for other in support
+    )
+
+
+def build_attack_analysis(
+    alerts: List[Dict[str, Any]], mappings: List[Dict[str, Any]],
+    synthetic: bool, window_seconds: int = 300,
+) -> Dict[str, List[Dict[str, Any]]]:
     """Mapeo MITRE del MCP server -> attack_mapping + hypotheses (fase 2)."""
     by_id = {a["id"]: a for a in alerts}
     attack_mapping, hypotheses = [], []
@@ -130,7 +150,8 @@ def build_attack_analysis(alerts: List[Dict[str, Any]], mappings: List[Dict[str,
         against = [
             a for a in alerts
             if a["id"] not in mapping["supporting_alert_ids"]
-            and a.get("host") in hosts and BENIGN_TAGS & set(a["tags"])
+            and BENIGN_TAGS & set(a["tags"])
+            and _same_host_and_window(a, support, window_seconds)
         ]
         against += analyst_legitimate
         tactic = mapping["tactic"]
@@ -332,7 +353,10 @@ def correlated_attack_analysis(alerts, mappings, synthetic, context):
                                        else "mixed" if kinds
                                        else mapping.get("mapping_source", "local_catalog")),
                 })
-        analysis = build_attack_analysis(selected, subset, synthetic)
+        analysis = build_attack_analysis(
+            selected, subset, synthetic,
+            context["correlation"].get("window_seconds", 300),
+        )
         for values in analysis.values():
             for item in values:
                 item["correlation_group_alert_ids"] = group
