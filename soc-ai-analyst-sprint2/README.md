@@ -218,6 +218,7 @@ accepted case.
 
 ## Documentation
 
+- [Test map and category commands](docs/TEST_MAP.md)
 - [Technical implementation and limitations](docs/SPRINT2_IMPLEMENTATION.md)
 - [Executed tests and demonstration](docs/VERIFICATION.md)
 - [Backlog row-by-row evidence](docs/BACKLOG_VERIFICATION.md)

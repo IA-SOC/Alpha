@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -6,6 +7,19 @@ from fastapi.testclient import TestClient
 
 from app.core.ids import generate_case_id
 from app.main import create_app
+
+TESTS_ROOT = Path(__file__).resolve().parent
+TEST_TYPES = {"unit", "integration", "security", "regression"}
+
+
+def pytest_collection_modifyitems(items):
+    """Derive each backend category from its folder before pytest applies -m."""
+    for item in items:
+        if not item.path.is_relative_to(TESTS_ROOT):
+            continue
+        group = item.path.relative_to(TESTS_ROOT).parts[0]
+        if group in TEST_TYPES:
+            item.add_marker(group)
 
 
 @pytest.fixture

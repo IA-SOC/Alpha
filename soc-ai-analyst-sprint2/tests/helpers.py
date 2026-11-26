@@ -3,7 +3,7 @@
 from typing import Any
 from uuid import uuid4
 
-from tests.test_correlation_engine import case_for, event
+from tests.unit.test_correlation_engine import case_for, event
 
 CASES_URL = "/api/v1/cases"
 
