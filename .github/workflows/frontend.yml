@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths: ["frontend/**", ".github/workflows/frontend.yml"]
   pull_request:
-    paths: ["frontend/**", ".github/workflows/frontend.yml"]
 
 permissions:
   contents: read
@@ -26,5 +25,23 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - name: Run tests with coverage
+        id: coverage
+        run: npm run test:coverage
+      - name: Summarize frontend coverage
+        if: ${{ !cancelled() && steps.coverage.outcome != 'skipped' && hashFiles('frontend/coverage/summary.txt') != '' }}
+        run: |
+          {
+            echo '## Frontend test coverage'
+            echo '~~~text'
+            cat coverage/summary.txt
+            echo '~~~'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload frontend coverage
+        if: ${{ !cancelled() && steps.coverage.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          if-no-files-found: error
       - run: npm run build
