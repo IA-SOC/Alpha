@@ -2,6 +2,12 @@
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-ra"
+markers = [
+    "unit: isolated backend logic and test doubles",
+    "integration: backend components exercised together across service boundaries",
+    "security: data exposure, untrusted input and model-output safeguards",
+    "regression: previously verified behavior and representative case fixtures",
+]
 
 [tool.ruff]
 target-version = "py312"

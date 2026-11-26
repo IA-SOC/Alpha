@@ -93,8 +93,8 @@ updated: 2026-10-11
 
 ## Tests
 
-> [!question]- `test_tecnicas_y_formato_esperados` fails after changing rules
-> Expected if the new rule detects something in a synthetic case. Check it is correct and update `EXPECTED_TECHNIQUES` in `tests/test_agent_graph.py`.
+> [!question]- `test_produces_expected_techniques_and_report_format` fails after changing rules
+> Expected if the new rule detects something in a synthetic case. Check it is correct and update `EXPECTED_TECHNIQUES` in `tests/regression/test_agent_graph.py`.
 
 > [!question]- Tests are slow
 > Agent and pipeline tests start real MCP servers. The full suite takes about 20 s on the verification machine.

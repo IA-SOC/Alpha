@@ -88,7 +88,7 @@ python -m pytest -q
 | `test_untyped_custom_native_fields_cannot_crash_agent` | Non-string custom fields do not crash phase 1 |
 
 > [!tip] If you change the rule catalog
-> `EXPECTED_TECHNIQUES` in `tests/test_agent_graph.py` sets the expected techniques per case. If a new rule detects something in a synthetic case, update that dictionary. A failing test there is expected: it tells you the behavior changed.
+> `EXPECTED_TECHNIQUES` in `tests/regression/test_agent_graph.py` sets the expected techniques per case. If a new rule detects something in a synthetic case, update that dictionary. A failing test there is expected: it tells you the behavior changed.
 
 ## The real HTTP demo
 
@@ -112,7 +112,7 @@ Recorded timings: 1.569 s in the verification run (`docs/VERIFICATION.md`) and 3
 ## Lint and CI
 
 ```powershell
-ruff check app tests demo/run_pipeline.py demo/verify_local.py --exclude tests/test_agent_graph.py
+ruff check app tests demo/run_pipeline.py demo/verify_local.py --exclude tests/regression/test_agent_graph.py
 ```
 
 Passes on the backend, new tests and demo scripts. The legacy agent code is not in the lint scope. `.github/workflows/tests.yml` runs the suite on Python 3.12 and 3.14, but that remote matrix was not executed for this delivery.

@@ -18,7 +18,7 @@ Desde `soc-ai-analyst-sprint2/`, con el entorno virtual activado:
 
 ```sh
 python -m pip install -r requirements-dev.txt
-python -m pytest tests/sprint3 -q
+python -m pytest -m regression -k "test_synthetic_timeline or test_synthetic_mitre or test_synthetic_hypotheses or test_synthetic_evidence_traceability or test_report_audience_evidence" -q
 python -m pytest tests -q
 ```
 
