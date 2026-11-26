@@ -83,6 +83,30 @@ def test_invalid_or_cross_case_input_refs_do_not_call_gemini(chat, reference):
     assert client.get(f"/api/v1/cases/{a}/messages").json()["messages"] == []
 
 
+def test_evidence_from_a_replaced_run_is_rejected_before_calling_gemini(chat):
+    client, app, (case_id, _), contexts = chat
+    base = f"/api/v1/cases/{case_id}"
+    old_ref = "mcp:run-alpha:timeline:0"
+    assert old_ref in client.get(base + "/chat-evidence").json()["evidence"]
+
+    app.state.investigation_service.store.save_investigation(
+        UUID(case_id),
+        {
+            "case_id": case_id,
+            "run_id": "replacement",
+            "report": {"timeline": [{"alert_id": "alpha"}]},
+        },
+    )
+    evidence = client.get(base + "/chat-evidence").json()["evidence"]
+    assert old_ref not in evidence
+    assert "mcp:replacement:timeline:0" in evidence
+    response = send(client, case_id, evidence_refs=[old_ref])
+    assert response.status_code == 422
+    assert "Evidence references do not belong" in response.text
+    assert contexts == []
+    assert client.get(base + "/messages").json()["messages"] == []
+
+
 @pytest.mark.parametrize(
     "output",
     [
