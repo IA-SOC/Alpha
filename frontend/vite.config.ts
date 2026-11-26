@@ -27,5 +27,12 @@ export default defineConfig({
     css: false,
     // e2e/ holds the Playwright tests, run with npm run e2e.
     include: ['src/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.d.ts', 'src/api/generated/**', 'src/test/**'],
+      reporter: ['text', 'html', ['text-summary', { file: 'summary.txt' }]],
+      reportOnFailure: true,
+    },
   },
 })
